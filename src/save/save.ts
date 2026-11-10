@@ -100,5 +100,13 @@ export function migrar(dados: unknown): Vida | null {
   if (!ok) return null;
   const vida = v as Vida;
   if (!vida.atributosAnteriores) vida.atributosAnteriores = { ...vida.personagem.atributos };
+  // Vidas do marco 1 não tinham potencial: usa os atributos atuais como genética.
+  if (!vida.personagem.potencial) {
+    const a = vida.personagem.atributos;
+    vida.personagem.potencial = {
+      saude: a.saude, forma: a.forma, aparencia: a.aparencia,
+      inteligencia: a.inteligencia, carisma: a.carisma,
+    };
+  }
   return vida;
 }

@@ -103,7 +103,7 @@ export function NovaVida({ salvas, podeCancelar, onCancelar, onCriar, onContinua
               <li key={v.id}>
                 <button class="item" onClick={() => onContinuar(v)}>
                   <strong>{nomeCompleto(v)}</strong>
-                  <span>{textoIdade(v.relogio.idadeMeses)} · {rotuloPeriodo(v.relogio, v.config.turno)} · {v.personagem.cidade} ({v.personagem.estado})</span>
+                  <span>{v.morte ? `† ${textoIdade(v.morte.idadeMeses)}` : textoIdade(v.relogio.idadeMeses)} ·{rotuloPeriodo(v.relogio, v.config.turno)} · {v.personagem.cidade} ({v.personagem.estado})</span>
                 </button>
               </li>
             ))}

@@ -65,7 +65,7 @@ export function TelaMais({ vida, salvas, onNovaVida, onTrocar, onImportar }: Pro
               <li key={v.id}>
                 <button class="item" onClick={() => onTrocar(v)}>
                   <strong>{nomeCompleto(v)}</strong>
-                  <span>{textoIdade(v.relogio.idadeMeses)} · {rotuloPeriodo(v.relogio, v.config.turno)}</span>
+                  <span>{v.morte ? `† ${textoIdade(v.morte.idadeMeses)}` : textoIdade(v.relogio.idadeMeses)} ·{rotuloPeriodo(v.relogio, v.config.turno)}</span>
                 </button>
               </li>
             ))}

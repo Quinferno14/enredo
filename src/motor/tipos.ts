@@ -34,6 +34,15 @@ export interface Relogio {
   idadeMeses: number;
 }
 
+/** Genética: até onde cada atributo físico pode chegar. A idade puxa para baixo. */
+export type Potencial = Record<'saude' | 'forma' | 'aparencia' | 'inteligencia' | 'carisma', number>;
+
+export interface Morte {
+  ano: number;
+  idadeMeses: number;
+  causa: string; // ex.: "de causas naturais"
+}
+
 export interface Personagem {
   nome: string;
   sobrenome: string;
@@ -44,6 +53,7 @@ export interface Personagem {
   atributos: Record<Atributo, number>;
   /** -100 a +100 */
   personalidade: Record<Eixo, number>;
+  potencial: Potencial;
 }
 
 export interface EntradaHistorico {
@@ -62,4 +72,6 @@ export interface Vida {
   /** Atributos no começo do período atual, para mostrar a tendência (↑↓). */
   atributosAnteriores: Record<Atributo, number>;
   historico: EntradaHistorico[];
+  /** Preenchido quando o personagem morre. */
+  morte?: Morte;
 }

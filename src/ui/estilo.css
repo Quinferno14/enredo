@@ -83,6 +83,10 @@ button, input, select { font: inherit; color: inherit; }
   font-weight: 700;
 }
 
+.retrato.falecido { background: var(--trilho); color: var(--sutil); }
+.fim { border-color: var(--sutil); }
+.entrada p + p { margin-top: 4px; }
+
 /* Atributos: barra + número + tendência */
 .atributos { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
 .atributo-linha { display: flex; justify-content: space-between; font-size: 0.875rem; }

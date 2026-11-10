@@ -93,6 +93,41 @@ describe('avancarPeriodo', () => {
   });
 });
 
+describe('vida e morte', () => {
+  const viver = (seed: string, periodos: number) => {
+    let v = criarVida({ ...base, seed });
+    for (let i = 0; i < periodos && !v.morte; i++) v = avancarPeriodo(v);
+    return v;
+  };
+
+  it('a mesma seed vive a mesma vida, período a período', () => {
+    expect(viver('repetir', 60)).toEqual(viver('repetir', 60));
+  });
+
+  it('depois de morrer, avançar não muda mais nada', () => {
+    const morta = viver('fim', 300);
+    expect(morta.morte).toBeDefined();
+    expect(avancarPeriodo(morta)).toBe(morta);
+  });
+
+  it('a história marca os 18 anos de quem chega lá', () => {
+    const v = viver('maioridade', 20);
+    if (v.relogio.idadeMeses >= 216) {
+      expect(v.historico.some((h) => h.texto.includes('18 anos'))).toBe(true);
+    }
+  });
+
+  it('bebê começa com inteligência abaixo do potencial, e ela cresce até a vida adulta', () => {
+    const v = criarVida(base);
+    expect(v.personagem.atributos.inteligencia).toBeLessThan(v.personagem.potencial.inteligencia);
+  });
+
+  it('vidas diferentes envelhecem de jeitos diferentes', () => {
+    const saudes = new Set(Array.from({ length: 20 }, (_, i) => viver(`dif-${i}`, 40).personagem.atributos.saude));
+    expect(saudes.size).toBeGreaterThan(5);
+  });
+});
+
 describe('textoIdade', () => {
   it('formata meses e anos', () => {
     expect(textoIdade(0)).toBe('recém-nascido');

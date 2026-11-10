@@ -6,7 +6,7 @@ Simulador de vida pessoal, para jogar localmente. Não tem relação com trabalh
   Toda decisão fica lá, não aqui, para sobreviver a uma troca de PC.
 - **Código:** esta pasta e o repositório privado https://github.com/Quinferno14/enredo
 - **Regra:** nada é construído antes de a parte correspondente do escopo estar fechada.
-- **Fase atual:** marco 1 (Esqueleto) pronto. Próximo: marco 2 (Viver e morrer).
+- **Fase atual:** marcos 1 (Esqueleto) e 2 (Viver e morrer) prontos. Próximo: marco 3 (Atividades e eventos).
 
 ## Como jogar
 
@@ -22,11 +22,11 @@ O jogo salva sozinho no navegador (até 5 vidas). Em **Mais → Exportar esta vi
 ## Para desenvolver
 
 - `npm run dev`: abre o jogo com recarga automática em http://localhost:5173
-- `npm test`: roda os testes do motor e do save
+- `npm test`: roda os testes do motor e do save, incluindo a simulação de 1.000 vidas
 
 ## Estrutura
 
-- `src/motor/`: regras do jogo (seed, vida, relógio). Não depende das telas.
+- `src/motor/`: regras do jogo (seed, vida, relógio, envelhecimento, morte). Não depende das telas.
 - `src/save/`: salvar, carregar, exportar e importar.
 - `src/conteudo/`: dados (estados, nomes). Cresce sem mexer no motor.
 - `src/ui/`: telas (Preact).

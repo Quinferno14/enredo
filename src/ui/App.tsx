@@ -58,7 +58,13 @@ export function App() {
         </div>
       )}
       <main class="tela">
-        {aba === 'vida' && <TelaVida vida={vida} onAvancar={() => usarVida(avancarPeriodo(vida))} />}
+        {aba === 'vida' && (
+          <TelaVida
+            vida={vida}
+            onAvancar={() => usarVida(avancarPeriodo(vida))}
+            onNovaVida={() => setCriando(true)}
+          />
+        )}
         {aba === 'pessoas' && <TelaPessoas />}
         {aba === 'eu' && <TelaEu vida={vida} />}
         {aba === 'mais' && (
