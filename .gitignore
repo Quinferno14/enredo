@@ -1,0 +1,10 @@
+# sistema
+Thumbs.db
+desktop.ini
+.DS_Store
+# saves exportados e backups locais (ficam fora do repositório)
+saves/
+*.save.json
+# dependências / builds futuros
+node_modules/
+dist/
