@@ -1,0 +1,8 @@
+[
+  { "sigla": "SP", "nome": "São Paulo", "cidades": ["São Paulo", "Campinas", "Santos", "Ribeirão Preto"] },
+  { "sigla": "RJ", "nome": "Rio de Janeiro", "cidades": ["Rio de Janeiro", "Niterói", "Petrópolis", "Nova Iguaçu"] },
+  { "sigla": "MG", "nome": "Minas Gerais", "cidades": ["Belo Horizonte", "Uberlândia", "Juiz de Fora", "Ouro Preto"] },
+  { "sigla": "BA", "nome": "Bahia", "cidades": ["Salvador", "Feira de Santana", "Ilhéus", "Vitória da Conquista"] },
+  { "sigla": "RS", "nome": "Rio Grande do Sul", "cidades": ["Porto Alegre", "Caxias do Sul", "Pelotas", "Santa Maria"] },
+  { "sigla": "PE", "nome": "Pernambuco", "cidades": ["Recife", "Olinda", "Caruaru", "Petrolina"] }
+]

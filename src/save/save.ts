@@ -1,0 +1,104 @@
+// Saves: até MAX_VIDAS vidas guardadas no navegador, mais exportar/importar
+// arquivo .json como backup. O navegador pode recusar o armazenamento
+// (janela anônima, dados bloqueados), então toda leitura e escrita é protegida.
+
+import { ATRIBUTOS, EIXOS, VERSAO_SAVE, type Vida } from '../motor/tipos';
+
+export const CHAVE = 'enredo.saves';
+export const MAX_VIDAS = 5;
+
+export interface Armazem {
+  vidas: Vida[]; // mais recente primeiro
+  atual: string | null;
+}
+
+type StorageSimples = Pick<Storage, 'getItem' | 'setItem'>;
+
+function storagePadrao(): StorageSimples | null {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export function carregar(storage: StorageSimples | null = storagePadrao()): Armazem {
+  const vazio: Armazem = { vidas: [], atual: null };
+  if (!storage) return vazio;
+  try {
+    const bruto = storage.getItem(CHAVE);
+    if (!bruto) return vazio;
+    const dados = JSON.parse(bruto) as { vidas?: unknown[]; atual?: unknown };
+    const vidas = (dados.vidas ?? []).flatMap((v) => {
+      const ok = migrar(v);
+      return ok ? [ok] : [];
+    });
+    const atual = typeof dados.atual === 'string' && vidas.some((v) => v.id === dados.atual)
+      ? dados.atual
+      : null;
+    return { vidas, atual };
+  } catch {
+    return vazio;
+  }
+}
+
+/** Grava a vida (substituindo a de mesmo id) e a marca como atual. */
+export function salvarVida(
+  armazem: Armazem,
+  vida: Vida,
+  storage: StorageSimples | null = storagePadrao(),
+): { armazem: Armazem; gravou: boolean } {
+  const vidas = [vida, ...armazem.vidas.filter((v) => v.id !== vida.id)].slice(0, MAX_VIDAS);
+  const novo: Armazem = { vidas, atual: vida.id };
+  return { armazem: novo, gravou: gravar(novo, storage) };
+}
+
+export function gravar(armazem: Armazem, storage: StorageSimples | null = storagePadrao()): boolean {
+  if (!storage) return false;
+  try {
+    storage.setItem(CHAVE, JSON.stringify(armazem));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function exportarTexto(vida: Vida): string {
+  return JSON.stringify(vida, null, 2);
+}
+
+export function importarTexto(texto: string): Vida {
+  let dados: unknown;
+  try {
+    dados = JSON.parse(texto);
+  } catch {
+    throw new Error('O arquivo não é um JSON válido.');
+  }
+  const vida = migrar(dados);
+  if (!vida) throw new Error('O arquivo não parece ser uma vida do Enredo.');
+  return vida;
+}
+
+/**
+ * Confere a forma de um save e converte versões antigas para a atual.
+ * Hoje só existe a versão 1; versões futuras ganham um passo aqui.
+ */
+export function migrar(dados: unknown): Vida | null {
+  if (!dados || typeof dados !== 'object') return null;
+  const v = dados as Partial<Vida>;
+  if (v.versao !== VERSAO_SAVE) return null;
+  const p = v.personagem;
+  const ok =
+    typeof v.id === 'string' &&
+    !!v.config && typeof v.config.seed === 'string' &&
+    Array.isArray(v.rng) && v.rng.length === 4 &&
+    !!v.relogio && typeof v.relogio.idadeMeses === 'number' &&
+    !!p && typeof p.nome === 'string' &&
+    ATRIBUTOS.every((a) => typeof p.atributos?.[a] === 'number') &&
+    EIXOS.every((e) => typeof p.personalidade?.[e] === 'number') &&
+    Array.isArray(v.historico);
+  if (!ok) return null;
+  const vida = v as Vida;
+  if (!vida.atributosAnteriores) vida.atributosAnteriores = { ...vida.personagem.atributos };
+  return vida;
+}

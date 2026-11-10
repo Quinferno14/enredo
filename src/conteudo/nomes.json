@@ -1,0 +1,5 @@
+{
+  "feminino": ["Ana", "Beatriz", "Camila", "Débora", "Eduarda", "Fernanda", "Gabriela", "Helena", "Isabela", "Júlia", "Larissa", "Luana", "Mariana", "Natália", "Patrícia", "Rafaela", "Sofia", "Tainá", "Valentina", "Yasmin"],
+  "masculino": ["André", "Bruno", "Caio", "Daniel", "Eduardo", "Felipe", "Gabriel", "Henrique", "Igor", "João", "Lucas", "Mateus", "Nicolas", "Otávio", "Pedro", "Rafael", "Samuel", "Thiago", "Vinícius", "Wesley"],
+  "sobrenomes": ["Silva", "Santos", "Oliveira", "Souza", "Rodrigues", "Ferreira", "Alves", "Pereira", "Lima", "Gomes", "Costa", "Ribeiro", "Martins", "Carvalho", "Almeida", "Lopes", "Soares", "Fernandes", "Vieira", "Barbosa", "Rocha", "Dias", "Nascimento", "Andrade", "Moreira", "Nunes", "Marques", "Machado", "Mendes", "Freitas"]
+}
