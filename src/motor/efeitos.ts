@@ -46,6 +46,8 @@ export interface Quando {
   ano?: [number, number];
   /** Meses do ano em que pode acontecer (só vale no tempo dinâmico). */
   mes?: number[];
+  /** Só no mês do seu aniversário (tempo dinâmico). */
+  aniversario?: boolean;
 }
 
 export interface QuandoPessoa {
@@ -112,6 +114,12 @@ export function valor(vida: Vida, caminho: string): number {
   }
 }
 
+/** Mês (1 a 12) em que a pessoa nasceu, a partir do relógio. */
+export function mesDeNascimento(vida: Vida): number {
+  const r = vida.relogio;
+  return ((((r.mes ?? 1) - 1 - r.idadeMeses) % 12) + 12) % 12 + 1;
+}
+
 export function atende(vida: Vida, q: Quando | undefined): boolean {
   if (!q) return true;
   const p = vida.personagem;
@@ -142,6 +150,7 @@ export function atende(vida: Vida, q: Quando | undefined): boolean {
   }
   if (q.ano && vida.relogio.ano % q.ano[0] !== q.ano[1]) return false;
   if (q.mes && vida.config.turno === 'dinamico' && !q.mes.includes(vida.relogio.mes ?? 1)) return false;
+  if (q.aniversario && vida.config.turno === 'dinamico' && (vida.relogio.mes ?? 1) !== mesDeNascimento(vida)) return false;
   if (q.ou && !q.ou.some((x) => atende(vida, x))) return false;
   if (q.acao) {
     const habito = vida.habitos.some((h) => h.acao === q.acao && !h.pausado);

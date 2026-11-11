@@ -57,7 +57,7 @@ export function biografia(vida: Vida): string[] {
     const dinheiro = p.dinheiro >= 0 ? `deixando R$ ${Math.round(p.dinheiro).toLocaleString('pt-BR')}` : 'deixando dívidas';
     paras.push(`Morreu em ${vida.morte.ano}, aos ${anos} anos, ${vida.morte.causa}, ${dinheiro}.`);
   } else {
-    paras.push(`Hoje tem ${Math.floor(vida.relogio.idadeMeses / 12)} anos e mora em ${p.cidade}, ${estadoDe(vida).nome}.`);
+    paras.push(`Hoje tem ${Math.floor(vida.relogio.idadeMeses / 12) === 1 ? '1 ano' : `${Math.floor(vida.relogio.idadeMeses / 12)} anos`} e mora em ${p.cidade}, ${estadoDe(vida).nome}.`);
   }
   return paras;
 }

@@ -1,4 +1,5 @@
 import type { Bloco, Item } from '../../motor/vozes';
+import { tagRuim } from '../textos';
 
 /** Etiquetas pequenas dos efeitos (e as notas entre parênteses). */
 function Tags({ tags }: { tags: string[] }) {
@@ -6,7 +7,7 @@ function Tags({ tags }: { tags: string[] }) {
   return (
     <span class="tags">
       {tags.map((t) => (
-        <span key={t} class={t.startsWith('(') ? 'tag nota' : /[−-]\d|−R\$/.test(t) ? 'tag menos' : 'tag'}>{t.replace(/^\(|\)$/g, '')}</span>
+        <span key={t} class={t.startsWith('(') ? 'tag nota' : tagRuim(t) ? 'tag menos' : 'tag'}>{t.replace(/^\(|\)$/g, '')}</span>
       ))}
     </span>
   );
@@ -54,7 +55,7 @@ function ItemFeed({ it }: { it: Item }) {
         </div>
       );
     case 'banco':
-      return <div class="banco"><strong>🏦 Banco</strong> {it.texto} <Tags tags={it.tags} /></div>;
+      return <div class="banco"><strong>🏦 Banco:</strong> {it.texto} <Tags tags={it.tags} /></div>;
     case 'app':
       return <div class="app-linha">📱 {it.texto} <Tags tags={it.tags} /></div>;
     case 'carta':

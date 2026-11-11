@@ -40,7 +40,7 @@ describe('personalidade com peso (R4)', () => {
     const contra = v.pendente!.escolhas.findIndex((e) => e.jeito === 'contra');
     const desgaste = v.personagem.desgaste;
     v = escolher(v, contra);
-    expect(v.historico.at(-1)!.texto).toMatch(/contra o seu jeito reservad/);
+    expect(v.historico.at(-1)!.texto).toMatch(/contra quem você é: reservad/);
     expect(v.personagem.desgaste).toBeGreaterThan(desgaste);
   });
 

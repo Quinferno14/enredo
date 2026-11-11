@@ -4,7 +4,7 @@ import {
   criarPessoaDeus, definirEmprego, editarAtributo, editarDinheiro, editarEixo, editarHabilidade, editarIdade, editarPessoa,
   forcarEvento, ganchosLegiveis, mudarLugar, pausarIdade, voltarPeriodo,
 } from '../../motor/deus';
-import { NOME_HABILIDADE, preencher } from '../../motor/efeitos';
+import { NOME_HABILIDADE, atende, preencher } from '../../motor/efeitos';
 import { EVENTOS } from '../../motor/eventos';
 import { capitalizar, papelTexto } from '../../motor/familia';
 import { ATRIBUTOS, EIXOS, type Vida } from '../../motor/tipos';
@@ -61,6 +61,13 @@ export function PainelDeus({ vida, onMudar, noLugar, onNoLugar, onFechar }: Prop
 
 type SecaoProps = { vida: Vida; onMudar: (v: Vida) => void };
 
+/** Primeira frase do evento, sem marcadores, para o Modo Deus mostrar algo legível. */
+function resumoEvento(t: string): string {
+  const limpo = t.replace(/\{[^{}]*\}/g, 'alguém').replace(/\s+/g, ' ').trim();
+  const frase = limpo.split(/(?<=[.!?])\s/)[0] ?? limpo;
+  return frase.length > 90 ? `${frase.slice(0, 88)}…` : frase;
+}
+
 function SecaoEu({ vida, onMudar }: SecaoProps) {
   const p = vida.personagem;
   const vivo = !vida.morte;
@@ -77,7 +84,7 @@ function SecaoEu({ vida, onMudar }: SecaoProps) {
           <input class="numero-edit" type="number" min={0} max={100} value={Math.round(p.desgaste)} disabled={!vivo}
             onChange={(e) => onMudar(editarAtributo(vida, 'desgaste', Number(e.currentTarget.value)))} />
         </label>
-        <label>Dinheiro
+        <label class="inteira">Dinheiro
           <input class="numero-edit largo" type="number" value={p.dinheiro} disabled={!vivo}
             onChange={(e) => onMudar(editarDinheiro(vida, Number(e.currentTarget.value)))} />
         </label>
@@ -185,9 +192,11 @@ function SecaoMundo({ vida, onMudar }: SecaoProps) {
 function SecaoEventos({ vida, onMudar }: SecaoProps) {
   const [busca, setBusca] = useState('');
   const [aviso, setAviso] = useState('');
+  const [soIdade, setSoIdade] = useState(true);
   const ganchos = ganchosLegiveis(vida);
   const termo = busca.trim().toLowerCase();
   const lista = EVENTOS
+    .filter((e) => !soIdade || (!e.soGancho && atende(vida, e.quando)))
     .filter((e) => !termo || e.id.includes(termo) || e.texto.some((t) => t.toLowerCase().includes(termo)))
     .slice(0, 40);
   return (
@@ -196,14 +205,14 @@ function SecaoEventos({ vida, onMudar }: SecaoProps) {
         <>
           <input class="busca" type="search" placeholder="Buscar evento (ex.: natal, banda, pipa)" value={busca}
             onInput={(e) => setBusca(e.currentTarget.value)} aria-label="Buscar evento" />
+          <label class="linha-check"><input type="checkbox" checked={soIdade} onChange={(e) => setSoIdade(e.currentTarget.checked)} /> Só o que pode acontecer agora</label>
           {aviso && <p class="aviso-pessoas" role="status">{aviso}</p>}
           <ul class="lista eventos-deus">
             {lista.map((e) => (
               <li key={e.id}>
                 <span>
-                  <strong>{e.id.replaceAll('_', ' ')}</strong>
+                  <strong>{resumoEvento(preencher(e.texto[0]!, vida, { pessoa: 'alguém', Papel: 'Alguém', papel: 'alguém', pdo: 'de', pa: 'o', pele: 'ele', pparceiro: 'alguém' }))}</strong>
                   {e.arco && <span class="tag"> arco</span>}
-                  <span class="sutil"> {preencher(e.texto[0]!, vida, { pessoa: 'alguém', Papel: 'Alguém', papel: 'alguém', pdo: 'de', pa: 'o', pele: 'ele' }).slice(0, 90)}…</span>
                 </span>
                 <button class="chip" onClick={() => {
                   const r = forcarEvento(vida, e.id);

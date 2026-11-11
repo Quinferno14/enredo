@@ -505,3 +505,8 @@ details.cartao summary { cursor: pointer; font-weight: 600; }
 .banco { font-size: 0.875rem; padding: 6px 10px; border-radius: 8px; background: var(--trilho); }
 .app-linha { font-size: 0.875rem; color: var(--sutil); }
 .nota-linha { font-size: 0.875rem; color: var(--sutil); font-style: italic; }
+
+/* Etapa 1 · base coerente */
+.dock-botoes button:disabled, .dock button:disabled { opacity: 0.4; cursor: not-allowed; }
+.deus-grade label.inteira { grid-column: 1 / -1; }
+.deus-grade label.inteira .numero-edit { width: 140px; }

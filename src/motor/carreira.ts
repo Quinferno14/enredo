@@ -237,7 +237,7 @@ export function rodarEscola(vida: Vida, anos: number, rng: Rng): string[] {
   } else if (e.etapa === 'medio' && e.serie > 3) {
     Object.assign(e, { etapa: 'nenhuma', serie: 0, escolaridade: 'medio' });
     e.enem = calcularEnem(vida, rng);
-    linhas.push(`Você terminou o ensino médio! No ENEM, tirou ${e.enem} pontos.`);
+    linhas.push(`Você terminou o ensino médio! No ENEM, você tirou ${e.enem} pontos.`);
     lembrar(vida, 'formou_medio', 'terminou o ensino médio', 10);
     vida.ganchos.push({ evento: 'festa_formatura', idadeMeses: vida.relogio.idadeMeses + 1 });
     if (!vida.pendente) vida.pendente = pendenteCurso(vida);

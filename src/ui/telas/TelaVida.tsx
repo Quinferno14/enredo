@@ -7,7 +7,7 @@ import { reais } from '../../motor/efeitos';
 import { filhosQuePodemContinuar } from '../../motor/familia';
 import type { Atributo, EntradaHistorico, Vida } from '../../motor/tipos';
 import { nomeCompleto, quandoAgora, textoIdade } from '../../motor/vida';
-import { NOME_ATRIBUTO } from '../textos';
+import { NOME_ATRIBUTO, tagRuim } from '../textos';
 import { PainelAtividades } from './PainelAtividades';
 import { FeedFases } from './FeedFases';
 import { recontar } from '../../motor/vozes';
@@ -79,7 +79,7 @@ export function TelaVida(props: Props) {
     emp ? `${tituloEmprego(vida, emp)} · ${reais(emp.salario)}/mês` : null,
     p.trabalho.aposentadoria > 0 ? `Aposentad${p.sexo === 'feminino' ? 'a' : 'o'} · ${reais(p.trabalho.aposentadoria)}/mês` : null,
     p.trabalho.extras.length ? `+${p.trabalho.extras.length} trabalho${p.trabalho.extras.length > 1 ? 's' : ''} extra` : null,
-    p.negocio ? `Dono${p.sexo === 'feminino' ? 'a' : ''} d${p.negocio.nome.slice(0, 1) === 'a' ? 'a' : 'o'} ${p.negocio.nome.slice(2)}` : null,
+    p.negocio ? `${p.sexo === 'feminino' ? 'Dona' : 'Dono'} d${p.negocio.nome.slice(0, 1) === 'a' ? 'a' : 'o'} ${p.negocio.nome.slice(2)}` : null,
     p.seguidores >= 1000 ? `${p.seguidores.toLocaleString('pt-BR')} seguidores` : null,
     p.fama >= 10 ? `fama ${Math.round(p.fama)}` : null,
   ].filter(Boolean).join(' · ');
@@ -113,7 +113,7 @@ export function TelaVida(props: Props) {
           title="Modo Deus"
           aria-label="Abrir o Modo Deus"
           onClick={onDeus}
-        >✎</button>
+        >✦</button>
       </header>
 
       <section class="hud" aria-label="Atributos">
@@ -202,7 +202,7 @@ export function TelaVida(props: Props) {
           <section class="cartao decisao" aria-label="Decisão">
             <p>{vida.pendente.texto}</p>
             <div class="escolhas">
-              {vida.pendente.escolhas.map((c, i) => (
+              {vida.pendente.escolhas.map((c, i) => (/^Só (a partir|até)/.test(c.motivo ?? '') ? null :
                 <button key={i} class="secundario" disabled={!!c.motivo} onClick={() => onEscolha(i)}>
                   {c.texto}{c.motivo && <span class="dica"> · {c.motivo}</span>}{c.jeitoTexto && <span class={c.jeito === 'contra' ? 'tag menos jeito' : 'tag jeito'}>{c.jeitoTexto}</span>}
                 </button>
@@ -245,7 +245,7 @@ export function TelaVida(props: Props) {
               return (
                 <button key={a.id} class="sugestao" onClick={() => onAcao(a.id, { variante: v?.id, com: ult?.com ?? 'turma' })}>
                   <span class="acao-nome">{nome}</span>
-                  <span class="tags">{previaEfeitos(vida, a, v).slice(0, 2).map((t) => <span key={t} class={t.startsWith('↓') || t.startsWith('−') ? 'tag menos' : 'tag'}>{t}</span>)}</span>
+                  <span class="tags">{previaEfeitos(vida, a, v).slice(0, 2).map((t) => <span key={t} class={tagRuim(t) ? 'tag menos' : 'tag'}>{t}</span>)}</span>
                 </button>
               );
             })}

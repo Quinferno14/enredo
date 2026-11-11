@@ -113,6 +113,14 @@ export function gerarPessoa(rng: Rng, o: OpcoesPessoa): Pessoa {
   };
 }
 
+/** Renda de quem é pai ou mãe, coerente com a classe da família. */
+function rendaPorClasse(rng: Rng, classe: Classe): number {
+  const x = rng.proximo();
+  const [min, max, semRenda] = classe === 'baixa' ? [1400, 2600, 0.25] : classe === 'media' ? [3000, 7500, 0.1] : [9000, 35000, 0.05];
+  if (x < semRenda) return 0;
+  return Math.round((min + rng.proximo() * (max - min)) / 10) * 10;
+}
+
 function rendaSorteada(rng: Rng): number {
   const x = rng.proximo();
   return Math.round((x < 0.15 ? 0 : 1630 + x * x * 9000) / 10) * 10;
@@ -139,6 +147,7 @@ export function criarFamilia(rng: Rng, sobrenome: string, idadeJogadorMeses: num
     }));
   }
   const pai = pessoas.find((x) => x.papel === 'pai');
+  for (const x of [mae, pai]) if (x) x.renda = rendaPorClasse(rng, classe);
   pessoas.push(...familiaEstendida(rng, sobrenome, idadeJogadorMeses, mae, pai, ano, usados));
   return pessoas;
 }
@@ -194,7 +203,8 @@ export function rodarPessoas(vida: Vida, anos: number, rng: Rng, resumir = true)
   // Irmãos novos enquanto você é criança.
   const mae = vida.pessoas.find((x) => x.papel === 'mae' && x.vivo);
   const pai = vida.pessoas.find((x) => x.papel === 'pai' && x.vivo);
-  if (mae && pai && idadeAnos(mae) < 42 && idadeJogador < 14 && rng.proximo() < 0.15 * anos) {
+  const caçula = Math.min(vida.relogio.idadeMeses, ...vida.pessoas.filter((x) => x.papel === 'irmao' && x.vivo).map((x) => x.idadeMeses));
+  if (mae && pai && idadeAnos(mae) < 42 && idadeJogador < 14 && caçula >= 15 && rng.proximo() < 0.15 * anos) {
     const bebe = gerarPessoa(rng, { papel: 'irmao', idadeMeses: 0, sobrenome: p.sobrenome, pais: [mae.potencial, pai.potencial], afeto: [60, 85], ano: vida.relogio.ano, usados: nomesEmUso(vida) });
     vida.pessoas.push(bebe);
     linhas.push(`Nasceu ${fem(bebe) ? 'sua irmã' : 'seu irmão'}, ${bebe.nome}!`);
@@ -533,6 +543,14 @@ export function fazerAcaoPessoa(vida: Vida, pessoaId: string, acaoId: string, op
       mudar(-12); aplicar(prox, { 'atributos.felicidade': -2, desgaste: 3 });
       lembrarPessoa(prox, pe, 'vocês brigaram feio', -8);
       texto = rng.escolher([`Você brigou feio com ${quem}.`, `Você e ${quem}, discutiram aos gritos.`]) + virarRival();
+      if ((pe.papel === 'mae' || pe.papel === 'pai') && p.moradia === 'pais' && anosJ(prox) >= 16 && pe.afeto < 20 && rng.proximo() < 0.5) {
+        p.moradia = 'aluguel';
+        lembrar(prox, 'expulso_de_casa', `foi mandad${p.sexo === 'feminino' ? 'a' : 'o'} embora de casa por ${Ele}`, -20, { pessoa: Ele });
+        aplicar(prox, { 'atributos.felicidade': -8 });
+        texto += ` ${Ele} perdeu a paciência e mandou você sair de casa. Você foi para um quartinho alugado.`;
+      } else if (pe.papel === 'parceiro' && pe.afeto < 15 && rng.proximo() < 0.6) {
+        texto += ` Foi a gota d'água. ${terminar(prox, pe)}`;
+      }
       break;
     case 'pedir_dinheiro': {
       const valorBase = ['parceiro', 'irmao', 'amigo', 'tio'].includes(pe.papel)

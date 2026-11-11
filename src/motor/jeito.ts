@@ -65,12 +65,12 @@ export function afinidade(vida: Vida, perfil: Perfil): Afinidade {
 /** A partir daqui a escolha é "seu jeito" ou "contra o seu jeito". */
 export const LIMIAR_JEITO = 30;
 
-export function rotuloJeito(vida: Vida, a: Afinidade): { jeito: 'a favor' | 'contra'; texto: string } | null {
+export function rotuloJeito(vida: Vida, a: Afinidade): { jeito: 'a favor' | 'contra'; texto: string; adj: string } | null {
   if (!a.eixo || Math.abs(a.valor) < LIMIAR_JEITO) return null;
   const adj = adjetivo(vida, a.eixo, a.positivo!);
   return a.valor > 0
-    ? { jeito: 'a favor', texto: `seu jeito ${adj}` }
-    : { jeito: 'contra', texto: `contra o seu jeito ${adj}` };
+    ? { jeito: 'a favor', texto: `combina com você: ${adj}`, adj }
+    : { jeito: 'contra', texto: `vai contra você: ${adj}`, adj };
 }
 
 /** Pontos a mais (ou a menos) na chance de dar certo: até 25. */

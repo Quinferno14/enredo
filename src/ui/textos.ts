@@ -22,6 +22,12 @@ export const POLOS_EIXO: Record<Eixo, [string, string]> = {
   curiosidade: ['Conservador', 'Curioso'],
 };
 
+/** A etiqueta de efeito é ruim para você? (Cansaço subindo é ruim; caindo, é bom.) */
+export function tagRuim(t: string): boolean {
+  if (/Cansaço/.test(t)) return /^↑|\+/.test(t);
+  return /^[↓−]|[−-]\d|−R\$/.test(t) && !/^\+/.test(t);
+}
+
 export function novoId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }

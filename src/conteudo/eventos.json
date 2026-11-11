@@ -1160,7 +1160,7 @@
       }
     },
     "texto": [
-      "Inverno de geada em {cidade}: termômetro abaixo de zero e chimarrão o dia inteiro.",
+      "Inverno de geada em {cidade}: termômetro abaixo de zero e chá quente o dia inteiro.",
       "Minuano soprando forte. Você não saiu de baixo do cobertor."
     ],
     "efeitos": {
@@ -3747,10 +3747,8 @@
           60,
           100
         ]
-      }
-    },
-    "peso": {
-      "base": 1.5
+      },
+      "aniversario": true
     },
     "texto": [
       "{pessoa} organizou uma festa surpresa no seu aniversário.",
@@ -3765,7 +3763,9 @@
       "festa_surpresa",
       15,
       "ganhou uma festa surpresa de {pessoa}"
-    ]
+    ],
+    "recorrente": true,
+    "calendario": 0.2
   },
   {
     "id": "crise_relacao",
@@ -4351,13 +4351,8 @@
       "idade": [
         3,
         12
-      ]
-    },
-    "peso": {
-      "base": 2,
-      "x": {
-        "atributos.carisma": 0.01
-      }
+      ],
+      "aniversario": true
     },
     "texto": [
       "Sua festa de aniversário teve bolo de chocolate e a sala inteira cantando parabéns.",
@@ -4365,7 +4360,9 @@
     ],
     "efeitos": {
       "atributos.felicidade": 5
-    }
+    },
+    "recorrente": true,
+    "calendario": 0.35
   },
   {
     "id": "perdido_shopping",
@@ -5392,10 +5389,10 @@
       "ano": [
         4,
         2
+      ],
+      "mes": [
+        6
       ]
-    },
-    "peso": {
-      "base": 12
     },
     "texto": [
       "Copa do Mundo! A rua inteira pintada de verde e amarelo.",
@@ -5461,7 +5458,8 @@
           "Mais uma Copa. Você já viu tantas que sabe a escalação de 1970 de cor."
         ]
       }
-    ]
+    ],
+    "calendario": 0.9
   },
   {
     "id": "eleicoes",
@@ -6846,12 +6844,13 @@
   {
     "id": "aniversario_crianca",
     "recorrente": true,
-    "calendario": 0.08,
+    "calendario": 0.75,
     "quando": {
       "idade": [
         1,
         12
-      ]
+      ],
+      "aniversario": true
     },
     "texto": [
       "Seu aniversário: bolo de padaria, brigadeiro em forminha e a família inteira cantando \"com quem será\".",
@@ -6864,12 +6863,13 @@
   {
     "id": "aniversario_adulto",
     "recorrente": true,
-    "calendario": 0.06,
+    "calendario": 0.6,
     "quando": {
       "idade": [
         18,
         120
-      ]
+      ],
+      "aniversario": true
     },
     "texto": [
       "Seu aniversário caiu numa quarta-feira. O grupo da família mandou parabéns às 6 da manhã.",
@@ -6923,7 +6923,37 @@
     "efeitos": {
       "atributos.felicidade": 3,
       "pessoa.afeto": 6
-    }
+    },
+    "textos": [
+      {
+        "idade": [
+          4,
+          6
+        ],
+        "texto": [
+          "Dia das Mães: você fez um desenho de rabisco na escola e entregou para {pessoa}, que colou na geladeira."
+        ]
+      },
+      {
+        "idade": [
+          7,
+          9
+        ],
+        "texto": [
+          "Dia das Mães: você fez um cartão na escola com purpurina e entregou para {pessoa}. Ela guardou na gaveta para sempre."
+        ]
+      },
+      {
+        "idade": [
+          10,
+          12
+        ],
+        "texto": [
+          "Dia das Mães: você acordou cedo e levou café na cama para {pessoa}. O café estava frio, mas ela tomou tudo.",
+          "Dia das Mães: você escreveu um poema para {pessoa}. Rimou \"mãe\" com \"pão\", e ela chorou mesmo assim."
+        ]
+      }
+    ]
   },
   {
     "id": "dia_das_maes_adulto",
@@ -7113,7 +7143,8 @@
       "mes": [
         5,
         6
-      ]
+      ],
+      "semMemoria": "album_copa"
     },
     "texto": [
       "Álbum de figurinhas da Copa: faltam doze, e a mais difícil ninguém da escola tem."

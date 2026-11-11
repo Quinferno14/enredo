@@ -893,7 +893,8 @@
     "horas": 0,
     "desgaste": -2,
     "efeitos": {
-      "atributos.felicidade": 2
+      "atributos.felicidade": 2,
+      "estudo": -1.5
     },
     "textos": [
       "Você matou aula.",

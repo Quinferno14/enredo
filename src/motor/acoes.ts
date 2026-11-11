@@ -117,7 +117,7 @@ export function custoPara(vida: Vida, a: AcaoDef, v?: VarianteDef): number {
   const custo = v?.custo ?? a.custo;
   const paisPagam = v ? v.paisPagam : a.paisPagam;
   if (!custo) return 0;
-  if (paisPagam && idadeDe(vida) < 18) return 0;
+  if (paisPagam && idadeDe(vida) < 18 && !(vida.personagem.classe === 'baixa' && custo >= 100)) return 0;
   return custo;
 }
 
@@ -180,7 +180,14 @@ export function fazerAcao(vida: Vida, id: string, opcoes: OpcoesAcao = {}): Resu
   } : a0;
   const custo = custoPara(vida, a0, v);
   if (custo > 0 && custo > vida.personagem.dinheiro) {
-    return { vida, ok: false, aviso: `Sem dinheiro: precisa de ${reais(custo)}.` };
+    return {
+      vida, ok: false,
+      aviso: idadeDe(vida) < 18 ? `Seus pais não têm como pagar isso agora (${reais(custo)}).` : `Sem dinheiro: precisa de ${reais(custo)}.`,
+    };
+  }
+  // No limite do cansaço, só dá para descansar.
+  if (vida.personagem.desgaste >= 95 && (a.desgaste ?? 0) > 0) {
+    return { vida, ok: false, aviso: 'Você está exaust' + (vida.personagem.sexo === 'feminino' ? 'a' : 'o') + '. Descanse antes (tirar folga, meditar, dormir mais).' };
   }
 
   const prox = structuredClone(vida);
@@ -221,7 +228,7 @@ export function fazerAcao(vida: Vida, id: string, opcoes: OpcoesAcao = {}): Resu
   }
   if (a.ganho) {
     const mult = idadeDe(prox) >= 18 ? 1.5 : 1;
-    aplicar(prox, { dinheiro: Math.round(rng.inteiro(a.ganho[0], a.ganho[1]) * mult) });
+    aplicar(prox, { dinheiro: Math.round(rng.inteiro(a.ganho[0], a.ganho[1]) * mult * Math.max(0.15, r)) });
   }
   prox.periodo[id] = (prox.periodo[id] ?? 0) + 1;
   if (chaveR !== id) prox.periodo[chaveR] = (prox.periodo[chaveR] ?? 0) + 1;
@@ -229,6 +236,12 @@ export function fazerAcao(vida: Vida, id: string, opcoes: OpcoesAcao = {}): Resu
 
   const especial = resolverEspecial(prox, a, rng, v?.id);
   if (especial) extras.push(especial);
+  if (id === 'matar_aula' && (prox.periodo.matar_aula ?? 0) >= 3 && !prox.periodo['@escola_ligou']) {
+    prox.periodo['@escola_ligou'] = 1;
+    aplicar(prox, { 'atributos.felicidade': -3, estudo: -3 });
+    for (const pe of prox.pessoas) if ((pe.papel === 'mae' || pe.papel === 'pai') && pe.vivo) pe.afeto = Math.max(0, pe.afeto - 6);
+    extras.push('A escola ligou para casa: você anda faltando demais. O sermão durou a noite inteira.');
+  }
   // Esporte, curso, sair: às vezes aparece gente nova.
   if (a.comQuem || a.categoria === 'corpo' || id === 'curso') {
     const nova = talvezConhecer(prox, rng, 0.05, (v?.nome ?? a.nome).split(' (')[0]!);
@@ -473,11 +486,18 @@ export function sugereHabito(vida: Vida, id: string): boolean {
 export function rodarHabitos(vida: Vida, anos: number, rng: Rng, resumir = true): string[] {
   const linhas: string[] = [];
   const resumos: string[] = [];
+  vida.habitos = vida.habitos.filter((h) => h.pausado !== 'fim');
   for (const h of vida.habitos) {
     const a = acaoPorId(h.acao);
     if (!a) continue;
     const idade = idadeDe(vida);
-    if (idade < a.idade[0] || idade > a.idade[1]) {
+    if (idade > a.idade[1] || (a.requer && !atende(vida, a.requer))) {
+      // Cresceu, saiu da escola, aposentou: o hábito acaba de vez.
+      linhas.push(`Você deixou para trás o hábito de ${a.nome.toLowerCase()}.`);
+      h.pausado = 'fim';
+      continue;
+    }
+    if (idade < a.idade[0]) {
       if (!h.pausado) linhas.push(`${a.nome}: pausado, não combina com a sua idade agora.`);
       h.pausado = 'idade';
       continue;

@@ -63,7 +63,7 @@ export function TelaEu({ vida, deus, onInteresse, onEixo, onSairEmprego }: Props
         </section>
       )}
 
-      <section class="cartao">
+      {vida.relogio.idadeMeses >= 12 * 12 && (<section class="cartao">
         <h2>Interesse romântico</h2>
         <div class="chips" role="group" aria-label="Interesse romântico">
           {([['todos', 'Todos'], ['mulheres', 'Mulheres'], ['homens', 'Homens']] as const).map(([v, t]) => (
@@ -71,7 +71,7 @@ export function TelaEu({ vida, deus, onInteresse, onEixo, onSairEmprego }: Props
           ))}
         </div>
         <p class="dica">Decide quem aparece em "Procurar alguém".</p>
-      </section>
+      </section>)}
 
       <section class="cartao">
         <h2>Estudo</h2>
@@ -105,7 +105,7 @@ export function TelaEu({ vida, deus, onInteresse, onEixo, onSairEmprego }: Props
                   </li>
                 ))}
               </ul>
-              <p class="dica">{Math.floor(t.anosContribuicao)} anos de contribuição ao INSS.</p>
+              {t.anosContribuicao >= 1 && <p class="dica">{Math.floor(t.anosContribuicao)} anos de contribuição ao INSS.</p>}
             </>
           );
         })()}
@@ -189,8 +189,7 @@ export function TelaEu({ vida, deus, onInteresse, onEixo, onSairEmprego }: Props
       <section class="cartao">
         <h2>Esta vida</h2>
         <dl class="dados">
-          <dt>Seed</dt><dd>{c.seed}</dd>
-          <dt>Turno</dt><dd>{c.turno === 'ano' ? '1 ano' : '1 semestre'}</dd>
+          {deus && <><dt>Seed</dt><dd>{c.seed}</dd></>}
           <dt>Morte</dt><dd>{c.morte === 'permanente' ? 'Permanente' : 'Pode voltar um período'}</dd>
           <dt>Começo</dt><dd>{c.inicio === 'bebe' ? 'Bebê' : 'Adulto'}</dd>
           <dt>Geração</dt><dd>{vida.linhagem.geracao}ª{vida.linhagem.anteriores.length ? ` · antes: ${vida.linhagem.anteriores.join(', ')}` : ''}</dd>

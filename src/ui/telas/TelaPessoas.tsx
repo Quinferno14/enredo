@@ -162,8 +162,17 @@ export function TelaPessoas({ vida, aviso, onAcao, deus, onEditar, onCriar }: Pr
       )}
 
       {GRUPOS.map((g) => {
-        const lista = vivos.filter(g.filtro);
+        const lista = vivos.filter(g.filtro).sort((a, b) => b.afeto - a.afeto);
         if (!lista.length) return null;
+        // Colegas e vizinhos são muitos e pesam pouco: ficam recolhidos.
+        if (g.titulo === 'Colegas' || g.titulo === 'Vizinhos') {
+          return (
+            <details class="cartao" key={g.titulo}>
+              <summary>{g.titulo} <span class="sutil">{lista.length}</span></summary>
+              <ul class="lista">{lista.map(cartao)}</ul>
+            </details>
+          );
+        }
         return (
           <section class="cartao" key={g.titulo}>
             <h2>{g.titulo} <span class="sutil">{lista.length}</span></h2>

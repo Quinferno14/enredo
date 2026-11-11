@@ -1,3 +1,4 @@
+import { tagRuim } from '../textos';
 import { useState } from 'preact/hooks';
 import {
   acoesDisponiveis, CATEGORIAS, companhias, custoPara, FREQUENCIAS, previaEfeitos, rendimentoProximo, rotuloEfeito,
@@ -79,7 +80,7 @@ export function PainelAtividades({ vida, aviso, onFechar, onAcao, onHabito }: Pr
                 <button class="acao" onClick={() => (temOpcoes && !aberto ? setAberta(a.id) : onAcao(a.id, opcoesDe(a)))}>
                   <span class="acao-nome">{a.nome}</span>
                   <span class="acao-info">
-                    <span class="tags">{previaEfeitos(vida, a, vSel).map((t) => <span key={t} class={t.startsWith('↓') || t.startsWith('−') ? 'tag menos' : 'tag'}>{t}</span>)}</span>
+                    <span class="tags">{previaEfeitos(vida, a, vSel).map((t) => <span key={t} class={tagRuim(t) ? 'tag menos' : 'tag'}>{t}</span>)}</span>
                     {' '}{rotuloEfeito(rendimentoProximo(vida, a.id)).replace('efeito: ', 'efeito ')}
                     {h && ` · hábito ${h.porSemana}x`}
                   </span>

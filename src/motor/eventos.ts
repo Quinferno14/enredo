@@ -150,7 +150,11 @@ export function disparar(vida: Vida, e: EventoDef, varsGancho: Record<string, st
   const idadeJ = vida.relogio.idadeMeses / 12;
   const lista = e.textos?.find((t) => idadeJ >= t.idade[0] && idadeJ <= t.idade[1])?.texto ?? e.texto;
   const ultimo = vida.ultimosTextos?.[e.id];
-  const opcoes = lista.length > 1 ? lista.filter((t) => t !== ultimo) : lista;
+  // "Pela primeira vez" só é verdade uma vez na vida.
+  const ja = (vida.vezes?.[e.id] ?? 0) > 0;
+  const semPrimeira = ja ? lista.filter((t) => !/primeira vez/i.test(t)) : lista;
+  if (!semPrimeira.length) return false;
+  const opcoes = semPrimeira.length > 1 ? semPrimeira.filter((t) => t !== ultimo) : semPrimeira;
   let texto = rng.escolher(opcoes);
   vida.ultimosTextos = { ...vida.ultimosTextos, [e.id]: texto };
   let efeitoExtra: Efeitos | undefined;
@@ -175,8 +179,10 @@ export function disparar(vida: Vida, e: EventoDef, varsGancho: Record<string, st
       escolhas: e.escolhas.map((c) => {
         const m = motivo(vida, c.requer);
         const j = rotuloJeito(vida, afinidade(vida, perfilEscolha(c)));
+        // Criança não paga: o preço some do botão.
+        const rotulo = preencher(c.texto, vida, vars);
         return {
-          texto: preencher(c.texto, vida, vars), ...(m ? { motivo: m } : {}),
+          texto: vida.relogio.idadeMeses < 16 * 12 ? rotulo.replace(/\s*\(R\$ [\d.]+\)/, '') : rotulo, ...(m ? { motivo: m } : {}),
           ...(j && !m ? { jeito: j.jeito, jeitoTexto: j.texto } : {}),
         };
       }),
@@ -281,7 +287,11 @@ export function escolher(vida: Vida, indice: number): Vida {
       : resolverSistema(prox, pend, indice, rng);
     const r = resumo(diferenca(antes, foto(prox)));
     prox.historico.push({ quando, texto: pend.texto, fato: { tipo: 'evento', id: pend.evento } });
-    prox.historico.push({ quando, texto: [`→ ${pend.escolhas[indice]?.texto ?? ''}.`, texto, r].filter(Boolean).join(' '), fato: { tipo: 'escolha', id: pend.evento } });
+    const rotulo = (pend.escolhas[indice]?.texto ?? '').split(' · ')[0]!;
+    const feito = pend.sistema === 'pretendentes' && indice < (pend.candidatos?.length ?? 0) ? `Tentar com ${rotulo.split(',')[0]}`
+      : pend.sistema === 'vagas' && indice < (pend.dados?.length ?? 0) - 1 ? `Candidatar-se a ${rotulo.replace(/^./, (c) => c.toLowerCase())}`
+      : rotulo;
+    prox.historico.push({ quando, texto: [`→ ${feito}.`, texto, r].filter(Boolean).join(' '), fato: { tipo: 'escolha', id: pend.evento } });
     prox.pendente = null;
     prox.rng = rng.estado();
     return prox;
@@ -305,7 +315,9 @@ export function escolher(vida: Vida, indice: number): Vida {
   if (jeito) {
     if (jeito.jeito === 'contra') aplicar(prox, { desgaste: 4, 'atributos.felicidade': -1.5 });
     else if (p === null) aplicar(prox, { 'atributos.felicidade': 1 });
-    partes.push(jeito.jeito === 'contra' ? `(Foi ${jeito.texto}.)` : `(Bem o ${jeito.texto}${p !== null ? ', e isso ajudou' : ''}.)`);
+    partes.push(jeito.jeito === 'contra'
+      ? `(Isso foi contra quem você é: ${jeito.adj}.)`
+      : `(Isso combina com você, que é ${jeito.adj}${p !== null ? ', e ajudou' : ''}.)`);
   }
 
   const r = resumo(diferenca(antes, foto(prox)));

@@ -145,10 +145,25 @@ export function conjugar(v: string): string {
   if (/[aeo]iu$/.test(baixo)) return v.slice(0, -2) + 'í';
   if (/eu$/.test(baixo)) return v.slice(0, -2) + 'i';
   if (/iu$/.test(baixo)) return v.slice(0, -2) + 'i';
+  if (/(ava|ia|ía)$/.test(baixo)) return v;
+  if (baixo.length >= 3 && /a$/.test(baixo)) return v.slice(0, -1) + 'o';
+  if (baixo.length >= 3 && /e$/.test(baixo)) return v.slice(0, -1) + 'o';
   return v;
 }
 
-const ADVERBIOS = '(?:não|já|nunca|ainda|também|só|quase|mal|até|sempre|logo|enfim|finalmente)';
+/** Terceira do plural → primeira do plural, também no presente ("combinam" → "combinamos"). */
+export function plural1presente(v: string): string {
+  const b = v.toLowerCase();
+  const irr: Record<string, string> = { são: 'somos', estão: 'estamos', têm: 'temos', vão: 'vamos', foram: 'fomos', eram: 'éramos', estavam: 'estávamos' };
+  if (irr[b]) return irr[b]!;
+  const p = plural1(v);
+  if (p !== v) return p;
+  if (/am$/.test(b)) return v.slice(0, -2) + 'amos';
+  if (/em$/.test(b)) return v.slice(0, -2) + 'emos';
+  return v;
+}
+
+const ADVERBIOS = '(?:não|já|nunca|ainda|também|só|quase|mal|até|sempre|logo|enfim|finalmente|agora|hoje|ontem|aqui|realmente|mesmo)';
 /** Fronteiras de palavra que entendem acento (o \b do JavaScript não entende). */
 const A = '(?<![\\p{L}])';
 const Z = '(?![\\p{L}])';
@@ -159,8 +174,8 @@ export function paraPrimeira(texto: string): string {
   let t = texto;
   t = t.replace(re('‹com você›'), 'comigo').replace(re('‹(para|pra) você›'), 'pra mim').replace(re('‹(de|em|por|a) você›'), '$1 mim');
   t = t.replace(re(`‹([Vv])ocês›((?:\\s+${ADVERBIOS}›)*)(\\s+se›)?\\s+([\\p{L}]+)`), (_m, v: string, adv: string, se: string | undefined, palavra: string) =>
-    `${v === 'V' ? 'A gente' : 'a gente'}${adv}${se ? ' se' : ''} ${singular(palavra)}`);
-  t = t.replace(re('‹Vocês›'), 'A gente').replace(re('‹vocês›'), 'a gente');
+    `${v === 'V' ? 'Nós' : 'nós'}${adv}${se ? ' nos' : ''} ${plural1presente(palavra)}`);
+  t = t.replace(re('‹Vocês›'), 'Nós').replace(re('‹vocês›'), 'nós');
   t = t.replace(re('‹te›'), 'me').replace(re('‹Te›'), 'Me');
   // "chamou você" → "me chamou" (você como objeto, depois do verbo).
   t = t.replace(re('‹([\\p{L}]{3,}(?:ou|eu|iu))\\s+você›'), (m, verbo: string) => (NAO_VERBO.has(verbo.toLowerCase()) ? m : `me ${verbo}`));
@@ -173,10 +188,12 @@ export function paraPrimeira(texto: string): string {
   // "eu estou se sentindo" → "eu estou me sentindo".
   t = t.replace(re('‹([Ee]u(?: [\\p{L}]+){1,2}) se›'), '$1 me');
   // "Eu e Diego passaram" → "Eu e Diego passamos".
-  t = t.replace(re('‹([Ee]u e [^.;!?]*?)\\s([\\p{L}]+(?:aram|eram|iram|íram|oram))›'), (_m, antes: string, v: string) => `${antes} ${plural1(v)}`);
+  t = t.split(/(?<=[.;!?])\s/).map((frase) => (re('‹(?:[Ee]u e|[Nn]ós)›').test(frase)
+    ? frase.replace(re('‹([\\p{L}]+(?:aram|eram|iram|íram|oram))›'), (_m, v: string) => plural1(v))
+    : frase)).join(' ');
   // Na frase que já é "eu ...", o segundo verbo também vira primeira pessoa ("fui ao posto e fez" → "e fiz").
   t = t.split(/(?<=[.;!?])\s/).map((frase) => (re('‹[Ee]u›').test(frase)
-    ? frase.replace(re('‹e ([\\p{L}]{3,})›'), (m, v: string) => (!PALAVRAS_EU.has(v.toLowerCase()) && /(ou|eu|iu)$/.test(v) || ['fez', 'foi', 'teve', 'deu', 'viu', 'quer', 'precisa', 'acha', 'gosta', 'sabe', 'pode'].includes(v) ? `e ${conjugar(v)}` : m))
+    ? frase.replace(re(`‹e((?:\\s+${ADVERBIOS}›)*)\\s+([\\p{L}]{1,})›`), (m, adv: string, v: string) => (!PALAVRAS_EU.has(v.toLowerCase()) && /(ou|eu|iu)$/.test(v) && v.length >= 3 || ['fez', 'foi', 'teve', 'deu', 'viu', 'quer', 'precisa', 'acha', 'gosta', 'sabe', 'pode', 'é', 'está', 'tem', 'vai', 'fica'].includes(v) ? `e${adv} ${conjugar(v)}` : m))
     : frase)).join(' ');
   t = t.replace(re('‹Seus›'), 'Meus').replace(re('‹Suas›'), 'Minhas').replace(re('‹seus›'), 'meus').replace(re('‹suas›'), 'minhas');
   t = t.replace(re('‹Seu›(?! [A-ZÁÉÍÓÚ])'), 'Meu').replace(re('‹Sua›'), 'Minha').replace(re('‹seu›'), 'meu').replace(re('‹sua›'), 'minha');
@@ -257,13 +274,15 @@ const handle = (vida: Vida) => `@${vida.personagem.nome}${vida.personagem.sobren
 type Tom = 'bom' | 'ruim' | 'luto' | 'neutro';
 function tomDe(corpo: string, tags: string[]): Tom {
   if (/\bmorreu\b|\bfaleceu\b|\bvelório\b/i.test(corpo)) return 'luto';
+  if (/febre|doente|hospital|pronto-socorro|internad|infarto|dengue|gripe|assalt|roub|demiti|separar|brig|chorou/i.test(corpo)) return 'ruim';
   const f = tags.find((t) => t.startsWith('Felicidade'));
   if (f) return /\+/.test(f) ? 'bom' : 'ruim';
+  if (tags.some((t) => /^Saúde [−-]/.test(t))) return 'ruim';
   if (/!/.test(corpo)) return 'bom';
   return 'neutro';
 }
 const EMOJI: Record<Tom, string[]> = {
-  bom: ['❤️', '😍', '🥰', '😂', '🙌', '✨'], ruim: ['🥺', '😢', '😔', '😬'], luto: ['🕊️'], neutro: ['', '', '🙂'],
+  bom: ['❤️', '😍', '🥰', '😂', '🙌', '✨'], ruim: ['🥺', '😢', '😔', '😬'], luto: ['🕊️'], neutro: [''],
 };
 
 const MARCO = /primeiros passos|primeira palavra|primeiras frases|Nasceu|nasceu|aniversário|se casaram|formou|formatura|aposentad|Você completou|anos de casados|virou adolescente|maior de idade|ganhou um irmão|neto|neta/;
@@ -274,6 +293,12 @@ const RESUMO_ANO = /fechou com o saldo|hábitos seguiram firmes|Foi uma fase|Sua
 // ---- Cada fase ----
 
 function semPonto(t: string) { return t.replace(/\.$/, ''); }
+/** Rótulo de escolha ("Se declarar", "Prometer que vai cuidar") na voz de quem decide. */
+function escolhaEu(rotulo: string): string {
+  let t = minuscula(rotulo);
+  t = t.replace(/^se /, 'me ').replace(re('‹que vai›'), 'que vou').replace(re('‹você mesm([oa])›'), 'eu mesm$1').replace(re('‹seu›'), 'meu').replace(re('‹sua›'), 'minha');
+  return t;
+}
 function minuscula(t: string) {
   // Nome próprio no começo (Ana, Davi) continua com maiúscula.
   const primeira = /^[\p{L}]+/u.exec(t)?.[0] ?? '';
@@ -327,7 +352,7 @@ function linhaBebe(vida: Vida, h: EntradaHistorico, s: string, autor: string, it
 function linhaDiario(vida: Vida, h: EntradaHistorico, s: string, idade: number): Item {
   const sr = separarResumo(h.texto); const { corpo } = sr; const tags = etiquetas(sr);
   const esc = partirEscolha(corpo);
-  let t = esc ? `Eu decidi ${minuscula(esc.escolha)}.${esc.resto ? ` ${paraPrimeira(esc.resto)}` : ''}` : paraPrimeira(corpo);
+  let t = esc ? `Eu decidi ${escolhaEu(esc.escolha)}.${esc.resto ? ` ${paraPrimeira(esc.resto)}` : ''}` : paraPrimeira(corpo);
   t = letraDeCrianca(t, idade, s);
   void vida;
   return { tipo: 'diario', texto: t, tags };
@@ -368,9 +393,10 @@ function linhaAdolescente(vida: Vida, h: EntradaHistorico, s: string, idadeMeses
   const sr = separarResumo(h.texto); const { corpo } = sr; const tags = etiquetas(sr);
   const esc = partirEscolha(corpo);
   const p = vida.personagem;
-  const t0 = esc ? `decidi ${minuscula(esc.escolha)}${esc.resto ? `. ${paraPrimeira(esc.resto)}` : ''}` : paraPrimeira(corpo);
+  const t0 = esc ? `decidi ${escolhaEu(esc.escolha)}${esc.resto ? `. ${paraPrimeira(esc.resto)}` : ''}` : paraPrimeira(corpo);
   const tom = tomDe(corpo, tags);
-  const texto = `${minuscula(semPonto(t0))}${tom === 'luto' ? ' 🕊️' : ` ${escolher(EMOJI[tom], s) || escolher(['🫠', '😎', '💀', '🤡'], s)}`}`;
+  const emoji = tom === 'luto' ? '🕊️' : escolher(EMOJI[tom], s);
+  const texto = `${minuscula(semPonto(t0))}${emoji ? ` ${emoji}` : ''}`;
   const acontecimento = h.fato?.tipo === 'evento' || h.fato?.tipo === 'escolha' || MARCO.test(corpo) || tom === 'luto';
   if (!acontecimento) return { tipo: 'story', texto, tags };
   if (p.personalidade.extroversao < -30 && tom !== 'luto') return { tipo: 'post', texto, tags, curtidas: 0, comentarios: [], privado: true };
@@ -383,8 +409,29 @@ function linhaAdolescente(vida: Vida, h: EntradaHistorico, s: string, idadeMeses
   };
 }
 
-function respostaDe(quem: Pessoa | undefined, tom: Tom, s: string): Item | null {
-  if (!quem || sorte(s + 'resp') > 0.55) return null;
+const RESPOSTAS_ACAO: Record<string, string[]> = {
+  brigar: ['Não quero falar com você agora.', 'Sério que você vai mandar isso?', '...'],
+  provocar: ['Engraçadinh{o}.', 'Para com isso.', 'Não teve graça.'],
+  presente: ['Obrigad{a} ❤️ amei!', 'Não precisava! Mas amei.', 'Você lembrou! 🥹'],
+  ajudar: ['Valeu demais, sério.', 'Te devo uma!', 'Sem você não tinha dado.'],
+  elogiar: ['Ai, para 🙈', 'Você também!', 'Precisava ouvir isso hoje.'],
+  tempo: ['Foi muito bom!', 'Repete logo!', 'Saudade já.'],
+  conversar: ['Adorei a conversa', 'Depois a gente continua!', 'Falar com você faz bem.'],
+  segredo: ['Fica entre nós 🤐', 'Pode confiar.', 'Nossa... obrigad{a} por confiar.'],
+  desculpas: ['Tá tudo bem.', 'Ok. Vamos recomeçar.', 'Eu precisava ouvir isso.'],
+  encontro: ['Amei a noite ❤️', 'Quando é o próximo?', 'Chegou em casa?'],
+};
+
+function respostaDe(quem: Pessoa | undefined, tom: Tom, s: string, h?: EntradaHistorico): Item | null {
+  if (!quem) return null;
+  const sobreEla = h?.fato?.tipo === 'pessoa' && h.fato.pessoa === quem.id;
+  const daAcao = sobreEla && h?.fato?.id ? RESPOSTAS_ACAO[h.fato.id] : undefined;
+  if (daAcao) {
+    if (sorte(s + 'resp') > 0.7) return null;
+    const a = quem.sexo === 'feminino' ? 'a' : 'o';
+    return { tipo: 'msg', autor: quem.nome, texto: escolher(daAcao, s + 'ra').replace('{o}', a).replace('{a}', a), tags: [] };
+  }
+  if (sorte(s + 'resp') > (tom === 'neutro' ? 0.2 : 0.5)) return null;
   const lista = tom === 'luto' ? ['Tô indo aí. ❤️', 'Sinto muito, de verdade.'] : tom === 'ruim' ? ['Ah não 😔 quer conversar?', 'Força. Tô aqui.', 'Vai dar certo, confia.'] : tom === 'bom' ? ['Aaaa que demais!!', 'Mereceu ❤️', 'kkkkkkk', 'Bora comemorar!'] : ['Hmm', 'Entendi kkk', 'Depois me conta direito', '👍'];
   return { tipo: 'msg', autor: quem.nome, texto: escolher(lista, s + 'rr'), tags: [] };
 }
@@ -417,9 +464,9 @@ function linhaAdulto(vida: Vida, h: EntradaHistorico, s: string, idadeMeses: num
   // Conversa: com a pessoa envolvida, ou com quem você mais confia.
   const envolvida = h.fato?.pessoa ? vida.pessoas.find((x) => x.id === h.fato!.pessoa) : undefined;
   const para = envolvida && h.fato?.tipo === 'pessoa' ? envolvida : confidente(vida);
-  const texto = esc ? `Decidi: ${minuscula(esc.escolha)}.${esc.resto ? ` ${paraPrimeira(esc.resto)}` : ''}` : paraPrimeira(corpo);
+  const texto = esc ? `Decidi: ${escolhaEu(esc.escolha)}.${esc.resto ? ` ${paraPrimeira(esc.resto)}` : ''}` : paraPrimeira(corpo);
   itens.push({ tipo: 'msg', meu: true, texto, tags, ...(para ? { para: para.nome } : {}) });
-  const r = respostaDe(para, tom, s);
+  const r = respostaDe(para, tom, s, h);
   if (r) itens.push(r);
 }
 
@@ -436,15 +483,16 @@ function linhaIdoso(vida: Vida, h: EntradaHistorico, s: string, itens: Item[]) {
   const tom = tomDe(corpo, tags);
   const p = vida.personagem;
   const netos = vivos(vida, ['neto']);
+  if (/fechou com o saldo|hábitos seguiram firmes/.test(corpo)) { itens.push({ tipo: 'nota', texto: corpo, tags }); return; }
   if (RESUMO_ANO.test(corpo) && netos.length) {
     const ult = itens.at(-1);
     const frase = paraPrimeira(corpo);
     if (ult?.tipo === 'carta') ult.texto += ` ${frase}`;
-    else itens.push({ tipo: 'carta', para: netos.map((n) => n.nome).join(', '), texto: `Queridos netos, ${minuscula(frase)}` });
+    else itens.push({ tipo: 'carta', para: netos.map((n) => n.nome).join(', '), texto: `Queridos netos, mais um ano passou por aqui. ${frase} Venham me ver.` });
     return;
   }
   if (h.fato?.tipo === 'acao') { itens.push({ tipo: 'msg', meu: true, texto: paraPrimeira(corpo), tags }); return; }
-  const base = esc ? `Decidi ${minuscula(esc.escolha)}.${esc.resto ? ` ${paraPrimeira(esc.resto)}` : ''}` : paraPrimeira(corpo);
+  const base = esc ? `Decidi ${escolhaEu(esc.escolha)}.${esc.resto ? ` ${paraPrimeira(esc.resto)}` : ''}` : paraPrimeira(corpo);
   const abre = escolher(['Oi, gente, bom dia! ', 'Alô? Tá gravando? Então... ', 'Família, deixa eu contar: ', 'Oi, meus amores. ', ''], s + 'o');
   const fecha = tom === 'luto' ? ' Rezem por nós.' : escolher([' Beijo, fiquem com Deus.', ' É isso. Beijo.', ' Me liguem, viu?', ' Fiquem com Deus.', ''], s + 'f');
   const dur = Math.max(20, Math.round(base.length * 1.6 + (hash(s) % 90)));
@@ -482,6 +530,12 @@ export function recontar(vida: Vida, historico: EntradaHistorico[] = vida.histor
       blocos.push(bloco);
     }
     if (h.texto.startsWith('✦')) { bloco.itens.push({ tipo: 'deus', texto: h.texto }); continue; }
+    // Perguntas do próprio jogo (vagas, cursos, pretendentes) ficam neutras em qualquer fase.
+    if (h.fato?.tipo === 'evento' && h.fato.id?.startsWith('@')) {
+      const sr = separarResumo(h.texto);
+      bloco.itens.push({ tipo: 'nota', texto: sr.corpo, tags: etiquetas(sr) });
+      continue;
+    }
     switch (fase) {
       case 'bebe': linhaBebe(vida, h, s, responsavel(vida), bloco.itens); break;
       case 'crianca': bloco.itens.push(linhaDiario(vida, h, s, idade / 12)); break;

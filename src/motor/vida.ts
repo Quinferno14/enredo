@@ -141,6 +141,7 @@ function passo(prox: Vida, anos: number, rng: Rng, resumir: boolean): ResultadoP
   const mesesAntes = prox.relogio.idadeMeses;
   const anoAntes = prox.relogio.ano;
   const rotina = rodarHabitos(prox, anos, rng, resumir);
+  const importantesPrevios: Linha[] = [];
 
   prox.relogio = proximoRelogio(prox.relogio, prox.config.turno);
   const r = prox.relogio;
@@ -149,6 +150,11 @@ function passo(prox: Vida, anos: number, rng: Rng, resumir: boolean): ResultadoP
   for (const t of p.tracos) {
     const f = PESO_TRACO[t.id];
     if (f) aplicar(prox, f(t.nivel), anos);
+  }
+  if (p.desgaste >= 90 && rng.proximo() < Math.min(1, 0.3 * anos * 12)) {
+    aplicar(prox, { 'atributos.saude': -4, 'atributos.felicidade': -4 });
+    p.desgaste = Math.max(0, p.desgaste - 35);
+    importantesPrevios.push('Você desmaiou de cansaço e passou o dia no pronto-socorro. O médico mandou parar.');
   }
   if (p.desgaste > 60) {
     const excesso = p.desgaste - 60;
@@ -159,7 +165,7 @@ function passo(prox: Vida, anos: number, rng: Rng, resumir: boolean): ResultadoP
   const idadeCorpo = p.idadeBiologicaMeses !== undefined ? p.idadeBiologicaMeses / 12 : idade;
   envelhecer(p, idadeCorpo, anos, rng);
 
-  const importantes: Linha[] = [];
+  const importantes: Linha[] = [...importantesPrevios];
   for (const m of MARCOS_IDADE) {
     if (mesesAntes < m.meses && r.idadeMeses >= m.meses) importantes.push(m.texto(p.sexo));
   }

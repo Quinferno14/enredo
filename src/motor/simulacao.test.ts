@@ -42,8 +42,17 @@ describe('simulação de 1.000 vidas', () => {
     expect(est.p90 - est.mediana).toBeGreaterThan(5);
   });
 
-  it('poucas mortes antes dos 18, e ninguém passa dos 115', () => {
-    expect(est.antesDos18).toBeGreaterThan(0.005);
+  it('poucas mortes antes dos 18, e ninguém passa dos 115', { timeout: 300_000 }, () => {
+    // Mil vidas dão poucas mortes na infância (a taxa oscila muito com o sorteio):
+    // a taxa vem de 3.000 infâncias, que dão uma estimativa estável.
+    let mortas = 0;
+    for (let i = 0; i < 3000; i++) {
+      let v = criarVida({ id: `inf-${i}`, seed: `infancia-${i}`, ano: 2026, criadaEm: '2026-11-10T00:00:00.000Z', turno: 'ano', morte: 'permanente', inicio: 'bebe' });
+      for (let k = 0; k < 18 && !v.morte; k++) v = jogarPeriodo(v);
+      if (v.morte) mortas++;
+    }
+    console.log('Mortes antes dos 18 (3.000 infâncias):', `${((mortas / 3000) * 100).toFixed(2)}%`);
+    expect(mortas / 3000).toBeGreaterThan(0.005);
     expect(est.antesDos18).toBeLessThan(0.08);
     expect(est.max).toBeLessThan(115);
   });

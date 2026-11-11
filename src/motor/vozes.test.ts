@@ -24,6 +24,12 @@ describe('vozes: trocas de pessoa', () => {
     expect(paraPrimeira('Você foi ao posto e fez um check-up.')).toBe('Eu fui ao posto e fiz um check-up.');
     expect(paraPrimeira('Sua avó, Terezinha, encheu seu prato pela terceira vez.')).toBe('Minha avó Terezinha encheu meu prato pela terceira vez.');
     expect(paraPrimeira('Você se perdeu num livro.')).toBe('Eu me perdi num livro.');
+    // Frases que o painel de jogadores pegou quebradas.
+    expect(paraPrimeira('Vocês saíram, riram muito e começaram a namorar.')).toBe('Nós saímos, rimos muito e começamos a namorar.');
+    expect(paraPrimeira('Você não para de pensar em Júlia.')).toBe('Eu não paro de pensar em Júlia.');
+    expect(paraPrimeira('Você completou 18 anos e agora é maior de idade.')).toBe('Eu completei 18 anos e agora sou maior de idade.');
+    expect(paraPrimeira('Você levou a pior e ainda foi parar na diretoria.')).toBe('Eu levei a pior e ainda fui parar na diretoria.');
+    expect(paraPrimeira('Vocês combinam muito.')).toBe('Nós combinamos muito.');
     expect(paraPrimeira('Você está se sentindo mais saudável.')).toBe('Eu estou me sentindo mais saudável.');
     expect(paraPrimeira('Você não passou. A turma começou a te chamar por um apelido que você odeia.'))
       .toBe('Eu não passei. A turma começou a me chamar por um apelido que eu odeio.');
