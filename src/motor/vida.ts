@@ -3,13 +3,14 @@
 
 import estados from '../conteudo/estados.json';
 import nomes from '../conteudo/nomes.json';
-import { rodarHabitos } from './acoes';
+import { acaoPorId, rodarHabitos } from './acoes';
 import { estudoInicial, rodarDinheiro, rodarEscola, rodarTrabalho, sortearClasse, textoClasse } from './carreira';
-import { aplicar } from './efeitos';
+import { aplicar, reais } from './efeitos';
 import { atributosNaIdade, envelhecer, limitar, sortearMorte } from './envelhecer';
 import { rodarEventos } from './eventos';
 import { criarFamilia, rodarPessoas } from './familia';
 import { Rng } from './rng';
+import { anosDoPasso, proximoRelogio, quandoAgora, rotuloPeriodo } from './tempo';
 import {
   EIXOS, VERSAO_SAVE,
   type Atributo, type Eixo, type EntradaHistorico, type Inicio, type ModoMorte,
@@ -31,6 +32,8 @@ export interface OpcoesNovaVida {
   turno: Turno;
   morte: ModoMorte;
   inicio: Inicio;
+  /** Mês em que a história começa (modo dinâmico). */
+  mes?: number;
   // Vazios = sorteados pela seed.
   nome?: string;
   sobrenome?: string;
@@ -69,7 +72,7 @@ export function criarVida(o: OpcoesNovaVida): Vida {
 
   const classe = sortearClasse(rng);
   const estudo = estudoInicial(classe, rng, idadeMeses / 12);
-  const relogio: Relogio = { ano: o.ano, semestre: 1, idadeMeses };
+  const relogio: Relogio = { ano: o.ano, semestre: 1, mes: o.mes ?? 1, idadeMeses };
   const abertura = o.inicio === 'adulto'
     ? `Sua história começa aos ${IDADE_INICIO_ADULTO} anos, em ${cidade} (${estado.sigla}).`
     : `Você nasceu em ${cidade} (${estado.sigla}), numa família ${textoClasse(classe)}.`;
@@ -112,41 +115,30 @@ const PESO_TRACO: Record<string, (n: number) => Record<string, number>> = {
   diabetes: (n) => ({ 'atributos.saude': n >= 2 ? -3 : -0.5 }),
 };
 
-/** Relógio do próximo período, sem rodar nada. */
-export function proximoRelogio(r: Relogio, turno: Turno): Relogio {
-  const anos = turno === 'ano' ? 1 : 0.5;
-  const prox = { ...r, idadeMeses: r.idadeMeses + anos * 12 };
-  if (turno === 'ano') prox.ano += 1;
-  else if (r.semestre === 1) prox.semestre = 2;
-  else { prox.semestre = 1; prox.ano += 1; }
-  return prox;
+export { proximoRelogio, quandoAgora, rotuloPeriodo } from './tempo';
+
+interface ResultadoPasso {
+  /** Coisas que valem parar o tempo: eventos, marcos, mudanças de escola e emprego, mortes. */
+  importantes: string[];
+  /** Resumos de rotina (hábitos, dinheiro), que não param o tempo. */
+  rotina: string[];
 }
 
 /**
- * Avança um período (1 ano ou 1 semestre): roda os hábitos do período que fecha,
- * envelhece, sorteia eventos e a morte. Não avança com um evento esperando decisão.
+ * Um passo do relógio (1 ano, 1 semestre ou 1 mês), alterando `prox` no lugar.
+ * `resumir` controla se hábitos e dinheiro geram linha a cada passo (no modo
+ * dinâmico o resumo sai uma vez por ano).
  */
-export function avancarPeriodo(vida: Vida): Vida {
-  if (vida.morte || vida.pendente) return vida;
-  // No modo "voltar um período", guarda a foto de agora (sem a foto anterior dela).
-  const foto: Vida | null = vida.config.morte === 'voltar' ? structuredClone({ ...vida, anterior: null }) : null;
-  const prox: Vida = structuredClone({ ...vida, anterior: null });
-  prox.anterior = foto;
-  const rng = new Rng(prox.rng);
-  const mesesAntes = prox.relogio.idadeMeses;
-  const anos = prox.config.turno === 'ano' ? 1 : 0.5;
+function passo(prox: Vida, anos: number, rng: Rng, resumir: boolean): ResultadoPasso {
   const p = prox.personagem;
-  prox.atributosAnteriores = { ...p.atributos };
-
-  // Os hábitos rendem no período que está fechando.
-  const linhasHabitos = rodarHabitos(prox, anos, rng);
+  const mesesAntes = prox.relogio.idadeMeses;
+  const anoAntes = prox.relogio.ano;
+  const rotina = rodarHabitos(prox, anos, rng, resumir);
 
   prox.relogio = proximoRelogio(prox.relogio, prox.config.turno);
   const r = prox.relogio;
   const idade = r.idadeMeses / 12;
-  const quando = rotuloPeriodo(r, prox.config.turno);
 
-  // Vícios e condições pesam todo período; cansaço alto também.
   for (const t of p.tracos) {
     const f = PESO_TRACO[t.id];
     if (f) aplicar(prox, f(t.nivel), anos);
@@ -160,48 +152,101 @@ export function avancarPeriodo(vida: Vida): Vida {
   const idadeCorpo = p.idadeBiologicaMeses !== undefined ? p.idadeBiologicaMeses / 12 : idade;
   envelhecer(p, idadeCorpo, anos, rng);
 
-  const novidades: EntradaHistorico[] = [];
-  const nota = (texto: string) => novidades.push({ quando, texto });
-
+  const importantes: string[] = [];
   for (const m of MARCOS_IDADE) {
-    if (mesesAntes < m.meses && r.idadeMeses >= m.meses) nota(m.texto(p.sexo));
+    if (mesesAntes < m.meses && r.idadeMeses >= m.meses) importantes.push(m.texto(p.sexo));
   }
-  for (const t of rodarPessoas(prox, anos, rng)) nota(t);
-  for (const t of rodarEscola(prox, anos, rng)) nota(t);
-  for (const t of rodarTrabalho(prox, anos, rng)) nota(t);
-  const linhasDinheiro = rodarDinheiro(prox, anos);
-  const eventos = rodarEventos(prox, anos, rng);
-  for (const t of eventos) nota(t);
-
-  if (idade >= 2) {
-    const d = (a: Atributo) => p.atributos[a] - prox.atributosAnteriores[a];
-    if (d('saude') <= -6) nota('Sua saúde piorou neste período.');
-    if (d('saude') >= 6) nota('Você está se sentindo mais saudável.');
-    if (d('felicidade') >= 8) nota('Foi um período feliz.');
-    if (d('felicidade') <= -8) nota('Foi um período difícil.');
-  }
+  importantes.push(...rodarPessoas(prox, anos, rng, resumir));
+  importantes.push(...rodarEscola(prox, anos, rng));
+  importantes.push(...rodarTrabalho(prox, anos, rng));
+  rotina.push(...rodarDinheiro(prox, anos, resumir));
+  importantes.push(...rodarEventos(prox, anos, rng));
 
   const causa = sortearMorte(p, idadeCorpo, anos, rng);
   if (causa) {
     prox.morte = { ano: r.ano, idadeMeses: r.idadeMeses, causa };
     prox.pendente = null;
-    nota(`Você morreu aos ${textoIdade(r.idadeMeses)}, ${causa}.`);
-  } else if (novidades.length === 0 && !prox.pendente) {
-    nota(`Um período tranquilo. Você está com ${textoIdade(r.idadeMeses)}.`);
+    importantes.push(`Você morreu aos ${textoIdade(r.idadeMeses)}, ${causa}.`);
   }
 
   // Metade do cansaço some a cada ano.
   p.desgaste = limitar(p.desgaste * 0.5 ** anos);
-  prox.periodo = {};
+  // A janela do "retorno que cai" fecha no fim do período (no dinâmico, no fim do ano).
+  if (prox.config.turno !== 'dinamico' || r.ano !== anoAntes) prox.periodo = {};
+  return { importantes, rotina };
+}
 
-  prox.historico.push(
-    ...[...linhasHabitos, ...linhasDinheiro].map((texto) => ({ quando, texto })),
-    ...novidades,
-  );
+/** Notas de saúde e felicidade comparando com como a vida estava antes. */
+function notasDeTendencia(vida: Vida, antes: Record<Atributo, number>): string[] {
+  if (vida.relogio.idadeMeses < 24) return [];
+  const a = vida.personagem.atributos;
+  const d = (k: Atributo) => a[k] - antes[k];
+  const n: string[] = [];
+  if (d('saude') <= -6) n.push('Sua saúde piorou.');
+  if (d('saude') >= 6) n.push('Você está se sentindo mais saudável.');
+  if (d('felicidade') >= 8) n.push('Foi uma fase feliz.');
+  if (d('felicidade') <= -8) n.push('Foi uma fase difícil.');
+  return n;
+}
+
+/** Resumo do ano que fechou (modo dinâmico): dinheiro, hábitos e tendência. */
+function resumoDoAno(vida: Vida, anoQueFechou: number): string[] {
+  const linhas: string[] = [];
+  const ini = vida.inicioAno;
+  const p = vida.personagem;
+  if (ini && vida.relogio.idadeMeses >= 18 * 12 && Math.round(ini.dinheiro) !== Math.round(p.dinheiro)) {
+    linhas.push(`${anoQueFechou} fechou com o saldo indo de ${reais(ini.dinheiro)} para ${reais(p.dinheiro)}.`);
+  }
+  const ativos = vida.habitos.filter((h) => !h.pausado).map((h) => `${acaoPorId(h.acao)?.nome ?? h.acao} ${h.porSemana}x/sem`);
+  if (ativos.length) linhas.push(`Seus hábitos seguiram firmes: ${ativos.join(', ')}.`);
+  if (ini) linhas.push(...notasDeTendencia(vida, ini.atributos));
+  vida.inicioAno = { atributos: { ...p.atributos }, dinheiro: p.dinheiro };
+  return linhas;
+}
+
+/**
+ * Avança o tempo. Nos modos ano e semestre, um passo. No modo dinâmico, mês a mês
+ * até a próxima novidade (ou até fechar 12 meses); com `pularAno`, só para em
+ * decisões e na morte. Não avança com um evento esperando decisão.
+ */
+export function avancarPeriodo(vida: Vida, pularAno = false): Vida {
+  if (vida.morte || vida.pendente) return vida;
+  // No modo "voltar um período", guarda a foto de agora (sem a foto anterior dela).
+  const foto: Vida | null = vida.config.morte === 'voltar' ? structuredClone({ ...vida, anterior: null }) : null;
+  const prox: Vida = structuredClone({ ...vida, anterior: null });
+  prox.anterior = foto;
+  const rng = new Rng(prox.rng);
+  const anos = anosDoPasso(prox.config.turno);
+  prox.atributosAnteriores = { ...prox.personagem.atributos };
+  prox.inicioAno ??= { atributos: { ...prox.personagem.atributos }, dinheiro: prox.personagem.dinheiro };
+  const dinamico = prox.config.turno === 'dinamico';
+
+  let meses = 0;
+  let houveNovidade = false;
+  while (true) {
+    const anoAntes = prox.relogio.ano;
+    const { importantes, rotina } = passo(prox, anos, rng, !dinamico);
+    meses += anos * 12;
+    const quando = quandoAgora(prox);
+    const extras = dinamico && prox.relogio.ano !== anoAntes ? resumoDoAno(prox, anoAntes) : [];
+    if (!dinamico) extras.push(...notasDeTendencia(prox, prox.atributosAnteriores));
+    for (const texto of [...rotina, ...importantes, ...extras]) prox.historico.push({ quando, texto });
+    if (importantes.length) houveNovidade = true;
+
+    if (prox.morte || prox.pendente || !dinamico) break;
+    if (!pularAno && importantes.length) break;
+    if (meses >= 12) break;
+  }
+
+  if (!houveNovidade && !prox.pendente && !prox.morte) {
+    const texto = dinamico
+      ? `Um ano tranquilo. Você está com ${textoIdade(prox.relogio.idadeMeses)}.`
+      : `Um período tranquilo. Você está com ${textoIdade(prox.relogio.idadeMeses)}.`;
+    prox.historico.push({ quando: quandoAgora(prox), texto });
+  }
   prox.rng = rng.estado();
   return prox;
 }
-
 
 /** Fases que viram uma linha na história quando a idade passa por elas. */
 const MARCOS_IDADE: { meses: number; texto: (s: Sexo) => string }[] = [
@@ -215,10 +260,6 @@ const MARCOS_IDADE: { meses: number; texto: (s: Sexo) => string }[] = [
   { meses: 80 * 12, texto: () => 'Oitenta anos de história.' },
   { meses: 100 * 12, texto: () => 'Você chegou aos 100 anos!' },
 ];
-
-export function rotuloPeriodo(r: Relogio, turno: Turno): string {
-  return turno === 'ano' ? `${r.ano}` : `${r.ano} · ${r.semestre}º semestre`;
-}
 
 export function textoIdade(meses: number): string {
   if (meses < 12) return meses === 0 ? 'recém-nascido' : `${meses} meses`;

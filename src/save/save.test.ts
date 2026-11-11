@@ -72,7 +72,8 @@ describe('save', () => {
     for (const k of ['habitos', 'memorias', 'ganchos', 'pendente', 'periodo', 'totais', 'vistos', 'ganchosCumpridos', 'pessoas', 'linhagem', 'anterior', 'voltas']) delete antigo[k];
     for (const k of ['dinheiro', 'desgaste', 'tracos', 'classe', 'estudo', 'trabalho', 'dividas', 'moradia', 'potencial', 'interesse']) delete antigo.personagem[k];
     const lido = importarTexto(JSON.stringify(antigo));
-    expect(lido.versao).toBe(5);
+    expect(lido.versao).toBe(6);
+    expect(lido.config.turno).toBe('dinamico');
     expect(lido.anterior).toBeNull();
     expect(lido.personagem.trabalho.cargos).toEqual([]);
     expect(lido.pessoas.some((x) => x.papel === 'mae')).toBe(true);

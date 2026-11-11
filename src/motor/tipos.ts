@@ -3,7 +3,7 @@
 
 import type { EstadoRng } from './rng';
 
-export const VERSAO_SAVE = 5;
+export const VERSAO_SAVE = 6;
 
 export const ATRIBUTOS = [
   'saude', 'felicidade', 'inteligencia', 'aparencia', 'forma', 'carisma', 'sorte',
@@ -17,7 +17,8 @@ export const EIXOS = [
 export type Eixo = (typeof EIXOS)[number];
 
 export type Sexo = 'feminino' | 'masculino';
-export type Turno = 'ano' | 'semestre';
+/** 'dinamico': anda mês a mês e para na próxima novidade. 'ano' e 'semestre': testes e saves antigos. */
+export type Turno = 'ano' | 'semestre' | 'dinamico';
 export type ModoMorte = 'permanente' | 'voltar';
 export type Inicio = 'bebe' | 'adulto';
 
@@ -31,6 +32,8 @@ export interface Config {
 export interface Relogio {
   ano: number;
   semestre: 1 | 2;
+  /** Mês do calendário (1 a 12), usado no modo dinâmico. */
+  mes?: number;
   idadeMeses: number;
 }
 
@@ -188,7 +191,7 @@ export interface Gancho {
 export interface Pendente {
   evento: string;
   /** Decisões do próprio jogo (vagas de emprego, escolha de curso), fora dos eventos. */
-  sistema?: 'vagas' | 'curso' | 'pretendentes';
+  sistema?: 'vagas' | 'curso' | 'pretendentes' | 'habito18';
   /** Candidatos de "Procurar alguém". */
   candidatos?: Pessoa[];
   /** Ids alinhados com as escolhas (empregos ou cursos). */
@@ -238,4 +241,6 @@ export interface Vida {
   anterior: Vida | null;
   /** Quantas vezes voltou; muda o sorteio para o período não se repetir igual. */
   voltas: number;
+  /** Modo dinâmico: como a vida estava no começo do ano, para o resumo do ano. */
+  inicioAno?: { atributos: Record<Atributo, number>; dinheiro: number };
 }

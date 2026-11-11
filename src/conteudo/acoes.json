@@ -19,7 +19,8 @@
     "textos": [
       "Você chorou até ganhar colo.",
       "Você dormiu no colo, quentinho."
-    ]
+    ],
+    "categoria": "lazer"
   },
   {
     "id": "brincar",
@@ -44,7 +45,8 @@
       "Você brincou até cansar.",
       "Você passou a tarde inventando brincadeiras.",
       "Você brincou no quintal até escurecer."
-    ]
+    ],
+    "categoria": "lazer"
   },
   {
     "id": "estudar",
@@ -70,7 +72,8 @@
       "Você estudou.",
       "Você passou umas horas estudando.",
       "Você revisou a matéria."
-    ]
+    ],
+    "categoria": "estudo"
   },
   {
     "id": "ler",
@@ -95,7 +98,8 @@
       "Você leu um livro.",
       "Você terminou um livro que estava enrolando.",
       "Você se perdeu num livro."
-    ]
+    ],
+    "categoria": "mente"
   },
   {
     "id": "esporte",
@@ -141,7 +145,44 @@
       "Você jogou bola.",
       "Você suou a camisa no esporte.",
       "Você treinou com a turma."
-    ]
+    ],
+    "categoria": "corpo",
+    "variantes": [
+      {
+        "id": "futebol",
+        "nome": "Futebol",
+        "textos": [
+          "Você jogou bola.",
+          "Você suou a camisa num racha."
+        ]
+      },
+      {
+        "id": "volei",
+        "nome": "Vôlei",
+        "textos": [
+          "Você jogou vôlei.",
+          "Você jogou vôlei de praia até cansar."
+        ]
+      },
+      {
+        "id": "corrida",
+        "nome": "Corrida",
+        "mult": 0.9,
+        "textos": [
+          "Você saiu para correr.",
+          "Você correu 5 km."
+        ]
+      },
+      {
+        "id": "skate",
+        "nome": "Skate",
+        "textos": [
+          "Você andou de skate.",
+          "Você tentou uma manobra nova no skate."
+        ]
+      }
+    ],
+    "comQuem": true
   },
   {
     "id": "natacao",
@@ -167,16 +208,20 @@
       "Você nadou.",
       "Você foi à natação.",
       "Você fez umas boas voltas na piscina."
-    ]
+    ],
+    "categoria": "corpo"
   },
   {
     "id": "academia",
-    "nome": "Academia",
+    "nome": "Treinar",
     "busca": [
       "academia",
       "musculacao",
       "treino",
-      "malhar"
+      "malhar",
+      "treinar",
+      "exercicio",
+      "calistenia"
     ],
     "idade": [
       14,
@@ -184,8 +229,6 @@
     ],
     "horas": 1.5,
     "desgaste": 4,
-    "custo": 8,
-    "paisPagam": true,
     "efeitos": {
       "atributos.forma": 1.4,
       "atributos.saude": 0.6,
@@ -204,6 +247,29 @@
       "Você foi à academia.",
       "Você treinou pesado.",
       "Você malhou."
+    ],
+    "categoria": "corpo",
+    "variantes": [
+      {
+        "id": "academia",
+        "nome": "Academia",
+        "custo": 8,
+        "paisPagam": true,
+        "textos": [
+          "Você foi à academia.",
+          "Você treinou pesado.",
+          "Você malhou."
+        ]
+      },
+      {
+        "id": "ar_livre",
+        "nome": "Ao ar livre · grátis",
+        "mult": 0.8,
+        "textos": [
+          "Você treinou na praça, nas barras.",
+          "Você fez um treino ao ar livre."
+        ]
+      }
     ]
   },
   {
@@ -233,7 +299,8 @@
       "Você cozinhou algo saudável.",
       "Você caprichou na comida.",
       "Você trocou o salgado por comida de verdade."
-    ]
+    ],
+    "categoria": "saude"
   },
   {
     "id": "amigos",
@@ -243,7 +310,14 @@
       "sair",
       "role",
       "rolê",
-      "passeio"
+      "passeio",
+      "praça",
+      "cinema",
+      "bar",
+      "barzinho",
+      "balada",
+      "festa",
+      "beber"
     ],
     "idade": [
       10,
@@ -251,8 +325,6 @@
     ],
     "horas": 3,
     "desgaste": 3,
-    "custo": 40,
-    "paisPagam": true,
     "efeitos": {
       "atributos.felicidade": 2,
       "atributos.carisma": 0.6,
@@ -262,11 +334,83 @@
       "Você saiu com os amigos.",
       "Você passou a noite rindo com a turma.",
       "Você foi dar um rolê."
+    ],
+    "categoria": "social",
+    "comQuem": true,
+    "variantes": [
+      {
+        "id": "praca",
+        "nome": "Praça ou parque",
+        "mult": 0.8,
+        "textos": [
+          "Você e {com} ficaram de bobeira na praça.",
+          "Você e {com} passaram a tarde no parque."
+        ]
+      },
+      {
+        "id": "casa",
+        "nome": "Casa de alguém",
+        "mult": 0.9,
+        "textos": [
+          "Você e {com} passaram a tarde conversando em casa.",
+          "Você e {com} fizeram um lanche e jogaram conversa fora."
+        ]
+      },
+      {
+        "id": "cinema",
+        "nome": "Cinema",
+        "custo": 40,
+        "paisPagam": true,
+        "mult": 1.1,
+        "textos": [
+          "Você e {com} foram ao cinema.",
+          "Você e {com} viram um filme e saíram discutindo o final."
+        ]
+      },
+      {
+        "id": "barzinho",
+        "nome": "Barzinho",
+        "custo": 80,
+        "idadeMin": 16,
+        "mult": 1.2,
+        "contaComo": "festa",
+        "vicio": {
+          "id": "alcool",
+          "chance": 0.012
+        },
+        "extra": {
+          "atributos.saude": -0.4
+        },
+        "textos": [
+          "Você e {com} tomaram umas no barzinho.",
+          "Você e {com} ficaram até fechar o bar."
+        ]
+      },
+      {
+        "id": "balada",
+        "nome": "Balada",
+        "custo": 150,
+        "idadeMin": 18,
+        "mult": 1.4,
+        "contaComo": "festa",
+        "desgaste": 8,
+        "vicio": {
+          "id": "alcool",
+          "chance": 0.018
+        },
+        "extra": {
+          "atributos.saude": -0.5
+        },
+        "textos": [
+          "Você e {com} viraram a noite na balada.",
+          "Você e {com} dançaram até o sol nascer."
+        ]
+      }
     ]
   },
   {
     "id": "musica",
-    "nome": "Tocar violão",
+    "nome": "Tocar ou cantar",
     "busca": [
       "musica",
       "violao",
@@ -296,6 +440,33 @@
       "Você tocou violão.",
       "Você tirou uma música nova no violão.",
       "Você praticou acordes."
+    ],
+    "categoria": "lazer",
+    "variantes": [
+      {
+        "id": "violao",
+        "nome": "Violão",
+        "textos": [
+          "Você tocou violão.",
+          "Você tirou uma música nova no violão."
+        ]
+      },
+      {
+        "id": "teclado",
+        "nome": "Teclado",
+        "textos": [
+          "Você tocou teclado.",
+          "Você praticou escalas no teclado."
+        ]
+      },
+      {
+        "id": "cantar",
+        "nome": "Cantar",
+        "textos": [
+          "Você cantou até a vizinhança reclamar.",
+          "Você treinou a voz."
+        ]
+      }
     ]
   },
   {
@@ -329,7 +500,8 @@
       "Você desenhou.",
       "Você pintou um quadro.",
       "Você encheu um caderno de desenhos."
-    ]
+    ],
+    "categoria": "lazer"
   },
   {
     "id": "videogame",
@@ -354,7 +526,8 @@
       "Você jogou videogame.",
       "Você virou a noite num jogo.",
       "Você zerou uma fase difícil."
-    ]
+    ],
+    "categoria": "lazer"
   },
   {
     "id": "festa",
@@ -387,7 +560,9 @@
       "Você foi a uma festa e bebeu.",
       "Você virou a noite na balada.",
       "Você tomou umas no bar."
-    ]
+    ],
+    "categoria": "social",
+    "oculta": true
   },
   {
     "id": "fumar",
@@ -416,7 +591,8 @@
     "textos": [
       "Você fumou um cigarro.",
       "Você fumou para relaxar."
-    ]
+    ],
+    "categoria": "risco"
   },
   {
     "id": "meditar",
@@ -441,7 +617,8 @@
       "Você meditou.",
       "Você parou para respirar um pouco.",
       "Você meditou e a cabeça desacelerou."
-    ]
+    ],
+    "categoria": "mente"
   },
   {
     "id": "descansar",
@@ -465,7 +642,9 @@
       "Você descansou.",
       "Você dormiu bem a noite toda.",
       "Você tirou o dia para não fazer nada."
-    ]
+    ],
+    "categoria": "saude",
+    "oculta": true
   },
   {
     "id": "medico_sus",
@@ -491,7 +670,8 @@
     },
     "textos": [
       "Você foi ao posto de saúde e fez um check-up."
-    ]
+    ],
+    "categoria": "saude"
   },
   {
     "id": "medico_particular",
@@ -518,7 +698,8 @@
     },
     "textos": [
       "Você fez uma consulta particular e uns exames."
-    ]
+    ],
+    "categoria": "saude"
   },
   {
     "id": "bico",
@@ -547,7 +728,8 @@
       "Você fez um bico.",
       "Você descolou um trampo de um dia.",
       "Você ajudou numa entrega e recebeu por isso."
-    ]
+    ],
+    "categoria": "dinheiro"
   },
   {
     "id": "bet",
@@ -574,7 +756,8 @@
     },
     "textos": [
       "Você apostou R$ 50 numa bet."
-    ]
+    ],
+    "categoria": "risco"
   },
   {
     "id": "bicho",
@@ -600,7 +783,8 @@
     },
     "textos": [
       "Você jogou R$ 10 no bicho."
-    ]
+    ],
+    "categoria": "risco"
   },
   {
     "id": "furtar",
@@ -624,7 +808,8 @@
     },
     "textos": [
       "Você saiu de uma loja com algo no bolso."
-    ]
+    ],
+    "categoria": "risco"
   },
   {
     "id": "matar_aula",
@@ -654,7 +839,8 @@
       "Você matou aula.",
       "Você cabulou aula e foi para a praça.",
       "Você faltou e passou o dia jogando."
-    ]
+    ],
+    "categoria": "estudo"
   },
   {
     "id": "trabalhar_duro",
@@ -682,7 +868,8 @@
       "Você deu o sangue no trabalho.",
       "Você ficou até mais tarde resolvendo pepino.",
       "Você entregou antes do prazo."
-    ]
+    ],
+    "categoria": "trabalho"
   },
   {
     "id": "procurar_emprego",
@@ -708,7 +895,8 @@
     "efeitos": {},
     "textos": [
       "Você mandou currículos e olhou as vagas."
-    ]
+    ],
+    "categoria": "trabalho"
   },
   {
     "id": "pedir_aumento",
@@ -732,7 +920,8 @@
     "efeitos": {},
     "textos": [
       "Você pediu aumento."
-    ]
+    ],
+    "categoria": "trabalho"
   },
   {
     "id": "pedir_demissao",
@@ -757,7 +946,8 @@
     "efeitos": {},
     "textos": [
       "Você foi até o RH."
-    ]
+    ],
+    "categoria": "trabalho"
   },
   {
     "id": "prestar_enem",
@@ -785,7 +975,8 @@
     "efeitos": {},
     "textos": [
       "Você se inscreveu e fez a prova do ENEM."
-    ]
+    ],
+    "categoria": "estudo"
   },
   {
     "id": "supletivo",
@@ -812,7 +1003,8 @@
     "efeitos": {},
     "textos": [
       "Você foi até a escola pública mais perto."
-    ]
+    ],
+    "categoria": "estudo"
   },
   {
     "id": "largar_estudo",
@@ -841,7 +1033,8 @@
     "efeitos": {},
     "textos": [
       "Você foi à secretaria."
-    ]
+    ],
+    "categoria": "estudo"
   },
   {
     "id": "sair_de_casa",
@@ -870,7 +1063,8 @@
     },
     "textos": [
       "Você procurou um lugar para morar."
-    ]
+    ],
+    "categoria": "casa"
   },
   {
     "id": "voltar_pais",
@@ -895,7 +1089,8 @@
     "efeitos": {},
     "textos": [
       "Você fez as malas."
-    ]
+    ],
+    "categoria": "casa"
   },
   {
     "id": "aposentar",
@@ -919,7 +1114,8 @@
     "efeitos": {},
     "textos": [
       "Você deu entrada na aposentadoria."
-    ]
+    ],
+    "categoria": "trabalho"
   },
   {
     "id": "procurar_parceiro",
@@ -950,6 +1146,37 @@
     "textos": [
       "Você saiu para conhecer gente nova.",
       "Você baixou um app de paquera."
+    ],
+    "categoria": "social"
+  },
+  {
+    "id": "tirar_folga",
+    "nome": "Tirar folga",
+    "busca": [
+      "folga",
+      "ferias",
+      "férias",
+      "descansar",
+      "atestado"
+    ],
+    "idade": [
+      14,
+      100
+    ],
+    "requer": {
+      "empregado": true
+    },
+    "horas": 0,
+    "desgaste": -25,
+    "semHabito": true,
+    "categoria": "trabalho",
+    "efeitos": {
+      "atributos.felicidade": 2,
+      "trabalho.desempenho": -1.5
+    },
+    "textos": [
+      "Você tirou uns dias de folga.",
+      "Você emendou o feriado e descansou de verdade."
     ]
   }
 ]

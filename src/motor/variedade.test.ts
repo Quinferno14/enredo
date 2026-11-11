@@ -5,6 +5,7 @@
 import { describe, expect, it } from 'vitest';
 import { jogarPeriodo } from './automatico';
 import { pausarIdade } from './deus';
+import { fazerAcao } from './acoes';
 import { EVENTOS } from './eventos';
 import type { Vida } from './tipos';
 import { criarVida } from './vida';
@@ -27,6 +28,10 @@ function jogar(seed: string): Medidas {
   for (let i = 0; i < 150 && !v.morte; i++) {
     // Algumas vidas pausam a idade aos 30, para o mundo reagir à anomalia.
     if (Number(seed.slice(4)) % 7 === 0 && v.relogio.idadeMeses === 30 * 12) v = pausarIdade(v, true);
+    // Um quinto das vidas gosta de balada (para o conteúdo de bebida aparecer).
+    if (Number(seed.slice(4)) % 5 === 0 && v.relogio.idadeMeses >= 18 * 12 && !v.morte) {
+      v = fazerAcao({ ...v, personagem: { ...v.personagem, dinheiro: Math.max(v.personagem.dinheiro, 200) } }, 'amigos', { variante: 'balada' }).vida;
+    }
     const antes = { ...v.vistos };
     v = jogarPeriodo(v, { acoes: 3, chanceHabito: 0.15, carreira: Number(seed.slice(4)) % 2 === 0, familia: Number(seed.slice(4)) % 3 !== 0 });
     const novos = Object.keys(v.vistos).filter((k) => v.vistos[k] !== antes[k]);

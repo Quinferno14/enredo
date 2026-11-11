@@ -9,6 +9,7 @@ import { aplicar, atende, lembrar, reais } from './efeitos';
 import {
   alvoAparencia, alvoForma, alvoInteligencia, alvoSaude, chanceMorteAnual, limitar, patamarFelicidade,
 } from './envelhecer';
+import { anosDaJanela, quandoAgora, rotuloPeriodo } from './tempo';
 import { Rng } from './rng';
 import {
   EIXOS, VERSAO_SAVE,
@@ -113,7 +114,7 @@ export function criarFamilia(rng: Rng, sobrenome: string, idadeJogadorMeses: num
 // ---- Período ----
 
 /** Envelhece a família, sorteia mortes e nascimentos, cobra filhos. Devolve linhas. */
-export function rodarPessoas(vida: Vida, anos: number, rng: Rng): string[] {
+export function rodarPessoas(vida: Vida, anos: number, rng: Rng, resumir = true): string[] {
   const linhas: string[] = [];
   const p = vida.personagem;
   const idadeJogador = vida.relogio.idadeMeses / 12;
@@ -177,7 +178,7 @@ export function rodarPessoas(vida: Vida, anos: number, rng: Rng): string[] {
     custo -= ajuda;
     if (filhos > 0 || ajuda > 0) {
       p.dinheiro = Math.round(p.dinheiro - custo);
-      if (filhos > 0) linhas.push(`Criar ${filhos === 1 ? 'seu filho' : `${filhos} filhos`} custou ${reais(filhos * 600 * 12 * anos)} no período${ajuda > 0 ? `; ${parc!.nome} ajudou com ${reais(ajuda)}` : ''}.`);
+      if (filhos > 0 && resumir) linhas.push(`Criar ${filhos === 1 ? 'seu filho' : `${filhos} filhos`} custou ${reais(filhos * 600 * 12 * anos)} no período${ajuda > 0 ? `; ${parc!.nome} ajudou com ${reais(ajuda)}` : ''}.`);
     }
   }
   return linhas;
@@ -272,7 +273,7 @@ export function fazerAcaoPessoa(vida: Vida, pessoaId: string, acaoId: string): R
   const chave = `p:${pessoaId}:${acaoId}`;
   const m = prox.periodo[chave] ?? 0;
   prox.periodo[chave] = m + 1;
-  const anos = prox.config.turno === 'ano' ? 1 : 0.5;
+  const anos = anosDaJanela(prox.config.turno);
   const rend = anos * (curva((m + 1) / anos) - curva(m / anos));
   const quem = `${papelTexto(pe)}, ${pe.nome}`;
   const afetoAntes = pe.afeto;
@@ -387,7 +388,7 @@ export function fazerAcaoPessoa(vida: Vida, pessoaId: string, acaoId: string): R
 
   const d = pe.afeto - afetoAntes;
   const extra = [custo > 0 ? `−${reais(custo)}` : '', d !== 0 ? `Afeto de ${pe.nome} ${d > 0 ? '+' : '−'}${Math.abs(d)}` : ''].filter(Boolean).join(' · ');
-  const quando = prox.historico.at(-1)?.quando ?? '';
+  const quando = quandoAgora(prox);
   prox.historico.push({ quando, texto: extra ? `${texto} ${extra}` : texto });
   prox.rng = rng.estado();
   return { vida: prox, ok: true };
@@ -522,7 +523,7 @@ export function continuarComoFilho(morta: Vida, filhoId: string, novoId: string,
     sorte: rng.normalAprox(0, 100),
   };
   const relogio = { ...morta.relogio, idadeMeses: f.idadeMeses };
-  const quando = morta.config.turno === 'ano' ? `${relogio.ano}` : `${relogio.ano} · ${relogio.semestre}º semestre`;
+  const quando = rotuloPeriodo(relogio, morta.config.turno);
   const nomePai = `${fem(pm) ? 'Sua mãe' : 'Seu pai'}, ${pm.nome}`;
   const anteriores = [...morta.linhagem.anteriores, `${pm.nome} ${pm.sobrenome} (${morta.morte.ano - Math.floor(morta.morte.idadeMeses / 12)}–${morta.morte.ano})`];
 

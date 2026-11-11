@@ -75,15 +75,15 @@ describe('criarVida', () => {
 describe('avancarPeriodo', () => {
   it('no modo ano soma 12 meses e um ano', () => {
     const v = avancarPeriodo(criarVida(base));
-    expect(v.relogio).toEqual({ ano: 2027, semestre: 1, idadeMeses: 12 });
+    expect(v.relogio).toMatchObject({ ano: 2027, semestre: 1, idadeMeses: 12 });
   });
 
   it('no modo semestre alterna os semestres', () => {
     let v = criarVida({ ...base, turno: 'semestre' });
     v = avancarPeriodo(v);
-    expect(v.relogio).toEqual({ ano: 2026, semestre: 2, idadeMeses: 6 });
+    expect(v.relogio).toMatchObject({ ano: 2026, semestre: 2, idadeMeses: 6 });
     v = avancarPeriodo(v);
-    expect(v.relogio).toEqual({ ano: 2027, semestre: 1, idadeMeses: 12 });
+    expect(v.relogio).toMatchObject({ ano: 2027, semestre: 1, idadeMeses: 12 });
   });
 
   it('não altera a vida original', () => {

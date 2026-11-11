@@ -89,7 +89,7 @@ export function migrar(dados: unknown): Vida | null {
   if (!dados || typeof dados !== 'object') return null;
   const v = dados as Partial<Vida>;
   const versao = v.versao as number | undefined;
-  if (versao !== 1 && versao !== 2 && versao !== 3 && versao !== 4 && versao !== VERSAO_SAVE) return null;
+  if (typeof versao !== 'number' || versao < 1 || versao > VERSAO_SAVE) return null;
   const p = v.personagem;
   const ok =
     typeof v.id === 'string' &&
@@ -138,6 +138,9 @@ export function migrar(dados: unknown): Vida | null {
   vida.anterior ??= null;
   vida.voltas ??= 0;
   p2.trabalho.cargos ??= [];
+  // Versão 5 → 6: tempo dinâmico para todas as vidas jogadas na tela.
+  if (versao < 6) vida.config.turno = 'dinamico';
+  vida.relogio.mes ??= 1;
   vida.versao = VERSAO_SAVE;
   return vida;
 }

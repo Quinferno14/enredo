@@ -9,6 +9,7 @@ import { acaoCarreira, horasObrigacoes } from './carreira';
 import { acaoFamilia } from './familia';
 import { curva } from './curva';
 import { limitar } from './envelhecer';
+import { anosDaJanela, quandoAgora } from './tempo';
 import { Rng } from './rng';
 import type { EntradaHistorico, Vida } from './tipos';
 
@@ -37,6 +38,53 @@ export interface AcaoDef {
   requer?: Quando;
   semHabito?: boolean;
   textos: string[];
+  /** Grupo na folha de atividades. */
+  categoria: Categoria;
+  /** Não aparece mais na lista (ex.: virou variante de outra ação). */
+  oculta?: boolean;
+  /** Pode escolher com quem fazer (alguém da aba Pessoas ou "a turma"). */
+  comQuem?: boolean;
+  /** Jeitos diferentes de fazer a mesma coisa (onde, como, quanto custa). */
+  variantes?: VarianteDef[];
+}
+
+export type Categoria = 'social' | 'corpo' | 'mente' | 'lazer' | 'saude' | 'estudo' | 'trabalho' | 'dinheiro' | 'casa' | 'risco';
+
+export const CATEGORIAS: { id: Categoria; nome: string }[] = [
+  { id: 'social', nome: 'Social' },
+  { id: 'lazer', nome: 'Lazer' },
+  { id: 'corpo', nome: 'Corpo' },
+  { id: 'mente', nome: 'Mente' },
+  { id: 'saude', nome: 'Saúde' },
+  { id: 'estudo', nome: 'Estudo' },
+  { id: 'trabalho', nome: 'Trabalho' },
+  { id: 'dinheiro', nome: 'Dinheiro' },
+  { id: 'casa', nome: 'Casa' },
+  { id: 'risco', nome: 'Risco' },
+];
+
+export interface VarianteDef {
+  id: string;
+  nome: string;
+  custo?: number;
+  paisPagam?: boolean;
+  idadeMin?: number;
+  /** Multiplica os efeitos da ação. */
+  mult?: number;
+  /** Efeitos a mais (também caem com a repetição). */
+  extra?: Efeitos;
+  desgaste?: number;
+  /** Também conta como outra ação (ex.: barzinho conta como festa, para vícios e eventos). */
+  contaComo?: string;
+  vicio?: { id: string; chance: number };
+  /** {com} vira o nome de quem foi junto. */
+  textos?: string[];
+}
+
+export interface OpcoesAcao {
+  variante?: string;
+  /** Id de alguém da aba Pessoas, ou 'turma'. */
+  com?: string;
 }
 
 export const ACOES: readonly AcaoDef[] = acoesJson as AcaoDef[];
@@ -47,12 +95,12 @@ const LIMIARES_TALENTO = [25, 120, 400];
 
 export { curva };
 
-const anosDoTurno = (vida: Vida) => (vida.config.turno === 'ano' ? 1 : 0.5);
+const anosDoTurno = (vida: Vida) => anosDaJanela(vida.config.turno);
 const idadeDe = (vida: Vida) => vida.relogio.idadeMeses / 12;
 
 export function disponivel(vida: Vida, a: AcaoDef): boolean {
   const idade = idadeDe(vida);
-  return !vida.morte && idade >= a.idade[0] && idade <= a.idade[1] && atende(vida, a.requer);
+  return !vida.morte && !a.oculta && idade >= a.idade[0] && idade <= a.idade[1] && atende(vida, a.requer);
 }
 
 export function acoesDisponiveis(vida: Vida): AcaoDef[] {
@@ -60,10 +108,25 @@ export function acoesDisponiveis(vida: Vida): AcaoDef[] {
 }
 
 /** Quanto custa uma sessão para este personagem (os pais pagam algumas até os 18). */
-export function custoPara(vida: Vida, a: AcaoDef): number {
-  if (!a.custo) return 0;
-  if (a.paisPagam && idadeDe(vida) < 18) return 0;
-  return a.custo;
+export function custoPara(vida: Vida, a: AcaoDef, v?: VarianteDef): number {
+  const custo = v?.custo ?? a.custo;
+  const paisPagam = v ? v.paisPagam : a.paisPagam;
+  if (!custo) return 0;
+  if (paisPagam && idadeDe(vida) < 18) return 0;
+  return custo;
+}
+
+/** Variantes que a idade permite. */
+export function variantesPossiveis(vida: Vida, a: AcaoDef): VarianteDef[] {
+  return (a.variantes ?? []).filter((v) => idadeDe(vida) >= (v.idadeMin ?? 0));
+}
+
+/** Quem pode ir junto: pessoas vivas da aba Pessoas com idade para isso. */
+export function companhias(vida: Vida): { id: string; nome: string }[] {
+  const idade = idadeDe(vida);
+  return vida.pessoas
+    .filter((p) => p.vivo && p.papel !== 'ex' && p.idadeMeses >= 4 * 12 && (idade >= 14 || p.papel !== 'parceiro'))
+    .map((p) => ({ id: p.id, nome: p.nome }));
 }
 
 /** Sessões por ano que o hábito ativo desta ação já dá. */
@@ -94,10 +157,21 @@ export interface Resultado {
 }
 
 /** Faz uma ação agora. Devolve a vida nova (ou a mesma, com aviso, se não deu). */
-export function fazerAcao(vida: Vida, id: string): Resultado {
-  const a = acaoPorId(id);
-  if (!a || !disponivel(vida, a)) return { vida, ok: false, aviso: 'Essa ação não está disponível agora.' };
-  const custo = custoPara(vida, a);
+export function fazerAcao(vida: Vida, id: string, opcoes: OpcoesAcao = {}): Resultado {
+  const a0 = acaoPorId(id);
+  if (!a0 || !disponivel(vida, a0)) return { vida, ok: false, aviso: 'Essa ação não está disponível agora.' };
+  const possiveis = variantesPossiveis(vida, a0);
+  const v = possiveis.find((x) => x.id === opcoes.variante) ?? possiveis[0];
+  // A variante vira a própria ação para o resto da conta.
+  const a: AcaoDef = v ? {
+    ...a0,
+    custo: v.custo ?? a0.custo,
+    paisPagam: v.paisPagam ?? a0.paisPagam,
+    desgaste: v.desgaste ?? a0.desgaste,
+    vicio: v.vicio ?? a0.vicio,
+    textos: v.textos ?? a0.textos,
+  } : a0;
+  const custo = custoPara(vida, a0, v);
   if (custo > 0 && custo > vida.personagem.dinheiro) {
     return { vida, ok: false, aviso: `Sem dinheiro: precisa de ${reais(custo)}.` };
   }
@@ -106,10 +180,23 @@ export function fazerAcao(vida: Vida, id: string): Resultado {
   const rng = new Rng(prox.rng);
   const antes = foto(prox);
   const extras: string[] = [];
+  const extrasAfeto: string[] = [];
 
   const r = rendimentoProximo(prox, id);
-  aplicar(prox, a.efeitos, r);
+  aplicar(prox, a.efeitos, r * (v?.mult ?? 1));
+  aplicar(prox, v?.extra, r);
   aplicar(prox, { desgaste: a.desgaste, dinheiro: -custo });
+  if (v?.contaComo) prox.periodo[v.contaComo] = (prox.periodo[v.contaComo] ?? 0) + 1;
+
+  // Companhia: quem vai junto gosta mais de você.
+  let com = 'a turma';
+  const pessoa = opcoes.com && opcoes.com !== 'turma' ? prox.pessoas.find((x) => x.id === opcoes.com && x.vivo) : undefined;
+  if (pessoa) {
+    com = pessoa.nome;
+    const antesAfeto = pessoa.afeto;
+    pessoa.afeto = Math.round(limitar(pessoa.afeto + 6 * r));
+    if (pessoa.afeto !== antesAfeto) extrasAfeto.push(`Afeto de ${pessoa.nome} +${pessoa.afeto - antesAfeto}`);
+  }
   if (a.ganho) {
     const mult = idadeDe(prox) >= 18 ? 1.5 : 1;
     aplicar(prox, { dinheiro: Math.round(rng.inteiro(a.ganho[0], a.ganho[1]) * mult) });
@@ -125,17 +212,20 @@ export function fazerAcao(vida: Vida, id: string): Resultado {
   }
 
   const delta = diferenca(antes, foto(prox));
-  const quando = prox.historico.at(-1)?.quando ?? '';
+  const quando = quandoAgora(prox);
   const ultima = prox.historico.at(-1);
-  if (ultima && ultima.acao === id && extras.length === 0 && !a.especial) {
+  const chave = [id, v?.id ?? '', opcoes.com ?? ''].join('|');
+  const trocar = (t: string) => t.replaceAll('{com}', com);
+  if (ultima && ultima.acao === chave && ultima.quando === quando && extras.length === 0 && extrasAfeto.length === 0 && !a.especial) {
     // Mesma ação em seguida: junta numa linha só, somando o efeito.
     ultima.vezes = (ultima.vezes ?? 1) + 1;
     for (const [k, v] of Object.entries(delta)) ultima.delta = { ...ultima.delta, [k]: (ultima.delta?.[k] ?? 0) + v };
-    ultima.texto = linhaAcao(a, ultima.vezes, ultima.delta ?? {}, a.textos[0]!);
+    ultima.texto = trocar(linhaAcao(a, ultima.vezes, ultima.delta ?? {}, a.textos[0]!));
   } else {
+    const base = trocar(linhaAcao(a, 1, delta, rng.escolher(a.textos)));
     const entrada: EntradaHistorico = {
-      quando, acao: id, vezes: 1, delta,
-      texto: linhaAcao(a, 1, delta, rng.escolher(a.textos)),
+      quando, acao: chave, vezes: 1, delta,
+      texto: extrasAfeto.length ? `${base}${/[0-9]$/.test(base) ? ' · ' : ' '}${extrasAfeto.join(' · ')}` : base,
     };
     prox.historico.push(entrada);
     for (const t of extras) prox.historico.push({ quando, texto: t });
@@ -243,7 +333,7 @@ export function definirHabito(vida: Vida, acao: string, porSemana: number): Vida
   const a = acaoPorId(acao);
   if (!a || a.semHabito) return vida;
   const prox = structuredClone(vida);
-  const quando = prox.historico.at(-1)?.quando ?? '';
+  const quando = quandoAgora(prox);
   const atual = prox.habitos.find((h) => h.acao === acao);
   if (porSemana <= 0) {
     prox.habitos = prox.habitos.filter((h) => h.acao !== acao);
@@ -263,7 +353,7 @@ export function definirHabito(vida: Vida, acao: string, porSemana: number): Vida
 export function pedirParaSair(vida: Vida, acao: string): Vida {
   const prox = structuredClone(vida);
   const rng = new Rng(prox.rng);
-  const quando = prox.historico.at(-1)?.quando ?? '';
+  const quando = quandoAgora(prox);
   const nome = acaoPorId(acao)?.nome ?? acao;
   if (rng.proximo() < 0.35 + prox.personagem.atributos.carisma / 250) {
     prox.habitos = prox.habitos.filter((h) => h.acao !== acao);
@@ -295,7 +385,7 @@ export function sugereHabito(vida: Vida, id: string): boolean {
  * Roda os hábitos do período que está fechando. Altera `vida` no lugar e
  * devolve as linhas do resumo ("Academia (3x/sem): Forma +6 · Cansaço +2").
  */
-export function rodarHabitos(vida: Vida, anos: number, rng: Rng): string[] {
+export function rodarHabitos(vida: Vida, anos: number, rng: Rng, resumir = true): string[] {
   const linhas: string[] = [];
   const resumos: string[] = [];
   for (const h of vida.habitos) {
@@ -307,12 +397,16 @@ export function rodarHabitos(vida: Vida, anos: number, rng: Rng): string[] {
       h.pausado = 'idade';
       continue;
     }
-    if (h.imposto && idade >= 18) {
-      delete h.imposto;
-      linhas.push(`Você fez 18: ${a.nome.toLowerCase()} agora é escolha sua, não dos seus pais.`);
+    if (h.imposto && idade >= 18 && !vida.pendente) {
+      // Aos 18, o hábito imposto pelos pais vira pergunta.
+      vida.pendente = {
+        evento: '@habito18', sistema: 'habito18', vars: {}, dados: [h.acao, h.acao],
+        texto: `Você fez 18 e seus pais não decidem mais por você: quer continuar com ${a.nome.toLowerCase()}?`,
+        escolhas: [{ texto: `Continuar (${h.porSemana}x por semana)` }, { texto: 'Parar' }],
+      };
     }
     const sessoes = Math.round(h.porSemana * 52 * anos);
-    const custo = custoPara(vida, a) * sessoes;
+    const custo = custoPara(vida, a, a.variantes?.[0]) * sessoes;
     if (custo > 0 && custo > vida.personagem.dinheiro) {
       if (h.pausado !== 'dinheiro') linhas.push(`${a.nome}: pausado por falta de dinheiro (custa ${reais(custo)} no período).`);
       h.pausado = 'dinheiro';
@@ -342,13 +436,13 @@ export function rodarHabitos(vida: Vida, anos: number, rng: Rng): string[] {
   }
 
   // Um resumo só para todos os hábitos, para o feed não repetir uma linha por hábito.
-  if (resumos.length) linhas.unshift(`Seus hábitos no período: ${resumos.join('; ')}.`);
+  if (resumir && resumos.length) linhas.unshift(`Seus hábitos no período: ${resumos.join('; ')}.`);
 
   // Agenda cheia cansa: escola, trabalho e hábitos passando de 50 h por semana.
   const horas = horasAgenda(vida);
   if (horas > 50) {
     vida.personagem.desgaste = limitar(vida.personagem.desgaste + (horas - 50) * 2 * anos);
-    linhas.push(`Sua agenda de ${Math.round(horas)} h por semana cansou você.`);
+    if (resumir) linhas.push(`Sua agenda de ${Math.round(horas)} h por semana cansou você.`);
   }
   return linhas;
 }

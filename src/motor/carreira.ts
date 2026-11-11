@@ -8,6 +8,7 @@ import estadosJson from '../conteudo/estados.json';
 import { curva } from './curva';
 import { aplicar, atende, lembrar, preencher, reais, valor, type Quando } from './efeitos';
 import { limitar } from './envelhecer';
+import { anosDaJanela } from './tempo';
 import type { Rng } from './rng';
 import type { Classe, Emprego, Estudo, Pendente, Vida } from './tipos';
 
@@ -92,9 +93,9 @@ export function horasObrigacoes(vida: Vida): number {
 }
 
 /** Sessões por ano (hábito + à mão) de uma ação neste período. */
-function intensidade(vida: Vida, acao: string, anos: number): number {
+function intensidade(vida: Vida, acao: string, _anos: number): number {
   const h = vida.habitos.find((x) => x.acao === acao && !x.pausado);
-  return (h ? h.porSemana * 52 : 0) + (vida.periodo[acao] ?? 0) / anos;
+  return (h ? h.porSemana * 52 : 0) + (vida.periodo[acao] ?? 0) / anosDaJanela(vida.config.turno);
 }
 
 // ---- Escola e faculdade ----
@@ -340,7 +341,7 @@ export function rodarTrabalho(vida: Vida, anos: number, rng: Rng): string[] {
 // ---- Dinheiro ----
 
 /** Renda, gastos fixos, dívidas e juros do período. */
-export function rodarDinheiro(vida: Vida, anos: number): string[] {
+export function rodarDinheiro(vida: Vida, anos: number, resumir = true): string[] {
   const linhas: string[] = [];
   const p = vida.personagem;
   const idade = vida.relogio.idadeMeses / 12;
@@ -381,17 +382,21 @@ export function rodarDinheiro(vida: Vida, anos: number): string[] {
   p.dividas = p.dividas.filter((d) => d.saldo > 0);
 
   p.dinheiro = Math.round(p.dinheiro + entrou - saiu);
-  if (entrou > 0 && idade >= 18) {
+  if (!resumir) {
+    // O resumo vem no fim do ano (modo dinâmico).
+  } else if (entrou > 0 && idade >= 18) {
     linhas.push(`Dinheiro do período: entrou ${reais(entrou)}, saiu ${reais(saiu)}.`);
   } else if (saiu > 0) {
     linhas.push(`Gastos fixos do período: ${reais(saiu)}.`);
   }
 
+  // Menor de idade não tem cheque especial: o que ficou negativo os pais cobrem.
+  if (p.dinheiro < 0 && idade < 18) p.dinheiro = 0;
   if (p.dinheiro < 0) {
     // Juros só sobre o limite do cheque especial (R$ 15.000); o resto fica como dívida parada.
     const juros = Math.round(Math.min(-p.dinheiro, 15000) * 0.6 * anos);
     p.dinheiro -= juros;
-    linhas.push(`Saldo negativo: o cheque especial cobrou ${reais(juros)} de juros.`);
+    if (resumir) linhas.push(`Saldo negativo: o cheque especial cobrou ${reais(juros)} de juros.`);
   }
   return linhas;
 }

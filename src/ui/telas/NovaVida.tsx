@@ -1,5 +1,5 @@
 import { useState } from 'preact/hooks';
-import type { Inicio, ModoMorte, Sexo, Turno, Vida } from '../../motor/tipos';
+import type { Inicio, ModoMorte, Sexo, Vida } from '../../motor/tipos';
 import { ESTADOS, criarVida, nomeCompleto, rotuloPeriodo, textoIdade } from '../../motor/vida';
 import { novaSeed, novoId } from '../textos';
 
@@ -17,7 +17,6 @@ export function NovaVida({ salvas, podeCancelar, onCancelar, onCriar, onContinua
   const [sexo, setSexo] = useState<Sexo | ''>('');
   const [estado, setEstado] = useState('');
   const [inicio, setInicio] = useState<Inicio>('bebe');
-  const [turno, setTurno] = useState<Turno>('ano');
   const [morte, setMorte] = useState<ModoMorte>('permanente');
   const [seed, setSeed] = useState(novaSeed);
 
@@ -28,7 +27,8 @@ export function NovaVida({ salvas, podeCancelar, onCancelar, onCriar, onContinua
       seed: s,
       ano: new Date().getFullYear(),
       criadaEm: new Date().toISOString(),
-      turno: aleatoria ? 'ano' : turno,
+      turno: 'dinamico',
+      mes: new Date().getMonth() + 1,
       morte: aleatoria ? 'permanente' : morte,
       inicio: aleatoria ? 'bebe' : inicio,
       ...(aleatoria ? {} : {
@@ -70,12 +70,6 @@ export function NovaVida({ salvas, podeCancelar, onCancelar, onCriar, onContinua
             <select value={inicio} onChange={(e) => setInicio(e.currentTarget.value as Inicio)}>
               <option value="bebe">Nascer bebê</option>
               <option value="adulto">Começar adulto (18 anos)</option>
-            </select>
-          </label>
-          <label>Cada turno vale
-            <select value={turno} onChange={(e) => setTurno(e.currentTarget.value as Turno)}>
-              <option value="ano">1 ano</option>
-              <option value="semestre">1 semestre</option>
             </select>
           </label>
           <label>Morte

@@ -3,9 +3,10 @@
 
 import { empregoPorId, ESTADOS_DEF, salarioInicial, tituloEmprego } from './carreira';
 import { reais } from './efeitos';
-import { limitar } from './envelhecer';
+import { alvoAparencia, alvoForma, alvoInteligencia, alvoSaude, limitar } from './envelhecer';
 import { disparar, eventoPorId } from './eventos';
 import { capitalizar, papelTexto } from './familia';
+import { quandoAgora } from './tempo';
 import { Rng, estadoDaSeed } from './rng';
 import type { Atributo, Eixo, Vida } from './tipos';
 import { textoIdade } from './vida';
@@ -18,7 +19,7 @@ const NOMES: Record<string, string> = {
 };
 
 function marcar(vida: Vida, texto: string) {
-  vida.historico.push({ quando: vida.historico.at(-1)?.quando ?? '', texto: `✦ ${texto}` });
+  vida.historico.push({ quando: quandoAgora(vida), texto: `✦ ${texto}` });
 }
 
 export function editarAtributo(vida: Vida, a: Atributo | 'desgaste', valor: number): Vida {
@@ -31,9 +32,30 @@ export function editarAtributo(vida: Vida, a: Atributo | 'desgaste', valor: numb
   else {
     p.atributos[a] = v;
     prox.atributosAnteriores[a] = v; // sem seta de tendência para edição manual
+    ajustarGenetica(prox, a, v);
   }
   marcar(prox, `${NOMES[a]} ${antes} → ${v}`);
   return prox;
+}
+
+/**
+ * O envelhecimento puxa cada atributo físico para o que a genética permite na idade.
+ * Para a edição não "voltar" no período seguinte, a genética muda junto: o potencial
+ * passa a ser o que dá esse valor nesta idade (pode passar de 100 para segurar 100 num bebê).
+ */
+function ajustarGenetica(vida: Vida, a: Atributo, valor: number) {
+  const p = vida.personagem;
+  const idade = (p.idadeBiologicaMeses ?? vida.relogio.idadeMeses) / 12;
+  const fator = (alvo: (pot: number) => number) => Math.max(0.05, alvo(100) / 100);
+  const pot = p.potencial;
+  switch (a) {
+    case 'saude': pot.saude = Math.min(250, Math.max(0, (valor - p.personalidade.disciplina / 10) / fator((x) => alvoSaude(x, idade, 0)))); break;
+    case 'forma': pot.forma = Math.min(250, valor / fator((x) => alvoForma(x, idade))); break;
+    case 'aparencia': pot.aparencia = Math.min(250, valor / fator((x) => alvoAparencia(x, idade))); break;
+    case 'inteligencia': pot.inteligencia = Math.min(250, valor / fator((x) => alvoInteligencia(x, idade))); break;
+    case 'carisma': pot.carisma = valor; break;
+    default: break; // felicidade e sorte não têm genética
+  }
 }
 
 export function editarEixo(vida: Vida, e: Eixo, valor: number): Vida {
@@ -133,7 +155,7 @@ export function forcarEvento(vida: Vida, id: string): { vida: Vida; aviso?: stri
   marcar(prox, `Evento forçado: ${id}`);
   const ok = disparar(prox, { ...e, quando: e.quando?.pessoa ? { pessoa: e.quando.pessoa } : undefined }, {}, rng, linhas);
   if (!ok) return { vida, aviso: 'Esse evento precisa de alguém (ou de uma lembrança) que você não tem.' };
-  const quando = prox.historico.at(-1)?.quando ?? '';
+  const quando = quandoAgora(prox);
   for (const t of linhas) prox.historico.push({ quando, texto: t });
   prox.rng = rng.estado();
   return { vida: prox };
@@ -146,7 +168,7 @@ export function voltarPeriodo(vida: Vida): Vida {
   prox.voltas = vida.voltas + 1;
   prox.anterior = null;
   prox.rng = estadoDaSeed(`${vida.config.seed}#volta${prox.voltas}#${prox.rng.join(',')}`);
-  prox.historico.push({ quando: prox.historico.at(-1)?.quando ?? '', texto: '↺ Você voltou um período. Desta vez pode ser diferente.' });
+  prox.historico.push({ quando: quandoAgora(prox), texto: '↺ Você voltou um período. Desta vez pode ser diferente.' });
   return prox;
 }
 

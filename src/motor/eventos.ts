@@ -9,8 +9,9 @@ import {
 } from './efeitos';
 import { resolverSistema } from './carreira';
 import { capitalizar, papelTexto, resolverPretendente, terminar } from './familia';
+import { quandoAgora } from './tempo';
 import { Rng } from './rng';
-import type { Vida } from './tipos';
+import type { Pendente, Vida } from './tipos';
 
 export interface ResultadoDef {
   resposta?: string | string[];
@@ -82,7 +83,8 @@ export function rodarEventos(vida: Vida, anos: number, rng: Rng): string[] {
   }
 
   const idade = agora / 12;
-  const chance = (idade < 2 ? 0.25 : 0.6) * anos;
+  // Na velhice o mundo encolhe, então cada coisa que acontece pesa mais: um pouco mais de eventos.
+  const chance = (idade < 2 ? 0.25 : idade >= 60 ? 0.7 : 0.6) * anos;
   const usados = new Set<string>();
   for (let tentativa = 0; tentativa < 3; tentativa++) {
     if (rng.proximo() >= chance) continue;
@@ -159,7 +161,13 @@ function aplicarResultado(vida: Vida, r: ResultadoDef | undefined, vars: Record<
   const deVida: Efeitos = {};
   let fim = '';
   for (const [k, v] of Object.entries(r.efeitos ?? {})) {
-    if (!k.startsWith('pessoa.')) { deVida[k] = v; continue; }
+    if (!k.startsWith('pessoa.')) {
+      // Prejuízo da casa (seca, apagão, enchente) é dos pais enquanto você é menor.
+      const perda = k === 'dinheiro' && (typeof v === 'number' ? v < 0 : v.startsWith('-'));
+      if (perda && vida.relogio.idadeMeses < 16 * 12) continue;
+      deVida[k] = v;
+      continue;
+    }
     const pe = vida.pessoas.find((x) => x.id === vars.pessoaId);
     if (!pe) continue;
     const campo = k.slice(7);
@@ -196,6 +204,18 @@ export function chanceEscolha(vida: Vida, c: EscolhaDef): number | null {
   return Math.max(0.03, Math.min(0.97, p));
 }
 
+function resolverHabito18(vida: Vida, pend: Pendente, indice: number): string {
+  const acao = pend.dados?.[0] ?? '';
+  const h = vida.habitos.find((x) => x.acao === acao);
+  if (!h) return '';
+  if (indice === 0) {
+    delete h.imposto;
+    return 'Agora é escolha sua.';
+  }
+  vida.habitos = vida.habitos.filter((x) => x.acao !== acao);
+  return 'Você largou. Seus pais torceram o nariz, mas a decisão é sua.';
+}
+
 /** Resolve o evento pendente com a escolha `indice`. */
 export function escolher(vida: Vida, indice: number): Vida {
   const pend = vida.pendente;
@@ -204,9 +224,11 @@ export function escolher(vida: Vida, indice: number): Vida {
     if (pend.escolhas[indice]?.motivo) return vida;
     const prox = structuredClone(vida);
     const rng = new Rng(prox.rng);
-    const quando = prox.historico.at(-1)?.quando ?? '';
+    const quando = quandoAgora(prox);
     const antes = foto(prox);
-    const texto = pend.sistema === 'pretendentes' ? resolverPretendente(prox, pend, indice, rng) : resolverSistema(prox, pend, indice, rng);
+    const texto = pend.sistema === 'pretendentes' ? resolverPretendente(prox, pend, indice, rng)
+      : pend.sistema === 'habito18' ? resolverHabito18(prox, pend, indice)
+      : resolverSistema(prox, pend, indice, rng);
     const r = resumo(diferenca(antes, foto(prox)));
     prox.historico.push({ quando, texto: pend.texto });
     prox.historico.push({ quando, texto: [`→ ${pend.escolhas[indice]?.texto ?? ''}.`, texto, r].filter(Boolean).join(' ') });
@@ -220,7 +242,7 @@ export function escolher(vida: Vida, indice: number): Vida {
 
   const prox = structuredClone(vida);
   const rng = new Rng(prox.rng);
-  const quando = prox.historico.at(-1)?.quando ?? '';
+  const quando = quandoAgora(prox);
   const antes = foto(prox);
   const partes: string[] = [];
 

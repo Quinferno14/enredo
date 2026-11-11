@@ -69,15 +69,16 @@ export function App() {
           <TelaVida
             vida={vida}
             aviso={aviso}
-            onAvancar={() => { setAviso(''); usarVida(avancarPeriodo(vida)); }}
+            onAvancar={(pular) => { setAviso(''); usarVida(avancarPeriodo(vida, pular)); }}
+            onPessoas={() => setAba('pessoas')}
             onNovaVida={() => setCriando(true)}
             deus={deus}
             onDeus={() => setDeus(!deus)}
             onEditar={(a, valor) => usarVida(editarAtributo(vida, a, valor))}
             onMudar={usarVida}
             onContinuarComo={(filhoId) => usarVida(continuarComoFilho(vida, filhoId, novoId(), new Date().toISOString()))}
-            onAcao={(id) => {
-              const r = fazerAcao(vida, id);
+            onAcao={(id, opcoes) => {
+              const r = fazerAcao(vida, id, opcoes);
               setAviso(r.aviso ?? '');
               if (r.ok) usarVida(r.vida);
             }}

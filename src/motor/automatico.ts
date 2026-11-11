@@ -1,7 +1,7 @@
 // Jogar sem tela: resolve decisões e (opcionalmente) faz ações sorteadas.
 // Usado pelos testes de variedade; depois serve ao Modo Deus ("pular 10 anos").
 
-import { acoesDisponiveis, definirHabito, fazerAcao, FREQUENCIAS } from './acoes';
+import { acoesDisponiveis, definirHabito, fazerAcao, FREQUENCIAS, variantesPossiveis } from './acoes';
 import { chanceContratar, empregoPorId, salarioInicial } from './carreira';
 import { atende } from './efeitos';
 import { fazerAcaoPessoa } from './familia';
@@ -50,7 +50,9 @@ export function jogarPeriodo(vida: Vida, o: OpcoesAuto = {}): Vida {
   for (let i = 0; i < (o.acoes ?? 0); i++) {
     const lista = acoesDisponiveis(v);
     if (!lista.length) break;
-    v = fazerAcao(v, sortear(lista).id).vida;
+    const a = sortear(lista);
+    const vs = variantesPossiveis(v, a);
+    v = fazerAcao(v, a.id, vs.length ? { variante: sortear(vs).id } : {}).vida;
   }
   if (o.carreira && !v.morte) {
     const p = v.personagem;

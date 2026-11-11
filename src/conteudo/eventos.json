@@ -5847,5 +5847,161 @@
         }
       }
     ]
+  },
+  {
+    "id": "caminhada_manha",
+    "peso": {
+      "base": 2.5
+    },
+    "quando": {
+      "idade": [
+        58,
+        110
+      ]
+    },
+    "texto": [
+      "Você começou a caminhar de manhã cedo com a turma do bairro.",
+      "Virou rotina: caminhada às seis, pão quente às sete."
+    ],
+    "escolhas": [
+      {
+        "texto": "Manter o ritmo",
+        "efeitos": {
+          "atributos.saude": 2,
+          "atributos.felicidade": 2,
+          "atributos.forma": 1
+        }
+      },
+      {
+        "texto": "Trocar pela cama",
+        "efeitos": {
+          "desgaste": -5
+        }
+      }
+    ]
+  },
+  {
+    "id": "horta",
+    "unico": true,
+    "peso": {
+      "base": 2
+    },
+    "quando": {
+      "idade": [
+        55,
+        105
+      ]
+    },
+    "texto": [
+      "Você montou uma horta no quintal: alface, tomate e cheiro-verde."
+    ],
+    "efeitos": {
+      "atributos.felicidade": 4,
+      "personalidade.estabilidade": 1
+    },
+    "memoria": [
+      "horta",
+      10,
+      "cuidou da própria horta"
+    ]
+  },
+  {
+    "id": "novela",
+    "peso": {
+      "base": 2
+    },
+    "quando": {
+      "idade": [
+        55,
+        120
+      ]
+    },
+    "texto": [
+      "A novela das nove virou compromisso sagrado. Ninguém fala com você entre 21h e 22h.",
+      "O final da novela parou o bairro. Você chorou no último capítulo."
+    ],
+    "efeitos": {
+      "atributos.felicidade": 2
+    }
+  },
+  {
+    "id": "neto_ligou",
+    "peso": {
+      "base": 3
+    },
+    "quando": {
+      "idade": [
+        55,
+        120
+      ],
+      "memoria": "virou_avo"
+    },
+    "texto": [
+      "Seu neto ligou só para contar que tirou nota boa na prova.",
+      "Seus netos mandaram um vídeo cantando parabéns, desafinados."
+    ],
+    "efeitos": {
+      "atributos.felicidade": 4
+    }
+  },
+  {
+    "id": "vizinha_fofoca",
+    "peso": {
+      "base": 1.5
+    },
+    "quando": {
+      "idade": [
+        50,
+        120
+      ]
+    },
+    "texto": [
+      "A vizinha do lado te contou todas as novidades da rua, inclusive as que não são verdade."
+    ],
+    "escolhas": [
+      {
+        "texto": "Ouvir tudo com um café",
+        "efeitos": {
+          "atributos.felicidade": 2,
+          "atributos.carisma": 1
+        }
+      },
+      {
+        "texto": "Fechar a janela",
+        "efeitos": {
+          "personalidade.extroversao": -1
+        }
+      }
+    ]
+  },
+  {
+    "id": "exame_rotina",
+    "peso": {
+      "base": 2
+    },
+    "quando": {
+      "idade": [
+        60,
+        120
+      ]
+    },
+    "texto": [
+      "Exames de rotina: o médico pediu para você voltar em seis meses."
+    ],
+    "escolhas": [
+      {
+        "texto": "Voltar direitinho",
+        "efeitos": {
+          "atributos.saude": 2,
+          "desgaste": 3
+        }
+      },
+      {
+        "texto": "Esquecer de voltar",
+        "efeitos": {
+          "atributos.saude": -1
+        }
+      }
+    ]
   }
 ]
