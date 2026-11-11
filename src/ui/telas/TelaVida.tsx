@@ -6,6 +6,7 @@ import type { Atributo, EntradaHistorico, Vida } from '../../motor/tipos';
 import { nomeCompleto, proximoRelogio, rotuloPeriodo, textoIdade } from '../../motor/vida';
 import { NOME_ATRIBUTO } from '../textos';
 import { PainelAcoes } from './PainelAcoes';
+import { filhosQuePodemContinuar } from '../../motor/familia';
 
 // A sorte fica oculta; aparece no Modo Deus (marco 6).
 const VISIVEIS: Atributo[] = ['saude', 'felicidade', 'inteligencia', 'aparencia', 'forma', 'carisma'];
@@ -15,6 +16,7 @@ interface Props {
   aviso: string;
   onAvancar: () => void;
   onNovaVida: () => void;
+  onContinuarComo: (filhoId: string) => void;
   onAcao: (id: string) => void;
   onHabito: (id: string, porSemana: number) => void;
   onSairHabito: (id: string) => void;
@@ -33,7 +35,8 @@ function agruparPorPeriodo(historico: EntradaHistorico[]) {
 }
 
 export function TelaVida(props: Props) {
-  const { vida, aviso, onAvancar, onNovaVida, onAcao, onHabito, onSairHabito, onEscolha } = props;
+  const { vida, aviso, onAvancar, onNovaVida, onContinuarComo, onAcao, onHabito, onSairHabito, onEscolha } = props;
+  const herdeiros = filhosQuePodemContinuar(vida);
   const p = vida.personagem;
   const iniciais = `${p.nome[0] ?? ''}${p.sobrenome[0] ?? ''}`;
   const morte = vida.morte;
@@ -69,12 +72,18 @@ export function TelaVida(props: Props) {
           <p>
             {p.nome} morreu aos {textoIdade(morte.idadeMeses)}, em {morte.ano}, {morte.causa}.
           </p>
-          <p class="dica">
-            {vida.config.morte === 'voltar'
-              ? 'Voltar um período chega no marco 6. Continuar como filho chega no marco 5.'
-              : 'Continuar como filho ou neto chega no marco 5 (Família).'}
-          </p>
-          <button class="primario" onClick={onNovaVida}>Começar outra vida</button>
+          {herdeiros.length > 0 ? (
+            <>
+              <p class="dica">A história pode continuar com {herdeiros.length === 1 ? 'seu filho' : 'um dos seus filhos'}:</p>
+              {herdeiros.map((f) => (
+                <button key={f.id} class="primario" onClick={() => onContinuarComo(f.id)}>
+                  Continuar como {f.nome} ({Math.floor(f.idadeMeses / 12)} anos)
+                </button>
+              ))}
+            </>
+          ) : <p class="dica">Sem filhos vivos para continuar a história.</p>}
+          {vida.config.morte === 'voltar' && <p class="dica">Voltar um período chega no marco 6.</p>}
+          <button class={herdeiros.length ? 'secundario' : 'primario'} onClick={onNovaVida}>Começar outra vida</button>
         </section>
       )}
 

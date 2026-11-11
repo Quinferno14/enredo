@@ -7,7 +7,7 @@ import { limitar } from './envelhecer';
 import type { Rng } from './rng';
 import {
   ATRIBUTOS, EIXOS, ORDEM_ESCOLARIDADE,
-  type Atributo, type Classe, type Eixo, type Escolaridade, type Estudo, type Sexo, type Vida,
+  type Atributo, type Classe, type Eixo, type Escolaridade, type Estudo, type Papel, type Pessoa, type Sexo, type Vida,
 } from './tipos';
 
 export type Efeitos = Record<string, number | string>;
@@ -34,6 +34,29 @@ export interface Quando {
   aposentado?: boolean;
   moradia?: 'pais' | 'aluguel';
   classe?: Classe[];
+  /** Precisa existir alguém assim; o evento usa essa pessoa como personagem. */
+  pessoa?: QuandoPessoa;
+  semParceiro?: boolean;
+}
+
+export interface QuandoPessoa {
+  papel: Papel[];
+  vivo?: boolean; // padrão: true
+  afeto?: [number, number];
+  idade?: [number, number];
+  relacao?: 'namoro' | 'casamento';
+}
+
+export function pessoasQueAtendem(vida: Vida, q: QuandoPessoa): Pessoa[] {
+  return vida.pessoas.filter((pe) => {
+    if (!q.papel.includes(pe.papel)) return false;
+    if (pe.vivo !== (q.vivo ?? true)) return false;
+    if (q.afeto && (pe.afeto < q.afeto[0] || pe.afeto > q.afeto[1])) return false;
+    const idade = pe.idadeMeses / 12;
+    if (q.idade && (idade < q.idade[0] || idade > q.idade[1])) return false;
+    if (q.relacao && pe.relacao !== q.relacao) return false;
+    return true;
+  });
 }
 
 const lista = (x: string | string[] | undefined) => (x === undefined ? [] : Array.isArray(x) ? x : [x]);
@@ -87,6 +110,8 @@ export function atende(vida: Vida, q: Quando | undefined): boolean {
   if (q.aposentado !== undefined && p.trabalho.aposentadoria > 0 !== q.aposentado) return false;
   if (q.moradia && p.moradia !== q.moradia) return false;
   if (q.classe && !q.classe.includes(p.classe)) return false;
+  if (q.pessoa && pessoasQueAtendem(vida, q.pessoa).length === 0) return false;
+  if (q.semParceiro && vida.pessoas.some((x) => x.papel === 'parceiro' && x.vivo)) return false;
   if (q.acao) {
     const habito = vida.habitos.some((h) => h.acao === q.acao && !h.pausado);
     if (!habito && !(vida.periodo[q.acao] ?? 0)) return false;

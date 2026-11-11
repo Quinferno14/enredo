@@ -920,5 +920,36 @@
     "textos": [
       "Você deu entrada na aposentadoria."
     ]
+  },
+  {
+    "id": "procurar_parceiro",
+    "nome": "Procurar alguém",
+    "busca": [
+      "namorar",
+      "paquera",
+      "paquerar",
+      "app",
+      "date",
+      "encontro",
+      "amor",
+      "namoro",
+      "crush"
+    ],
+    "idade": [
+      15,
+      110
+    ],
+    "requer": {
+      "semParceiro": true
+    },
+    "horas": 0,
+    "desgaste": 2,
+    "especial": "procurar_parceiro",
+    "semHabito": true,
+    "efeitos": {},
+    "textos": [
+      "Você saiu para conhecer gente nova.",
+      "Você baixou um app de paquera."
+    ]
   }
 ]

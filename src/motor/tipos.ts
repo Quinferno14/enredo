@@ -3,7 +3,7 @@
 
 import type { EstadoRng } from './rng';
 
-export const VERSAO_SAVE = 3;
+export const VERSAO_SAVE = 4;
 
 export const ATRIBUTOS = [
   'saude', 'felicidade', 'inteligencia', 'aparencia', 'forma', 'carisma', 'sorte',
@@ -66,6 +66,42 @@ export interface Personagem {
   trabalho: Trabalho;
   dividas: Divida[];
   moradia: 'pais' | 'aluguel';
+  /** Por quem tem interesse romântico. Escolha do jogador. */
+  interesse: 'homens' | 'mulheres' | 'todos';
+}
+
+export type Papel = 'mae' | 'pai' | 'irmao' | 'parceiro' | 'ex' | 'filho';
+
+/** Alguém da família ou da vida amorosa. */
+export interface Pessoa {
+  id: string;
+  nome: string;
+  sobrenome: string;
+  sexo: Sexo;
+  papel: Papel;
+  idadeMeses: number;
+  vivo: boolean;
+  /** Quanto gosta de você, 0 a 100. */
+  afeto: number;
+  saude: number;
+  aparencia: number;
+  inteligencia: number;
+  carisma: number;
+  potencial: Potencial;
+  personalidade: Record<Eixo, number>;
+  /** Renda mensal (adultos). */
+  renda: number;
+  relacao?: 'namoro' | 'casamento';
+  /** Filhos: id da outra pessoa que é mãe/pai (o parceiro de quando nasceu). */
+  outroGenitor?: string;
+  adotado?: boolean;
+  morte?: Morte;
+}
+
+export interface Linhagem {
+  geracao: number;
+  /** "Ana Souza (2026–2101)", da mais antiga para a mais recente. */
+  anteriores: string[];
 }
 
 export type Classe = 'baixa' | 'media' | 'alta';
@@ -148,7 +184,9 @@ export interface Gancho {
 export interface Pendente {
   evento: string;
   /** Decisões do próprio jogo (vagas de emprego, escolha de curso), fora dos eventos. */
-  sistema?: 'vagas' | 'curso';
+  sistema?: 'vagas' | 'curso' | 'pretendentes';
+  /** Candidatos de "Procurar alguém". */
+  candidatos?: Pessoa[];
   /** Ids alinhados com as escolhas (empregos ou cursos). */
   dados?: string[];
   texto: string;
@@ -190,4 +228,6 @@ export interface Vida {
   vistos: Record<string, number>;
   /** Ganchos que voltaram de fato (para o teste de variedade). */
   ganchosCumpridos: number;
+  pessoas: Pessoa[];
+  linhagem: Linhagem;
 }

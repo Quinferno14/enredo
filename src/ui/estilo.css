@@ -253,3 +253,21 @@ details.cartao summary { cursor: pointer; font-weight: 600; }
 .memorias { margin: 0; padding-left: 18px; font-size: 0.875rem; display: flex; flex-direction: column; gap: 4px; }
 
 .status { margin-top: 2px; }
+
+/* Pessoas */
+.pessoa-topo {
+  width: 100%; text-align: left;
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 10px 12px;
+  border-radius: var(--raio);
+  border: 1px solid var(--borda);
+  background: var(--superficie);
+  cursor: pointer;
+}
+.pessoa-topo:disabled { cursor: default; color: inherit; }
+.pessoa.falecida .pessoa-topo { opacity: 0.6; }
+.afeto { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; font-size: 0.8125rem; }
+.afeto .barra { margin-top: 0; display: block; }
+.afeto .barra > span { display: block; height: 100%; background: var(--acento); border-radius: 3px; }
+.afeto .barra > span.baixo { background: var(--desce); }
+.pessoa-acoes { margin-top: 6px; }

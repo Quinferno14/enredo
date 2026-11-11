@@ -2,6 +2,7 @@ import { useState } from 'preact/hooks';
 import type { Vida } from '../motor/tipos';
 import { definirHabito, fazerAcao, pedirParaSair } from '../motor/acoes';
 import { escolher } from '../motor/eventos';
+import { continuarComoFilho, fazerAcaoPessoa } from '../motor/familia';
 import { avancarPeriodo } from '../motor/vida';
 import { carregar, salvarVida, type Armazem } from '../save/save';
 import { NovaVida } from './telas/NovaVida';
@@ -9,6 +10,7 @@ import { TelaEu } from './telas/TelaEu';
 import { TelaMais } from './telas/TelaMais';
 import { TelaPessoas } from './telas/TelaPessoas';
 import { TelaVida } from './telas/TelaVida';
+import { novoId } from './textos';
 
 type Aba = 'vida' | 'pessoas' | 'eu' | 'mais';
 const ABAS: { id: Aba; nome: string }[] = [
@@ -67,6 +69,7 @@ export function App() {
             aviso={aviso}
             onAvancar={() => { setAviso(''); usarVida(avancarPeriodo(vida)); }}
             onNovaVida={() => setCriando(true)}
+            onContinuarComo={(filhoId) => usarVida(continuarComoFilho(vida, filhoId, novoId(), new Date().toISOString()))}
             onAcao={(id) => {
               const r = fazerAcao(vida, id);
               setAviso(r.aviso ?? '');
@@ -77,8 +80,21 @@ export function App() {
             onEscolha={(i) => usarVida(escolher(vida, i))}
           />
         )}
-        {aba === 'pessoas' && <TelaPessoas />}
-        {aba === 'eu' && <TelaEu vida={vida} />}
+        {aba === 'pessoas' && (
+          <TelaPessoas
+            vida={vida}
+            aviso={aviso}
+            onAcao={(pid, acao) => {
+              const r = fazerAcaoPessoa(vida, pid, acao);
+              setAviso(r.aviso ?? '');
+              if (r.ok) {
+                usarVida(r.vida);
+                if (r.vida.pendente && !vida.pendente) setAba('vida');
+              }
+            }}
+          />
+        )}
+        {aba === 'eu' && <TelaEu vida={vida} onInteresse={(i) => usarVida({ ...vida, personagem: { ...vida.personagem, interesse: i } })} />}
         {aba === 'mais' && (
           <TelaMais
             vida={vida}

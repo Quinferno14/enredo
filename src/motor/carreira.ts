@@ -374,7 +374,8 @@ export function rodarDinheiro(vida: Vida, anos: number): string[] {
   }
 
   if (p.dinheiro < 0) {
-    const juros = Math.round(Math.min(-p.dinheiro, 50000) * 0.6 * anos);
+    // Juros só sobre o limite do cheque especial (R$ 15.000); o resto fica como dívida parada.
+    const juros = Math.round(Math.min(-p.dinheiro, 15000) * 0.6 * anos);
     p.dinheiro -= juros;
     linhas.push(`Saldo negativo: o cheque especial cobrou ${reais(juros)} de juros.`);
   }

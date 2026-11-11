@@ -3069,5 +3069,736 @@
         }
       }
     ]
+  },
+  {
+    "id": "briga_heranca_irmao",
+    "quando": {
+      "idade": [
+        20,
+        95
+      ],
+      "memoria": "heranca",
+      "pessoa": {
+        "papel": [
+          "irmao"
+        ],
+        "afeto": [
+          0,
+          60
+        ]
+      }
+    },
+    "peso": {
+      "base": 3,
+      "x": {
+        "personalidade.impulsividade": 0.02
+      }
+    },
+    "texto": [
+      "{Papel}, {pessoa}, te liga cobrando a parte da casa dos pais. A conversa esquenta rápido.",
+      "No almoço de domingo, {pessoa} solta que você ficou com mais do que devia da herança."
+    ],
+    "escolhas": [
+      {
+        "texto": "Dividir de novo, mesmo perdendo dinheiro",
+        "efeitos": {
+          "dinheiro": "-20%",
+          "pessoa.afeto": 25,
+          "personalidade.empatia": 2
+        },
+        "memoria": [
+          "cedeu_heranca",
+          15,
+          "cedeu parte da herança para {pessoa}"
+        ]
+      },
+      {
+        "texto": "Bater o pé",
+        "efeitos": {
+          "pessoa.afeto": -35,
+          "atributos.felicidade": -5
+        },
+        "memoria": [
+          "briga_heranca",
+          -20,
+          "brigou com {pessoa} pela herança"
+        ],
+        "gancho": {
+          "evento": "processo_irmao",
+          "chance": 0.3,
+          "em_anos": [
+            1,
+            4
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "processo_irmao",
+    "soGancho": true,
+    "quando": {
+      "pessoa": {
+        "papel": [
+          "irmao"
+        ]
+      }
+    },
+    "texto": [
+      "{pessoa} entrou na justiça contra você por causa da herança."
+    ],
+    "escolhas": [
+      {
+        "texto": "Fazer um acordo",
+        "efeitos": {
+          "dinheiro": "-15%",
+          "pessoa.afeto": 5
+        }
+      },
+      {
+        "texto": "Brigar até o fim",
+        "efeitos": {
+          "desgaste": 15,
+          "pessoa.afeto": -20
+        },
+        "chance": {
+          "base": 0.5
+        },
+        "sucesso": {
+          "resposta": "O juiz deu ganho de causa para você.",
+          "efeitos": {
+            "atributos.felicidade": 4
+          }
+        },
+        "falha": {
+          "resposta": "Você perdeu, e ainda pagou as custas.",
+          "efeitos": {
+            "dinheiro": "-30%",
+            "atributos.felicidade": -6
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "pais_separam",
+    "unico": true,
+    "quando": {
+      "idade": [
+        3,
+        17
+      ],
+      "pessoa": {
+        "papel": [
+          "pai"
+        ]
+      }
+    },
+    "peso": {
+      "base": 1.2
+    },
+    "texto": [
+      "Seus pais sentaram com você para dizer que vão se separar."
+    ],
+    "efeitos": {
+      "atributos.felicidade": -8,
+      "personalidade.estabilidade": -3
+    },
+    "memoria": [
+      "pais_separados",
+      -15,
+      "viu os pais se separarem"
+    ]
+  },
+  {
+    "id": "pai_doente",
+    "quando": {
+      "idade": [
+        18,
+        90
+      ],
+      "pessoa": {
+        "papel": [
+          "mae",
+          "pai"
+        ],
+        "idade": [
+          60,
+          110
+        ]
+      }
+    },
+    "peso": {
+      "base": 2
+    },
+    "texto": [
+      "{Papel}, {pessoa}, ficou doente e precisa de alguém por perto."
+    ],
+    "escolhas": [
+      {
+        "texto": "Cuidar pessoalmente",
+        "efeitos": {
+          "desgaste": 20,
+          "pessoa.afeto": 15,
+          "pessoa.saude": 10,
+          "personalidade.empatia": 2
+        },
+        "memoria": [
+          "cuidou_pais",
+          15,
+          "cuidou de {pessoa} quando ficou doente"
+        ]
+      },
+      {
+        "texto": "Pagar uma cuidadora (R$ 2.000)",
+        "requer": {
+          "min": {
+            "dinheiro": 2000
+          }
+        },
+        "efeitos": {
+          "dinheiro": -2000,
+          "pessoa.saude": 8,
+          "pessoa.afeto": 3
+        }
+      },
+      {
+        "texto": "Deixar com os outros da família",
+        "efeitos": {
+          "pessoa.afeto": -12
+        }
+      }
+    ]
+  },
+  {
+    "id": "irmao_emprestimo",
+    "quando": {
+      "idade": [
+        16,
+        95
+      ],
+      "pessoa": {
+        "papel": [
+          "irmao"
+        ],
+        "idade": [
+          18,
+          95
+        ]
+      }
+    },
+    "peso": {
+      "base": 1.5
+    },
+    "texto": [
+      "{pessoa} pediu R$ 1.000 emprestado e jurou devolver logo."
+    ],
+    "escolhas": [
+      {
+        "texto": "Emprestar",
+        "requer": {
+          "min": {
+            "dinheiro": 1000
+          }
+        },
+        "efeitos": {
+          "dinheiro": -1000,
+          "pessoa.afeto": 8
+        },
+        "gancho": {
+          "evento": "irmao_devolve",
+          "chance": 0.5,
+          "em_anos": [
+            1,
+            3
+          ]
+        }
+      },
+      {
+        "texto": "Dizer que não dá",
+        "efeitos": {
+          "pessoa.afeto": -8
+        }
+      }
+    ]
+  },
+  {
+    "id": "irmao_devolve",
+    "soGancho": true,
+    "quando": {
+      "pessoa": {
+        "papel": [
+          "irmao"
+        ]
+      }
+    },
+    "texto": [
+      "{pessoa} apareceu com o dinheiro que te devia, e ainda pagou o almoço."
+    ],
+    "efeitos": {
+      "dinheiro": 1000,
+      "atributos.felicidade": 3,
+      "pessoa.afeto": 5
+    }
+  },
+  {
+    "id": "conselho_pais",
+    "quando": {
+      "idade": [
+        12,
+        45
+      ],
+      "pessoa": {
+        "papel": [
+          "mae",
+          "pai"
+        ],
+        "afeto": [
+          50,
+          100
+        ]
+      }
+    },
+    "peso": {
+      "base": 1.5
+    },
+    "texto": [
+      "{Papel} te deu um conselho que você só ia entender anos depois.",
+      "{pessoa} te contou uma história da juventude que você nunca tinha ouvido."
+    ],
+    "efeitos": {
+      "personalidade.estabilidade": 2,
+      "pessoa.afeto": 3
+    }
+  },
+  {
+    "id": "ciume",
+    "quando": {
+      "pessoa": {
+        "papel": [
+          "parceiro"
+        ]
+      }
+    },
+    "peso": {
+      "base": 1.5,
+      "x": {
+        "atributos.aparencia": 0.01
+      }
+    },
+    "texto": [
+      "{pessoa} ficou com ciúme de uma mensagem no seu celular."
+    ],
+    "escolhas": [
+      {
+        "texto": "Explicar com calma",
+        "chance": {
+          "base": 0.5,
+          "x": {
+            "atributos.carisma": 0.005
+          }
+        },
+        "sucesso": {
+          "resposta": "Ficou tudo esclarecido.",
+          "efeitos": {
+            "pessoa.afeto": 3
+          }
+        },
+        "falha": {
+          "resposta": "{pessoa} não acreditou muito.",
+          "efeitos": {
+            "pessoa.afeto": -8
+          }
+        }
+      },
+      {
+        "texto": "Se irritar com a desconfiança",
+        "efeitos": {
+          "pessoa.afeto": -12,
+          "atributos.felicidade": -2
+        }
+      }
+    ]
+  },
+  {
+    "id": "aniversario_surpresa",
+    "quando": {
+      "pessoa": {
+        "papel": [
+          "parceiro"
+        ],
+        "afeto": [
+          60,
+          100
+        ]
+      }
+    },
+    "peso": {
+      "base": 1.5
+    },
+    "texto": [
+      "{pessoa} organizou uma festa surpresa no seu aniversário."
+    ],
+    "efeitos": {
+      "atributos.felicidade": 8
+    },
+    "memoria": [
+      "festa_surpresa",
+      15,
+      "ganhou uma festa surpresa de {pessoa}"
+    ]
+  },
+  {
+    "id": "crise_relacao",
+    "quando": {
+      "pessoa": {
+        "papel": [
+          "parceiro"
+        ],
+        "afeto": [
+          0,
+          35
+        ]
+      }
+    },
+    "peso": {
+      "base": 5
+    },
+    "texto": [
+      "As brigas com {pessoa} estão cada vez mais frequentes."
+    ],
+    "escolhas": [
+      {
+        "texto": "Terapia de casal (R$ 800)",
+        "requer": {
+          "min": {
+            "dinheiro": 800
+          }
+        },
+        "efeitos": {
+          "dinheiro": -800,
+          "pessoa.afeto": 18
+        }
+      },
+      {
+        "texto": "Ter uma conversa séria",
+        "chance": {
+          "base": 0.4,
+          "x": {
+            "personalidade.empatia": 0.004
+          }
+        },
+        "sucesso": {
+          "resposta": "Vocês choraram, riram e decidiram tentar de novo.",
+          "efeitos": {
+            "pessoa.afeto": 15
+          }
+        },
+        "falha": {
+          "resposta": "A conversa virou outra briga.",
+          "efeitos": {
+            "pessoa.afeto": -8
+          }
+        }
+      },
+      {
+        "texto": "Terminar",
+        "efeitos": {
+          "pessoa.terminar": 1
+        }
+      }
+    ]
+  },
+  {
+    "id": "parceiro_terminou",
+    "quando": {
+      "pessoa": {
+        "papel": [
+          "parceiro"
+        ],
+        "afeto": [
+          0,
+          18
+        ]
+      }
+    },
+    "peso": {
+      "base": 8
+    },
+    "texto": [
+      "{pessoa} sentou na sua frente e disse que acabou."
+    ],
+    "efeitos": {
+      "pessoa.terminar": 1,
+      "atributos.felicidade": -4
+    }
+  },
+  {
+    "id": "filho_primeiros_passos",
+    "quando": {
+      "pessoa": {
+        "papel": [
+          "filho"
+        ],
+        "idade": [
+          0.9,
+          1.8
+        ]
+      }
+    },
+    "peso": {
+      "base": 6
+    },
+    "texto": [
+      "{pessoa} deu os primeiros passos, direto para os seus braços."
+    ],
+    "efeitos": {
+      "atributos.felicidade": 6,
+      "pessoa.afeto": 5
+    },
+    "memoria": [
+      "passos_filho",
+      15,
+      "viu {pessoa} dar os primeiros passos"
+    ]
+  },
+  {
+    "id": "filho_rebelde",
+    "quando": {
+      "pessoa": {
+        "papel": [
+          "filho"
+        ],
+        "idade": [
+          13,
+          17
+        ]
+      }
+    },
+    "peso": {
+      "base": 2.5
+    },
+    "texto": [
+      "{pessoa} chegou em casa às 4 da manhã, sem avisar, com o celular desligado."
+    ],
+    "escolhas": [
+      {
+        "texto": "Conversa franca",
+        "chance": {
+          "base": 0.45,
+          "x": {
+            "personalidade.empatia": 0.004
+          }
+        },
+        "sucesso": {
+          "resposta": "{pessoa} se abriu como não fazia há tempos.",
+          "efeitos": {
+            "pessoa.afeto": 10
+          }
+        },
+        "falha": {
+          "resposta": "{pessoa} bateu a porta do quarto.",
+          "efeitos": {
+            "pessoa.afeto": -6
+          }
+        }
+      },
+      {
+        "texto": "Castigo de um mês",
+        "efeitos": {
+          "pessoa.afeto": -10,
+          "desgaste": 4
+        }
+      }
+    ]
+  },
+  {
+    "id": "filho_faculdade",
+    "quando": {
+      "pessoa": {
+        "papel": [
+          "filho"
+        ],
+        "idade": [
+          17,
+          23
+        ]
+      }
+    },
+    "peso": {
+      "base": 2
+    },
+    "texto": [
+      "{pessoa} passou numa faculdade particular e pediu ajuda com a mensalidade."
+    ],
+    "escolhas": [
+      {
+        "texto": "Ajudar com R$ 10.000 por ano",
+        "requer": {
+          "min": {
+            "dinheiro": 10000
+          }
+        },
+        "efeitos": {
+          "dinheiro": -10000,
+          "pessoa.afeto": 15
+        },
+        "memoria": [
+          "ajudou_filho",
+          12,
+          "ajudou {pessoa} a pagar a faculdade"
+        ]
+      },
+      {
+        "texto": "Dizer que não dá",
+        "efeitos": {
+          "pessoa.afeto": -6
+        }
+      }
+    ]
+  },
+  {
+    "id": "parceiro_perdeu_emprego",
+    "quando": {
+      "pessoa": {
+        "papel": [
+          "parceiro"
+        ],
+        "idade": [
+          18,
+          65
+        ]
+      }
+    },
+    "peso": {
+      "base": 1
+    },
+    "texto": [
+      "{pessoa} perdeu o emprego. A casa ficou mais apertada."
+    ],
+    "efeitos": {
+      "pessoa.renda": "-100%",
+      "atributos.felicidade": -3
+    }
+  },
+  {
+    "id": "proposta_traicao",
+    "quando": {
+      "idade": [
+        18,
+        70
+      ],
+      "pessoa": {
+        "papel": [
+          "parceiro"
+        ]
+      }
+    },
+    "peso": {
+      "base": 1,
+      "x": {
+        "atributos.aparencia": 0.01
+      }
+    },
+    "texto": [
+      "{amiga} deu em cima de você numa festa, mesmo sabendo de {pessoa}.",
+      "{amigo} deu em cima de você numa festa, mesmo sabendo de {pessoa}."
+    ],
+    "escolhas": [
+      {
+        "texto": "Cortar na hora",
+        "efeitos": {
+          "personalidade.moralidade": 2
+        }
+      },
+      {
+        "texto": "Deixar rolar",
+        "efeitos": {
+          "personalidade.moralidade": -5,
+          "atributos.felicidade": 3
+        },
+        "chance": {
+          "base": 0.6
+        },
+        "sucesso": {
+          "resposta": "Ninguém ficou sabendo. Por enquanto.",
+          "memoria": [
+            "segredo",
+            -5,
+            "traiu {pessoa}"
+          ],
+          "gancho": {
+            "evento": "traicao_descoberta",
+            "chance": 0.4,
+            "em_anos": [
+              0.5,
+              3
+            ]
+          }
+        },
+        "falha": {
+          "resposta": "{pessoa} descobriu na mesma semana.",
+          "efeitos": {
+            "pessoa.afeto": -40,
+            "atributos.felicidade": -8
+          },
+          "memoria": [
+            "traicao",
+            -20,
+            "foi pego traindo {pessoa}"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "traicao_descoberta",
+    "soGancho": true,
+    "quando": {
+      "pessoa": {
+        "papel": [
+          "parceiro"
+        ]
+      }
+    },
+    "texto": [
+      "{pessoa} achou mensagens antigas e descobriu tudo."
+    ],
+    "efeitos": {
+      "pessoa.afeto": -40,
+      "atributos.felicidade": -10
+    },
+    "memoria": [
+      "traicao",
+      -20,
+      "teve a traição descoberta por {pessoa}"
+    ]
+  },
+  {
+    "id": "visita_tumulo",
+    "quando": {
+      "idade": [
+        20,
+        110
+      ],
+      "pessoa": {
+        "papel": [
+          "mae",
+          "pai"
+        ],
+        "vivo": false
+      }
+    },
+    "peso": {
+      "base": 1
+    },
+    "texto": [
+      "No Dia de Finados, você levou flores para {pessoa}.",
+      "Você sonhou com {pessoa} e acordou com saudade."
+    ],
+    "efeitos": {
+      "atributos.felicidade": -1,
+      "personalidade.estabilidade": 1
+    }
   }
 ]

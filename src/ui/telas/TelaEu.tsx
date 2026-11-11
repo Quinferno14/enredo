@@ -15,7 +15,7 @@ const NOME_TRACO: Record<string, string[]> = {
   diabetes: ['Diabetes controlada', 'Diabetes sem controle', 'Diabetes grave'],
 };
 
-export function TelaEu({ vida }: { vida: Vida }) {
+export function TelaEu({ vida, onInteresse }: { vida: Vida; onInteresse: (i: Vida['personagem']['interesse']) => void }) {
   const c = vida.config;
   return (
     <>
@@ -40,6 +40,16 @@ export function TelaEu({ vida }: { vida: Vida }) {
             </div>
           );
         })}
+      </section>
+
+      <section class="cartao">
+        <h2>Interesse romântico</h2>
+        <div class="chips" role="group" aria-label="Interesse romântico">
+          {([['todos', 'Todos'], ['mulheres', 'Mulheres'], ['homens', 'Homens']] as const).map(([v, t]) => (
+            <button key={v} class={vida.personagem.interesse === v ? 'chip ativo' : 'chip'} onClick={() => onInteresse(v)}>{t}</button>
+          ))}
+        </div>
+        <p class="dica">Decide quem aparece em "Procurar alguém".</p>
       </section>
 
       <section class="cartao">
@@ -122,11 +132,12 @@ export function TelaEu({ vida }: { vida: Vida }) {
           <dt>Turno</dt><dd>{c.turno === 'ano' ? '1 ano' : '1 semestre'}</dd>
           <dt>Morte</dt><dd>{c.morte === 'permanente' ? 'Permanente' : 'Pode voltar um período'}</dd>
           <dt>Começo</dt><dd>{c.inicio === 'bebe' ? 'Bebê' : 'Adulto'}</dd>
+          <dt>Geração</dt><dd>{vida.linhagem.geracao}ª{vida.linhagem.anteriores.length ? ` · antes: ${vida.linhagem.anteriores.join(', ')}` : ''}</dd>
           <dt>Sorte</dt><dd>Oculta (visível no Modo Deus, marco 6)</dd>
         </dl>
       </section>
 
-      <p class="vazio">Família e pessoas chegam no marco 5.</p>
+      <p class="vazio">Modo Deus e voltar um período chegam no marco 6.</p>
     </>
   );
 }

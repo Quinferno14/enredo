@@ -4,10 +4,11 @@
 
 import eventosJson from '../conteudo/eventos.json';
 import {
-  aplicar, atende, diferenca, foto, lembrar, motivo, multiplicador, preencher, resumo, sortearVars,
+  aplicar, atende, diferenca, foto, lembrar, motivo, multiplicador, pessoasQueAtendem, preencher, resumo, sortearVars,
   valor, type Efeitos, type Quando,
 } from './efeitos';
 import { resolverSistema } from './carreira';
+import { capitalizar, papelTexto, resolverPretendente, terminar } from './familia';
 import { Rng } from './rng';
 import type { Vida } from './tipos';
 
@@ -99,7 +100,14 @@ export function rodarEventos(vida: Vida, anos: number, rng: Rng): string[] {
 
 /** Faz um evento acontecer. Devolve false se não deu (ex.: não há memória para lembrar). */
 export function disparar(vida: Vida, e: EventoDef, varsGancho: Record<string, string>, rng: Rng, linhas: string[]): boolean {
-  const vars = { ...sortearVars(rng, e.vars), ...varsDaMemoria(vida, e.quando), ...varsGancho };
+  const vars: Record<string, string> = { ...sortearVars(rng, e.vars), ...varsDaMemoria(vida, e.quando), ...varsGancho };
+  // Evento com uma pessoa: a do gancho, se ainda serve, ou uma sorteada entre as que servem.
+  if (e.quando?.pessoa) {
+    const servem = pessoasQueAtendem(vida, e.quando.pessoa);
+    const pe = servem.find((x) => x.id === varsGancho.pessoaId) ?? (varsGancho.pessoaId ? undefined : servem.length ? rng.escolher(servem) : undefined);
+    if (!pe) return false;
+    Object.assign(vars, { pessoaId: pe.id, pessoa: pe.nome, papel: papelTexto(pe), Papel: capitalizar(papelTexto(pe)) });
+  }
   let texto = rng.escolher(e.texto);
   let efeitoExtra: Efeitos | undefined;
 
@@ -146,7 +154,18 @@ function varsDaMemoria(vida: Vida, q: Quando | undefined): Record<string, string
 /** Aplica efeitos, memória, gancho e hábito. Devolve a resposta em texto (ou ''). */
 function aplicarResultado(vida: Vida, r: ResultadoDef | undefined, vars: Record<string, string>, rng: Rng): string {
   if (!r) return '';
-  aplicar(vida, r.efeitos);
+  const deVida: Efeitos = {};
+  let fim = '';
+  for (const [k, v] of Object.entries(r.efeitos ?? {})) {
+    if (!k.startsWith('pessoa.')) { deVida[k] = v; continue; }
+    const pe = vida.pessoas.find((x) => x.id === vars.pessoaId);
+    if (!pe) continue;
+    const campo = k.slice(7);
+    if (campo === 'terminar') { if (pe.papel === 'parceiro') fim = terminar(vida, pe); continue; }
+    if (campo === 'renda') { pe.renda = Math.max(0, Math.round(typeof v === 'string' ? pe.renda * (1 + Number(v.slice(0, -1)) / 100) : pe.renda + v)); continue; }
+    if (campo === 'afeto' || campo === 'saude') pe[campo] = Math.max(0, Math.min(100, Math.round(pe[campo] + Number(v))));
+  }
+  aplicar(vida, deVida);
   if (r.memoria) {
     const [id, peso, texto] = r.memoria;
     lembrar(vida, id, preencher(texto, vida, vars), peso, vars);
@@ -165,7 +184,7 @@ function aplicarResultado(vida: Vida, r: ResultadoDef | undefined, vars: Record<
     });
   }
   const resp = Array.isArray(r.resposta) ? rng.escolher(r.resposta) : r.resposta;
-  return resp ? preencher(resp, vida, vars) : '';
+  return [resp ? preencher(resp, vida, vars) : '', fim].filter(Boolean).join(' ');
 }
 
 export function chanceEscolha(vida: Vida, c: EscolhaDef): number | null {
@@ -185,7 +204,7 @@ export function escolher(vida: Vida, indice: number): Vida {
     const rng = new Rng(prox.rng);
     const quando = prox.historico.at(-1)?.quando ?? '';
     const antes = foto(prox);
-    const texto = resolverSistema(prox, pend, indice, rng);
+    const texto = pend.sistema === 'pretendentes' ? resolverPretendente(prox, pend, indice, rng) : resolverSistema(prox, pend, indice, rng);
     const r = resumo(diferenca(antes, foto(prox)));
     prox.historico.push({ quando, texto: pend.texto });
     prox.historico.push({ quando, texto: [`→ ${pend.escolhas[indice]?.texto ?? ''}.`, texto, r].filter(Boolean).join(' ') });

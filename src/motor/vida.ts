@@ -8,6 +8,7 @@ import { estudoInicial, rodarDinheiro, rodarEscola, rodarTrabalho, sortearClasse
 import { aplicar } from './efeitos';
 import { atributosNaIdade, envelhecer, limitar, sortearMorte } from './envelhecer';
 import { rodarEventos } from './eventos';
+import { criarFamilia, rodarPessoas } from './familia';
 import { Rng } from './rng';
 import {
   EIXOS, VERSAO_SAVE,
@@ -84,6 +85,7 @@ export function criarVida(o: OpcoesNovaVida): Vida {
       nome, sobrenome, sexo, estado: estado.sigla, cidade, atributos, personalidade, potencial,
       dinheiro: 0, desgaste: 0, tracos: [],
       classe, estudo, trabalho: { emprego: null, anosContribuicao: 0, aposentadoria: 0 }, dividas: [], moradia: 'pais',
+      interesse: 'todos',
     },
     atributosAnteriores: { ...atributos },
     historico: [{ quando: rotuloPeriodo(relogio, o.turno), texto: abertura }],
@@ -95,6 +97,8 @@ export function criarVida(o: OpcoesNovaVida): Vida {
     totais: {},
     vistos: {},
     ganchosCumpridos: 0,
+    pessoas: criarFamilia(rng, sobrenome, idadeMeses, classe),
+    linhagem: { geracao: 1, anteriores: [] },
   };
 }
 
@@ -155,6 +159,7 @@ export function avancarPeriodo(vida: Vida): Vida {
   for (const m of MARCOS_IDADE) {
     if (mesesAntes < m.meses && r.idadeMeses >= m.meses) nota(m.texto(p.sexo));
   }
+  for (const t of rodarPessoas(prox, anos, rng)) nota(t);
   for (const t of rodarEscola(prox, anos, rng)) nota(t);
   for (const t of rodarTrabalho(prox, anos, rng)) nota(t);
   const linhasDinheiro = rodarDinheiro(prox, anos);

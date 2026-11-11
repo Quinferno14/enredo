@@ -25,7 +25,7 @@ function jogar(seed: string): Medidas {
   let periodos60 = 0, vazios60 = 0;
   for (let i = 0; i < 300 && !v.morte; i++) {
     const antes = { ...v.vistos };
-    v = jogarPeriodo(v, { acoes: 3, chanceHabito: 0.15, carreira: Number(seed.slice(4)) % 2 === 0 });
+    v = jogarPeriodo(v, { acoes: 3, chanceHabito: 0.15, carreira: Number(seed.slice(4)) % 2 === 0, familia: Number(seed.slice(4)) % 3 !== 0 });
     const novos = Object.keys(v.vistos).filter((k) => v.vistos[k] !== antes[k]);
     ordem.push(...novos);
     if (v.relogio.idadeMeses >= 60 * 12) {

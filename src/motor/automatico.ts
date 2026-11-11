@@ -4,6 +4,7 @@
 import { acoesDisponiveis, definirHabito, fazerAcao, FREQUENCIAS } from './acoes';
 import { chanceContratar, empregoPorId, salarioInicial } from './carreira';
 import { atende } from './efeitos';
+import { fazerAcaoPessoa } from './familia';
 import { escolher, eventoPorId } from './eventos';
 import { Rng } from './rng';
 import type { Vida } from './tipos';
@@ -31,6 +32,8 @@ export interface OpcoesAuto {
   chanceHabito?: number;
   /** Joga como alguém que cuida da carreira: procura emprego, trabalha duro, estuda. */
   carreira?: boolean;
+  /** Cuida da família e da vida amorosa: namora, casa, tem filhos, visita os pais. */
+  familia?: boolean;
 }
 
 /** Joga um período inteiro: ações, hábito talvez, decisão pendente e Avançar. */
@@ -72,6 +75,25 @@ export function jogarPeriodo(vida: Vida, o: OpcoesAuto = {}): Vida {
       }
     }
     if (idade >= 65 && p.trabalho.aposentadoria === 0 && !p.trabalho.emprego) v = fazerAcao(v, 'aposentar').vida;
+  }
+  if (o.familia && !v.morte) {
+    const idade = v.relogio.idadeMeses / 12;
+    const parc = v.pessoas.find((x) => x.papel === 'parceiro' && x.vivo);
+    if (!parc && idade >= 16 && !v.pendente && sorteio() < 0.5) {
+      v = fazerAcao(v, 'procurar_parceiro').vida;
+      if (v.pendente?.sistema === 'pretendentes') v = escolher(v, Math.floor(sorteio() * 3));
+    } else if (parc) {
+      if (sorteio() < 0.7) v = fazerAcaoPessoa(v, parc.id, 'encontro').vida;
+      if (parc.relacao === 'namoro' && parc.afeto > 60 && idade >= 22 && sorteio() < 0.4) v = fazerAcaoPessoa(v, parc.id, 'casar').vida;
+      const filhos = v.pessoas.filter((x) => x.papel === 'filho').length;
+      if (parc.relacao === 'casamento' && filhos < 3 && sorteio() < 0.5) {
+        const r = fazerAcaoPessoa(v, parc.id, 'filho');
+        v = r.ok ? r.vida : fazerAcaoPessoa(v, parc.id, 'adotar').vida;
+      }
+    }
+    for (const pe of v.pessoas.filter((x) => x.vivo && x.papel !== 'ex')) {
+      if (sorteio() < 0.3) v = fazerAcaoPessoa(v, pe.id, pe.papel === 'filho' && pe.idadeMeses < 144 ? 'brincar' : 'tempo').vida;
+    }
   }
   if (o.chanceHabito && sorteio() < o.chanceHabito) {
     const lista = acoesDisponiveis(v).filter((a) => !a.semHabito);

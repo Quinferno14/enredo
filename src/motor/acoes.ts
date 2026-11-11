@@ -6,6 +6,7 @@ import {
   aplicar, atende, diferenca, foto, lembrar, mudarTraco, nivelTraco, reais, resumo, type Efeitos, type Quando,
 } from './efeitos';
 import { acaoCarreira, horasObrigacoes } from './carreira';
+import { acaoFamilia } from './familia';
 import { curva } from './curva';
 import { limitar } from './envelhecer';
 import { Rng } from './rng';
@@ -192,7 +193,8 @@ function resolverEspecial(vida: Vida, a: AcaoDef, rng: Rng): string | null {
       return null;
     }
     default:
-      return a.especial ? acaoCarreira(vida, a.especial, rng) : null;
+      if (!a.especial) return null;
+      return a.especial === 'procurar_parceiro' ? acaoFamilia(vida, a.especial, rng) : acaoCarreira(vida, a.especial, rng);
   }
 }
 
