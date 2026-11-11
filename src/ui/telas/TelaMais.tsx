@@ -3,16 +3,18 @@ import type { Vida } from '../../motor/tipos';
 import { nomeCompleto, rotuloPeriodo, textoIdade } from '../../motor/vida';
 import { exportarTexto, importarTexto } from '../../save/save';
 import { baixarArquivo } from '../textos';
+import { CartaoDeus } from './CartaoDeus';
 
 interface Props {
   vida: Vida;
   salvas: Vida[];
   onNovaVida: () => void;
+  onMudar: (v: Vida) => void;
   onTrocar: (v: Vida) => void;
   onImportar: (v: Vida) => void;
 }
 
-export function TelaMais({ vida, salvas, onNovaVida, onTrocar, onImportar }: Props) {
+export function TelaMais({ vida, salvas, onNovaVida, onMudar, onTrocar, onImportar }: Props) {
   const [erro, setErro] = useState('');
 
   function exportar() {
@@ -73,7 +75,7 @@ export function TelaMais({ vida, salvas, onNovaVida, onTrocar, onImportar }: Pro
         </section>
       )}
 
-      <p class="vazio">Modo Deus chega no marco 6.</p>
+      <CartaoDeus vida={vida} onMudar={onMudar} />
     </>
   );
 }

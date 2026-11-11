@@ -84,7 +84,7 @@ export function criarVida(o: OpcoesNovaVida): Vida {
     personagem: {
       nome, sobrenome, sexo, estado: estado.sigla, cidade, atributos, personalidade, potencial,
       dinheiro: 0, desgaste: 0, tracos: [],
-      classe, estudo, trabalho: { emprego: null, anosContribuicao: 0, aposentadoria: 0 }, dividas: [], moradia: 'pais',
+      classe, estudo, trabalho: { emprego: null, anosContribuicao: 0, aposentadoria: 0, cargos: [] }, dividas: [], moradia: 'pais',
       interesse: 'todos',
     },
     atributosAnteriores: { ...atributos },
@@ -99,6 +99,8 @@ export function criarVida(o: OpcoesNovaVida): Vida {
     ganchosCumpridos: 0,
     pessoas: criarFamilia(rng, sobrenome, idadeMeses, classe),
     linhagem: { geracao: 1, anteriores: [] },
+    anterior: null,
+    voltas: 0,
   };
 }
 
@@ -126,7 +128,10 @@ export function proximoRelogio(r: Relogio, turno: Turno): Relogio {
  */
 export function avancarPeriodo(vida: Vida): Vida {
   if (vida.morte || vida.pendente) return vida;
-  const prox = structuredClone(vida);
+  // No modo "voltar um período", guarda a foto de agora (sem a foto anterior dela).
+  const foto: Vida | null = vida.config.morte === 'voltar' ? structuredClone({ ...vida, anterior: null }) : null;
+  const prox: Vida = structuredClone({ ...vida, anterior: null });
+  prox.anterior = foto;
   const rng = new Rng(prox.rng);
   const mesesAntes = prox.relogio.idadeMeses;
   const anos = prox.config.turno === 'ano' ? 1 : 0.5;
@@ -151,7 +156,9 @@ export function avancarPeriodo(vida: Vida): Vida {
     aplicar(prox, { 'atributos.saude': -excesso * 0.1, 'atributos.felicidade': -excesso * 0.15 }, anos);
   }
 
-  envelhecer(p, idade, anos, rng);
+  // Com a idade pausada (Modo Deus), o corpo envelhece pela idade biológica, que não anda.
+  const idadeCorpo = p.idadeBiologicaMeses !== undefined ? p.idadeBiologicaMeses / 12 : idade;
+  envelhecer(p, idadeCorpo, anos, rng);
 
   const novidades: EntradaHistorico[] = [];
   const nota = (texto: string) => novidades.push({ quando, texto });
@@ -174,7 +181,7 @@ export function avancarPeriodo(vida: Vida): Vida {
     if (d('felicidade') <= -8) nota('Foi um período difícil.');
   }
 
-  const causa = sortearMorte(p, idade, anos, rng);
+  const causa = sortearMorte(p, idadeCorpo, anos, rng);
   if (causa) {
     prox.morte = { ano: r.ano, idadeMeses: r.idadeMeses, causa };
     prox.pendente = null;

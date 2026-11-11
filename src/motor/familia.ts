@@ -538,7 +538,7 @@ export function continuarComoFilho(morta: Vida, filhoId: string, novoId: string,
       atributos, personalidade: f.personalidade, potencial: f.potencial,
       dinheiro: heranca + poupanca, desgaste: 20, tracos: [],
       classe, estudo: estudoInicial(classe, rng, idade),
-      trabalho: { emprego: null, anosContribuicao: 0, aposentadoria: 0 }, dividas: [],
+      trabalho: { emprego: null, anosContribuicao: 0, aposentadoria: 0, cargos: [] }, dividas: [],
       moradia: idade >= 18 && !outro?.vivo ? 'aluguel' : 'pais', interesse: 'todos',
     },
     atributosAnteriores: { ...atributos },
@@ -549,6 +549,8 @@ export function continuarComoFilho(morta: Vida, filhoId: string, novoId: string,
     habitos: [], memorias: [], ganchos: [], pendente: null, periodo: {}, totais: {}, vistos: {}, ganchosCumpridos: 0,
     pessoas,
     linhagem: { geracao, anteriores },
+    anterior: null,
+    voltas: 0,
   };
   lembrar(vida, fem(pm) ? 'morte_mae' : 'morte_pai', `perdeu ${fem(pm) ? 'a mãe' : 'o pai'}, ${pm.nome}`, -25, { pessoa: pm.nome });
   return vida;

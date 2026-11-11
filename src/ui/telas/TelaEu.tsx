@@ -1,6 +1,7 @@
-import { EIXOS, type Vida } from '../../motor/tipos';
+import { EIXOS, type Eixo, type Vida } from '../../motor/tipos';
 import { CURSOS, estadoDe, orcamentoMensal, textoClasse, textoEstudo, tituloEmprego } from '../../motor/carreira';
 import { reais } from '../../motor/efeitos';
+import { biografia } from '../../motor/biografia';
 import { POLOS_EIXO } from '../textos';
 
 const NOME_ESCOLARIDADE = { nenhuma: 'Nenhuma ainda', fundamental: 'Fundamental completo', medio: 'Médio completo', superior: 'Superior completo' };
@@ -15,7 +16,14 @@ const NOME_TRACO: Record<string, string[]> = {
   diabetes: ['Diabetes controlada', 'Diabetes sem controle', 'Diabetes grave'],
 };
 
-export function TelaEu({ vida, onInteresse }: { vida: Vida; onInteresse: (i: Vida['personagem']['interesse']) => void }) {
+interface Props {
+  vida: Vida;
+  deus: boolean;
+  onInteresse: (i: Vida['personagem']['interesse']) => void;
+  onEixo: (e: Eixo, valor: number) => void;
+}
+
+export function TelaEu({ vida, deus, onInteresse, onEixo }: Props) {
   const c = vida.config;
   return (
     <>
@@ -30,7 +38,11 @@ export function TelaEu({ vida, onInteresse }: { vida: Vida; onInteresse: (i: Vid
           const largura = Math.abs(v) / 2; // metade da barra = 100
           return (
             <div class="eixo" key={e}>
-              <div class="eixo-polos"><span>{neg}</span><span>{pos}</span></div>
+              <div class="eixo-polos"><span>{neg}</span>{deus && <span class="numero">{Math.round(v)}</span>}<span>{pos}</span></div>
+              {deus && (
+                <input type="range" min={-100} max={100} value={Math.round(v)} class="eixo-edit" aria-label={`${neg} ou ${pos}`}
+                  onChange={(ev) => onEixo(e, Number(ev.currentTarget.value))} />
+              )}
               <div class="eixo-barra" aria-label={`${neg} ou ${pos}: ${v}`}>
                 <div
                   class="eixo-valor"
@@ -41,6 +53,13 @@ export function TelaEu({ vida, onInteresse }: { vida: Vida; onInteresse: (i: Vid
           );
         })}
       </section>
+
+      {!vida.morte && (
+        <section class="cartao">
+          <h2>Sua história até aqui</h2>
+          {biografia(vida).map((t, i) => <p key={i}>{t}</p>)}
+        </section>
+      )}
 
       <section class="cartao">
         <h2>Interesse romântico</h2>
@@ -137,7 +156,6 @@ export function TelaEu({ vida, onInteresse }: { vida: Vida; onInteresse: (i: Vid
         </dl>
       </section>
 
-      <p class="vazio">Modo Deus e voltar um período chegam no marco 6.</p>
     </>
   );
 }

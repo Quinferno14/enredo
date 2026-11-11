@@ -7,6 +7,8 @@ interface Props {
   vida: Vida;
   aviso: string;
   onAcao: (pessoaId: string, acaoId: string) => void;
+  deus: boolean;
+  onEditar: (pessoaId: string, campo: 'afeto' | 'saude', valor: number) => void;
 }
 
 const GRUPOS: { titulo: string; filtro: (p: Pessoa) => boolean }[] = [
@@ -22,7 +24,7 @@ function idadeTexto(p: Pessoa) {
   return anos < 1 ? 'bebê' : `${anos} ${anos === 1 ? 'ano' : 'anos'}`;
 }
 
-export function TelaPessoas({ vida, aviso, onAcao }: Props) {
+export function TelaPessoas({ vida, aviso, onAcao, deus, onEditar }: Props) {
   const [aberta, setAberta] = useState<string | null>(null);
 
   return (
@@ -62,6 +64,14 @@ export function TelaPessoas({ vida, aviso, onAcao }: Props) {
                         </span>
                       )}
                     </button>
+                    {deus && p.vivo && (
+                      <div class="linha deus-pessoa">
+                        <label>Afeto <input class="numero-edit" type="number" min={0} max={100} value={p.afeto}
+                          onChange={(e) => onEditar(p.id, 'afeto', Number(e.currentTarget.value))} /></label>
+                        <label>Saúde <input class="numero-edit" type="number" min={0} max={100} value={p.saude}
+                          onChange={(e) => onEditar(p.id, 'saude', Number(e.currentTarget.value))} /></label>
+                      </div>
+                    )}
                     {aberto && p.vivo && (
                       <div class="chips pessoa-acoes">
                         {acoes.map((a) => (

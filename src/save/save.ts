@@ -89,7 +89,7 @@ export function migrar(dados: unknown): Vida | null {
   if (!dados || typeof dados !== 'object') return null;
   const v = dados as Partial<Vida>;
   const versao = v.versao as number | undefined;
-  if (versao !== 1 && versao !== 2 && versao !== 3 && versao !== VERSAO_SAVE) return null;
+  if (versao !== 1 && versao !== 2 && versao !== 3 && versao !== 4 && versao !== VERSAO_SAVE) return null;
   const p = v.personagem;
   const ok =
     typeof v.id === 'string' &&
@@ -127,13 +127,17 @@ export function migrar(dados: unknown): Vida | null {
   // Versão 2 → 3: escola, trabalho e dinheiro. Vidas antigas viram classe média, rede pública.
   p2.classe ??= 'media';
   p2.estudo ??= estudoInicial('media', null, vida.relogio.idadeMeses / 12);
-  p2.trabalho ??= { emprego: null, anosContribuicao: 0, aposentadoria: 0 };
+  p2.trabalho ??= { emprego: null, anosContribuicao: 0, aposentadoria: 0, cargos: [] };
   p2.dividas ??= [];
   p2.moradia ??= 'pais';
   // Versão 3 → 4: família.
   p2.interesse ??= 'todos';
   vida.linhagem ??= { geracao: 1, anteriores: [] };
   vida.pessoas ??= familiaParaSaveAntigo(vida);
+  // Versão 4 → 5: voltar um período e histórico de cargos.
+  vida.anterior ??= null;
+  vida.voltas ??= 0;
+  p2.trabalho.cargos ??= [];
   vida.versao = VERSAO_SAVE;
   return vida;
 }

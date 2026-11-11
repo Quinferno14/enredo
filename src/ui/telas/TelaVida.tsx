@@ -7,6 +7,8 @@ import { nomeCompleto, proximoRelogio, rotuloPeriodo, textoIdade } from '../../m
 import { NOME_ATRIBUTO } from '../textos';
 import { PainelAcoes } from './PainelAcoes';
 import { filhosQuePodemContinuar } from '../../motor/familia';
+import { biografia } from '../../motor/biografia';
+import { voltarPeriodo } from '../../motor/deus';
 
 // A sorte fica oculta; aparece no Modo Deus (marco 6).
 const VISIVEIS: Atributo[] = ['saude', 'felicidade', 'inteligencia', 'aparencia', 'forma', 'carisma'];
@@ -17,6 +19,10 @@ interface Props {
   onAvancar: () => void;
   onNovaVida: () => void;
   onContinuarComo: (filhoId: string) => void;
+  deus: boolean;
+  onDeus: () => void;
+  onEditar: (a: Atributo | 'desgaste', valor: number) => void;
+  onMudar: (v: Vida) => void;
   onAcao: (id: string) => void;
   onHabito: (id: string, porSemana: number) => void;
   onSairHabito: (id: string) => void;
@@ -35,7 +41,7 @@ function agruparPorPeriodo(historico: EntradaHistorico[]) {
 }
 
 export function TelaVida(props: Props) {
-  const { vida, aviso, onAvancar, onNovaVida, onContinuarComo, onAcao, onHabito, onSairHabito, onEscolha } = props;
+  const { vida, aviso, onAvancar, onNovaVida, onContinuarComo, onAcao, onHabito, onSairHabito, onEscolha, deus, onDeus, onEditar, onMudar } = props;
   const herdeiros = filhosQuePodemContinuar(vida);
   const p = vida.personagem;
   const iniciais = `${p.nome[0] ?? ''}${p.sobrenome[0] ?? ''}`;
@@ -64,14 +70,18 @@ export function TelaVida(props: Props) {
           </p>
           {status && !morte && <p class="sutil status">{status}</p>}
         </div>
+        <button
+          class={deus ? 'botao-deus ativo' : 'botao-deus'}
+          aria-pressed={deus}
+          title={deus ? 'Sair do Modo Deus' : 'Modo Deus: editar os números'}
+          onClick={onDeus}
+        >✎</button>
       </header>
 
       {morte && (
         <section class="cartao fim" aria-label="Fim da vida">
           <h2>Fim da vida</h2>
-          <p>
-            {p.nome} morreu aos {textoIdade(morte.idadeMeses)}, em {morte.ano}, {morte.causa}.
-          </p>
+          {biografia(vida).map((t, i) => <p key={i}>{t}</p>)}
           {herdeiros.length > 0 ? (
             <>
               <p class="dica">A história pode continuar com {herdeiros.length === 1 ? 'seu filho' : 'um dos seus filhos'}:</p>
@@ -82,13 +92,15 @@ export function TelaVida(props: Props) {
               ))}
             </>
           ) : <p class="dica">Sem filhos vivos para continuar a história.</p>}
-          {vida.config.morte === 'voltar' && <p class="dica">Voltar um período chega no marco 6.</p>}
+          {vida.config.morte === 'voltar' && vida.anterior && (
+            <button class="secundario" onClick={() => onMudar(voltarPeriodo(vida))}>↺ Voltar um período</button>
+          )}
           <button class={herdeiros.length ? 'secundario' : 'primario'} onClick={onNovaVida}>Começar outra vida</button>
         </section>
       )}
 
       <section class="atributos" aria-label="Atributos">
-        {VISIVEIS.map((a) => {
+        {(deus ? [...VISIVEIS, 'sorte' as Atributo] : VISIVEIS).map((a) => {
           const v = Math.round(p.atributos[a]);
           const antes = Math.round(vida.atributosAnteriores[a]);
           const seta = v > antes ? '↑' : v < antes ? '↓' : '';
@@ -96,10 +108,15 @@ export function TelaVida(props: Props) {
             <div class="atributo" key={a}>
               <div class="atributo-linha">
                 <span>{NOME_ATRIBUTO[a]}</span>
-                <span class="numero">
-                  {v}
-                  {seta && <span class={v > antes ? 'sobe' : 'desce'} aria-label={v > antes ? 'subiu' : 'caiu'}> {seta}</span>}
-                </span>
+                {deus ? (
+                  <input class="numero-edit" type="number" min={0} max={100} value={v} aria-label={NOME_ATRIBUTO[a]}
+                    onChange={(e) => onEditar(a, Number(e.currentTarget.value))} />
+                ) : (
+                  <span class="numero">
+                    {v}
+                    {seta && <span class={v > antes ? 'sobe' : 'desce'} aria-label={v > antes ? 'subiu' : 'caiu'}> {seta}</span>}
+                  </span>
+                )}
               </div>
               <div class="barra"><div style={{ width: `${v}%` }} /></div>
             </div>
@@ -108,7 +125,10 @@ export function TelaVida(props: Props) {
         <div class="atributo">
           <div class="atributo-linha">
             <span>Cansaço</span>
-            <span class={desgaste >= 60 ? 'numero desce' : 'numero'}>{desgaste}</span>
+            {deus ? (
+              <input class="numero-edit" type="number" min={0} max={100} value={desgaste} aria-label="Cansaço"
+                onChange={(e) => onEditar('desgaste', Number(e.currentTarget.value))} />
+            ) : <span class={desgaste >= 60 ? 'numero desce' : 'numero'}>{desgaste}</span>}
           </div>
           <div class="barra cansaco"><div class={desgaste >= 60 ? 'alto' : ''} style={{ width: `${desgaste}%` }} /></div>
         </div>

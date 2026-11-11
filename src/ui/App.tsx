@@ -1,6 +1,7 @@
 import { useState } from 'preact/hooks';
 import type { Vida } from '../motor/tipos';
 import { definirHabito, fazerAcao, pedirParaSair } from '../motor/acoes';
+import { editarAtributo, editarEixo, editarPessoa } from '../motor/deus';
 import { escolher } from '../motor/eventos';
 import { continuarComoFilho, fazerAcaoPessoa } from '../motor/familia';
 import { avancarPeriodo } from '../motor/vida';
@@ -26,6 +27,7 @@ export function App() {
   const [criando, setCriando] = useState(false);
   const [semSave, setSemSave] = useState(false);
   const [aviso, setAviso] = useState('');
+  const [deus, setDeus] = useState(false);
 
   const vida = armazem.vidas.find((v) => v.id === armazem.atual) ?? null;
 
@@ -69,6 +71,10 @@ export function App() {
             aviso={aviso}
             onAvancar={() => { setAviso(''); usarVida(avancarPeriodo(vida)); }}
             onNovaVida={() => setCriando(true)}
+            deus={deus}
+            onDeus={() => setDeus(!deus)}
+            onEditar={(a, valor) => usarVida(editarAtributo(vida, a, valor))}
+            onMudar={usarVida}
             onContinuarComo={(filhoId) => usarVida(continuarComoFilho(vida, filhoId, novoId(), new Date().toISOString()))}
             onAcao={(id) => {
               const r = fazerAcao(vida, id);
@@ -84,6 +90,8 @@ export function App() {
           <TelaPessoas
             vida={vida}
             aviso={aviso}
+            deus={deus}
+            onEditar={(pid, campo, valor) => usarVida(editarPessoa(vida, pid, campo, valor))}
             onAcao={(pid, acao) => {
               const r = fazerAcaoPessoa(vida, pid, acao);
               setAviso(r.aviso ?? '');
@@ -94,12 +102,13 @@ export function App() {
             }}
           />
         )}
-        {aba === 'eu' && <TelaEu vida={vida} onInteresse={(i) => usarVida({ ...vida, personagem: { ...vida.personagem, interesse: i } })} />}
+        {aba === 'eu' && <TelaEu vida={vida} deus={deus} onEixo={(e, valor) => usarVida(editarEixo(vida, e, valor))} onInteresse={(i) => usarVida({ ...vida, personagem: { ...vida.personagem, interesse: i } })} />}
         {aba === 'mais' && (
           <TelaMais
             vida={vida}
             salvas={armazem.vidas}
             onNovaVida={() => setCriando(true)}
+            onMudar={usarVida}
             onTrocar={(v) => {
               usarVida(v);
               setAba('vida');

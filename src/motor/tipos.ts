@@ -3,7 +3,7 @@
 
 import type { EstadoRng } from './rng';
 
-export const VERSAO_SAVE = 4;
+export const VERSAO_SAVE = 5;
 
 export const ATRIBUTOS = [
   'saude', 'felicidade', 'inteligencia', 'aparencia', 'forma', 'carisma', 'sorte',
@@ -66,6 +66,8 @@ export interface Personagem {
   trabalho: Trabalho;
   dividas: Divida[];
   moradia: 'pais' | 'aluguel';
+  /** Modo Deus: com a idade pausada, o corpo fica nesta idade (meses) enquanto os anos passam. */
+  idadeBiologicaMeses?: number;
   /** Por quem tem interesse romântico. Escolha do jogador. */
   interesse: 'homens' | 'mulheres' | 'todos';
 }
@@ -139,6 +141,8 @@ export interface Trabalho {
   anosContribuicao: number;
   /** Aposentadoria mensal do INSS; 0 enquanto não aposentou. */
   aposentadoria: number;
+  /** Cargos que já ocupou, em ordem (para a biografia). */
+  cargos: string[];
 }
 
 export interface Divida {
@@ -230,4 +234,8 @@ export interface Vida {
   ganchosCumpridos: number;
   pessoas: Pessoa[];
   linhagem: Linhagem;
+  /** Foto do começo do período anterior (só no modo "voltar um período"). */
+  anterior: Vida | null;
+  /** Quantas vezes voltou; muda o sorteio para o período não se repetir igual. */
+  voltas: number;
 }

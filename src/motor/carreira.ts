@@ -317,6 +317,7 @@ export function rodarTrabalho(vida: Vida, anos: number, rng: Rng): string[] {
       emp.nivel += 1;
       emp.salario = Math.round(emp.salario * 1.25);
       const titulo = tituloEmprego(vida, emp);
+      t.cargos.push(titulo);
       linhas.push(`Promoção! Agora você é ${titulo}, ganhando ${reais(emp.salario)} por mês.`);
       lembrar(vida, 'promocao', `foi promovid${p.sexo === 'feminino' ? 'a' : 'o'} a ${titulo}`, 15);
       aplicar(vida, { 'atributos.felicidade': 6 });
@@ -487,6 +488,7 @@ export function resolverSistema(vida: Vida, pend: Pendente, indice: number, rng:
     if (rng.proximo() < chanceContratar(vida, def)) {
       const saiuDe = p.trabalho.emprego ? ` Você saiu do emprego de ${tituloEmprego(vida, p.trabalho.emprego)}.` : '';
       p.trabalho.emprego = { id, salario: salarioInicial(vida, def), desempenho: 55, nivel: 0, desdeMeses: vida.relogio.idadeMeses };
+      p.trabalho.cargos.push(tituloEmprego(vida, p.trabalho.emprego));
       aplicar(vida, { 'atributos.felicidade': 5 });
       return `Contratad${p.sexo === 'feminino' ? 'a' : 'o'}! Você agora é ${tituloEmprego(vida, p.trabalho.emprego)}.${saiuDe}`;
     }

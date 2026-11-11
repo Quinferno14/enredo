@@ -271,3 +271,28 @@ details.cartao summary { cursor: pointer; font-weight: 600; }
 .afeto .barra > span { display: block; height: 100%; background: var(--acento); border-radius: 3px; }
 .afeto .barra > span.baixo { background: var(--desce); }
 .pessoa-acoes { margin-top: 6px; }
+
+/* Modo Deus */
+.topo > div:nth-child(2) { flex: 1; min-width: 0; }
+.botao-deus {
+  flex: none; width: 40px; height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--borda);
+  background: var(--superficie);
+  color: var(--sutil);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+.botao-deus.ativo { border-color: var(--acento); background: var(--acento-fraco); color: var(--acento); }
+.numero-edit {
+  width: 64px; padding: 2px 6px;
+  border-radius: 6px; border: 1px solid var(--acento);
+  background: var(--fundo); color: var(--texto);
+  font-variant-numeric: tabular-nums; text-align: right;
+}
+.eixo-edit { width: 100%; margin: 4px 0 0; accent-color: var(--acento); }
+.deus { border-color: var(--acento); }
+.linha-check { flex-direction: row !important; align-items: center; gap: 8px !important; color: var(--texto) !important; }
+.linha-check input { width: auto !important; min-height: 0 !important; }
+.deus-pessoa { margin-top: 6px; font-size: 0.8125rem; color: var(--sutil); }
+.deus-pessoa label { display: flex; align-items: center; gap: 6px; }

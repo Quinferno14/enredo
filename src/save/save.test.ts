@@ -69,10 +69,12 @@ describe('save', () => {
     const v = vida('antiga') as unknown as Record<string, unknown> & { personagem: Record<string, unknown> };
     const antigo = structuredClone(v);
     antigo.versao = 1;
-    for (const k of ['habitos', 'memorias', 'ganchos', 'pendente', 'periodo', 'totais', 'vistos', 'ganchosCumpridos', 'pessoas', 'linhagem']) delete antigo[k];
+    for (const k of ['habitos', 'memorias', 'ganchos', 'pendente', 'periodo', 'totais', 'vistos', 'ganchosCumpridos', 'pessoas', 'linhagem', 'anterior', 'voltas']) delete antigo[k];
     for (const k of ['dinheiro', 'desgaste', 'tracos', 'classe', 'estudo', 'trabalho', 'dividas', 'moradia', 'potencial', 'interesse']) delete antigo.personagem[k];
     const lido = importarTexto(JSON.stringify(antigo));
-    expect(lido.versao).toBe(4);
+    expect(lido.versao).toBe(5);
+    expect(lido.anterior).toBeNull();
+    expect(lido.personagem.trabalho.cargos).toEqual([]);
     expect(lido.pessoas.some((x) => x.papel === 'mae')).toBe(true);
     expect(lido.habitos).toEqual([]);
     expect(lido.personagem.estudo.etapa).toBe('nenhuma');
