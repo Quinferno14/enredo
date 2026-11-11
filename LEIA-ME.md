@@ -6,7 +6,7 @@ Simulador de vida pessoal, para jogar localmente. Não tem relação com trabalh
   Toda decisão fica lá, não aqui, para sobreviver a uma troca de PC.
 - **Código:** esta pasta e o repositório privado https://github.com/Quinferno14/enredo
 - **Regra:** nada é construído antes de a parte correspondente do escopo estar fechada.
-- **Fase atual:** marcos 1 (Esqueleto) e 2 (Viver e morrer) prontos. Próximo: marco 3 (Atividades e eventos).
+- **Fase atual:** marcos 1 (Esqueleto), 2 (Viver e morrer) e 3 (Atividades e eventos) prontos. Próximo: marco 4 (Escola, carreira e dinheiro).
 
 ## Como jogar
 

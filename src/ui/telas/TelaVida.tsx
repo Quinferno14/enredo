@@ -1,14 +1,23 @@
+import { useState } from 'preact/hooks';
+import { acaoPorId, horasSemana } from '../../motor/acoes';
+import { reais } from '../../motor/efeitos';
 import type { Atributo, EntradaHistorico, Vida } from '../../motor/tipos';
-import { avancarPeriodo, nomeCompleto, rotuloPeriodo, textoIdade } from '../../motor/vida';
+import { nomeCompleto, proximoRelogio, rotuloPeriodo, textoIdade } from '../../motor/vida';
 import { NOME_ATRIBUTO } from '../textos';
+import { PainelAcoes } from './PainelAcoes';
 
 // A sorte fica oculta; aparece no Modo Deus (marco 6).
 const VISIVEIS: Atributo[] = ['saude', 'felicidade', 'inteligencia', 'aparencia', 'forma', 'carisma'];
 
 interface Props {
   vida: Vida;
+  aviso: string;
   onAvancar: () => void;
   onNovaVida: () => void;
+  onAcao: (id: string) => void;
+  onHabito: (id: string, porSemana: number) => void;
+  onSairHabito: (id: string) => void;
+  onEscolha: (indice: number) => void;
 }
 
 /** Junta as linhas da história por período, do mais recente para o mais antigo. */
@@ -22,11 +31,15 @@ function agruparPorPeriodo(historico: EntradaHistorico[]) {
   return grupos.reverse();
 }
 
-export function TelaVida({ vida, onAvancar, onNovaVida }: Props) {
+export function TelaVida(props: Props) {
+  const { vida, aviso, onAvancar, onNovaVida, onAcao, onHabito, onSairHabito, onEscolha } = props;
   const p = vida.personagem;
   const iniciais = `${p.nome[0] ?? ''}${p.sobrenome[0] ?? ''}`;
   const morte = vida.morte;
-  const proximo = morte ? '' : rotuloPeriodo(avancarPeriodo(vida).relogio, vida.config.turno);
+  const proximo = rotuloPeriodo(proximoRelogio(vida.relogio, vida.config.turno), vida.config.turno);
+  const [habitoAberto, setHabitoAberto] = useState<string | null>(null);
+  const horas = horasSemana(vida);
+  const desgaste = Math.round(p.desgaste);
 
   return (
     <>
@@ -37,6 +50,7 @@ export function TelaVida({ vida, onAvancar, onNovaVida }: Props) {
           <p class="sutil">
             {morte ? `† ${textoIdade(morte.idadeMeses)} · ${morte.ano}` : textoIdade(vida.relogio.idadeMeses)}
             {' · '}{p.cidade}, {p.estado}
+            {' · '}<span class={p.dinheiro < 0 ? 'desce' : ''}>{reais(p.dinheiro)}</span>
           </p>
         </div>
       </header>
@@ -58,8 +72,8 @@ export function TelaVida({ vida, onAvancar, onNovaVida }: Props) {
 
       <section class="atributos" aria-label="Atributos">
         {VISIVEIS.map((a) => {
-          const v = p.atributos[a];
-          const antes = vida.atributosAnteriores[a];
+          const v = Math.round(p.atributos[a]);
+          const antes = Math.round(vida.atributosAnteriores[a]);
           const seta = v > antes ? '↑' : v < antes ? '↓' : '';
           return (
             <div class="atributo" key={a}>
@@ -74,7 +88,82 @@ export function TelaVida({ vida, onAvancar, onNovaVida }: Props) {
             </div>
           );
         })}
+        <div class="atributo">
+          <div class="atributo-linha">
+            <span>Cansaço</span>
+            <span class={desgaste >= 60 ? 'numero desce' : 'numero'}>{desgaste}</span>
+          </div>
+          <div class="barra cansaco"><div class={desgaste >= 60 ? 'alto' : ''} style={{ width: `${desgaste}%` }} /></div>
+        </div>
       </section>
+
+      {!morte && (vida.habitos.length > 0 || p.tracos.length > 0) && (
+        <section class="habitos" aria-label="Hábitos">
+          <div class="chips">
+            {vida.habitos.map((h) => {
+              const a = acaoPorId(h.acao);
+              return (
+                <button
+                  key={h.acao}
+                  class={h.pausado ? 'chip pausado' : 'chip'}
+                  aria-expanded={habitoAberto === h.acao}
+                  onClick={() => setHabitoAberto(habitoAberto === h.acao ? null : h.acao)}
+                >
+                  ⟳ {a?.nome ?? h.acao} {h.porSemana}x/sem{h.pausado ? ' (pausado)' : ''}
+                </button>
+              );
+            })}
+            {horas > 0 && (
+              <span class={horas > 40 ? 'agenda vermelho' : horas > 20 ? 'agenda amarelo' : 'agenda'}>
+                Agenda: {horas.toLocaleString('pt-BR')} h/sem
+              </span>
+            )}
+          </div>
+          {habitoAberto && (() => {
+            const h = vida.habitos.find((x) => x.acao === habitoAberto);
+            if (!h) return null;
+            return (
+              <div class="frequencias">
+                {h.imposto ? (
+                  <>
+                    <span class="dica">Imposto pelos pais.</span>
+                    <button class="chip" onClick={() => { onSairHabito(h.acao); setHabitoAberto(null); }}>Pedir para sair</button>
+                  </>
+                ) : (
+                  <>
+                    {[1, 3, 7].map((f) => (
+                      <button key={f} class={h.porSemana === f ? 'chip ativo' : 'chip'} onClick={() => { onHabito(h.acao, f); setHabitoAberto(null); }}>
+                        {f}x/sem
+                      </button>
+                    ))}
+                    <button class="chip" onClick={() => { onHabito(h.acao, 0); setHabitoAberto(null); }}>Parar</button>
+                  </>
+                )}
+              </div>
+            );
+          })()}
+        </section>
+      )}
+
+      {vida.pendente && !morte && (
+        <section class="cartao decisao" aria-label="Decisão">
+          <p>{vida.pendente.texto}</p>
+          <div class="escolhas">
+            {vida.pendente.escolhas.map((c, i) => (
+              <button key={i} class="secundario" disabled={!!c.motivo} onClick={() => onEscolha(i)}>
+                {c.texto}{c.motivo && <span class="dica"> · {c.motivo}</span>}
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {!morte && (
+        <section aria-label="O que fazer">
+          <PainelAcoes vida={vida} onAcao={onAcao} onHabito={onHabito} />
+          {aviso && <p class="aviso-acao" role="status">{aviso}</p>}
+        </section>
+      )}
 
       <section class="feed" aria-label="Sua história">
         {agruparPorPeriodo(vida.historico).map((g, i) => (
@@ -87,8 +176,9 @@ export function TelaVida({ vida, onAvancar, onNovaVida }: Props) {
 
       {!morte && (
         <div class="rodape-acoes">
-          <input class="busca" disabled placeholder="O que você quer fazer?" title="As ações chegam no marco 3" />
-          <button class="primario grande" onClick={onAvancar}>Avançar para {proximo}</button>
+          <button class="primario grande" onClick={onAvancar} disabled={!!vida.pendente}>
+            {vida.pendente ? 'Decida acima para avançar' : `Avançar para ${proximo}`}
+          </button>
         </div>
       )}
     </>

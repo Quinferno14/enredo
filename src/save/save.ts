@@ -76,17 +76,32 @@ export function importarTexto(texto: string): Vida {
   }
   const vida = migrar(dados);
   if (!vida) throw new Error('O arquivo não parece ser uma vida do Enredo.');
+  // Versão 1 → 2: ações, hábitos, eventos, memórias e ganchos.
+  const p2 = vida.personagem;
+  p2.dinheiro ??= 0;
+  p2.desgaste ??= 0;
+  p2.tracos ??= [];
+  vida.habitos ??= [];
+  vida.memorias ??= [];
+  vida.ganchos ??= [];
+  vida.pendente ??= null;
+  vida.periodo ??= {};
+  vida.totais ??= {};
+  vida.vistos ??= {};
+  vida.ganchosCumpridos ??= 0;
+  vida.versao = VERSAO_SAVE;
   return vida;
 }
 
 /**
  * Confere a forma de um save e converte versões antigas para a atual.
- * Hoje só existe a versão 1; versões futuras ganham um passo aqui.
+ * Versão 1 (marcos 1 e 2) ganha os campos do marco 3 vazios.
  */
 export function migrar(dados: unknown): Vida | null {
   if (!dados || typeof dados !== 'object') return null;
   const v = dados as Partial<Vida>;
-  if (v.versao !== VERSAO_SAVE) return null;
+  const versao = v.versao as number | undefined;
+  if (versao !== 1 && versao !== VERSAO_SAVE) return null;
   const p = v.personagem;
   const ok =
     typeof v.id === 'string' &&
@@ -108,5 +123,19 @@ export function migrar(dados: unknown): Vida | null {
       inteligencia: a.inteligencia, carisma: a.carisma,
     };
   }
+  // Versão 1 → 2: ações, hábitos, eventos, memórias e ganchos.
+  const p2 = vida.personagem;
+  p2.dinheiro ??= 0;
+  p2.desgaste ??= 0;
+  p2.tracos ??= [];
+  vida.habitos ??= [];
+  vida.memorias ??= [];
+  vida.ganchos ??= [];
+  vida.pendente ??= null;
+  vida.periodo ??= {};
+  vida.totais ??= {};
+  vida.vistos ??= {};
+  vida.ganchosCumpridos ??= 0;
+  vida.versao = VERSAO_SAVE;
   return vida;
 }

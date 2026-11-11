@@ -11,6 +11,7 @@
   --acento-fraco: #e3ecfa;
   --sobe: #2e8b57;
   --desce: #c0453a;
+  --alerta: #b7791f;
   --raio: 12px;
   color-scheme: light;
 }
@@ -27,6 +28,7 @@
     --acento-fraco: #1f2c42;
     --sobe: #5cc28a;
     --desce: #ec7a6f;
+    --alerta: #e0a64a;
     color-scheme: dark;
   }
 }
@@ -189,3 +191,63 @@ details.cartao summary { cursor: pointer; font-weight: 600; }
 .dados { display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; margin: 0; font-size: 0.875rem; }
 .dados dt { color: var(--sutil); }
 .dados dd { margin: 0; }
+
+.barra.cansaco > div { background: var(--sutil); }
+.barra.cansaco > div.alto { background: var(--desce); }
+
+/* Hábitos */
+.habitos { display: flex; flex-direction: column; gap: 8px; }
+.chips, .frequencias { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.chip {
+  border: 1px solid var(--borda);
+  background: var(--superficie);
+  border-radius: 999px;
+  padding: 6px 12px;
+  min-height: 36px;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.chip.ativo { border-color: var(--acento); background: var(--acento-fraco); font-weight: 600; }
+.chip.pausado { color: var(--sutil); border-style: dashed; }
+.agenda { font-size: 0.8125rem; color: var(--sutil); }
+.agenda.amarelo { color: var(--alerta); font-weight: 600; }
+.agenda.vermelho { color: var(--desce); font-weight: 600; }
+
+/* Decisão */
+.decisao { border: 2px solid var(--acento); }
+.escolhas { display: flex; flex-direction: column; gap: 8px; }
+.escolhas button { text-align: left; }
+.escolhas button:disabled { opacity: 0.55; cursor: not-allowed; }
+.primario:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Ações */
+.painel-acoes { display: flex; flex-direction: column; gap: 8px; }
+.painel-acoes .busca { flex: 1; min-width: 0; }
+.acoes { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.acao-item { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.acao-linha { display: flex; gap: 4px; }
+.acao {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  text-align: left;
+  padding: 8px 10px;
+  min-height: 52px;
+  border-radius: 10px;
+  border: 1px solid var(--borda);
+  background: var(--superficie);
+  cursor: pointer;
+}
+.acao:active { background: var(--acento-fraco); }
+.acao-nome { font-size: 0.875rem; font-weight: 600; line-height: 1.2; }
+.acao-info { font-size: 0.75rem; color: var(--sutil); }
+.habito-botao {
+  flex: none; width: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--borda);
+  background: var(--superficie);
+  color: var(--sutil);
+  cursor: pointer;
+}
+.habito-botao.sugerido { border-color: var(--acento); color: var(--acento); font-weight: 700; }
+.aviso-acao { font-size: 0.875rem; color: var(--desce); }
+.memorias { margin: 0; padding-left: 18px; font-size: 0.875rem; display: flex; flex-direction: column; gap: 4px; }

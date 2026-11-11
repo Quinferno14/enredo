@@ -1,5 +1,7 @@
 import { useState } from 'preact/hooks';
 import type { Vida } from '../motor/tipos';
+import { definirHabito, fazerAcao, pedirParaSair } from '../motor/acoes';
+import { escolher } from '../motor/eventos';
 import { avancarPeriodo } from '../motor/vida';
 import { carregar, salvarVida, type Armazem } from '../save/save';
 import { NovaVida } from './telas/NovaVida';
@@ -21,6 +23,7 @@ export function App() {
   const [aba, setAba] = useState<Aba>('vida');
   const [criando, setCriando] = useState(false);
   const [semSave, setSemSave] = useState(false);
+  const [aviso, setAviso] = useState('');
 
   const vida = armazem.vidas.find((v) => v.id === armazem.atual) ?? null;
 
@@ -61,8 +64,17 @@ export function App() {
         {aba === 'vida' && (
           <TelaVida
             vida={vida}
-            onAvancar={() => usarVida(avancarPeriodo(vida))}
+            aviso={aviso}
+            onAvancar={() => { setAviso(''); usarVida(avancarPeriodo(vida)); }}
             onNovaVida={() => setCriando(true)}
+            onAcao={(id) => {
+              const r = fazerAcao(vida, id);
+              setAviso(r.aviso ?? '');
+              if (r.ok) usarVida(r.vida);
+            }}
+            onHabito={(id, n) => usarVida(definirHabito(vida, id, n))}
+            onSairHabito={(id) => usarVida(pedirParaSair(vida, id))}
+            onEscolha={(i) => usarVida(escolher(vida, i))}
           />
         )}
         {aba === 'pessoas' && <TelaPessoas />}

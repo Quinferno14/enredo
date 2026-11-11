@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { Rng } from './rng';
+import { jogarPeriodo } from './automatico';
 import { avancarPeriodo, criarVida, textoIdade, type OpcoesNovaVida } from './vida';
 
 const base: OpcoesNovaVida = {
@@ -96,7 +97,7 @@ describe('avancarPeriodo', () => {
 describe('vida e morte', () => {
   const viver = (seed: string, periodos: number) => {
     let v = criarVida({ ...base, seed });
-    for (let i = 0; i < periodos && !v.morte; i++) v = avancarPeriodo(v);
+    for (let i = 0; i < periodos && !v.morte; i++) v = jogarPeriodo(v);
     return v;
   };
 

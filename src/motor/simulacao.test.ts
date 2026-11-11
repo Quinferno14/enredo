@@ -3,14 +3,15 @@
 
 import { describe, expect, it } from 'vitest';
 import type { Turno, Vida } from './tipos';
-import { avancarPeriodo, criarVida } from './vida';
+import { jogarPeriodo } from './automatico';
+import { criarVida } from './vida';
 
 function viverAteMorrer(seed: string, turno: Turno = 'ano'): Vida {
   let v = criarVida({
     id: seed, seed, ano: 2026, criadaEm: '2026-11-10T00:00:00.000Z',
     turno, morte: 'permanente', inicio: 'bebe',
   });
-  for (let i = 0; i < 300 && !v.morte; i++) v = avancarPeriodo(v);
+  for (let i = 0; i < 300 && !v.morte; i++) v = jogarPeriodo(v);
   return v;
 }
 
