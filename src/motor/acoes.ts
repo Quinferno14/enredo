@@ -3,8 +3,10 @@
 
 import acoesJson from '../conteudo/acoes.json';
 import {
-  aplicar, diferenca, foto, mudarTraco, nivelTraco, reais, resumo, type Efeitos,
+  aplicar, atende, diferenca, foto, lembrar, mudarTraco, nivelTraco, reais, resumo, type Efeitos, type Quando,
 } from './efeitos';
+import { acaoCarreira, horasObrigacoes } from './carreira';
+import { curva } from './curva';
 import { limitar } from './envelhecer';
 import { Rng } from './rng';
 import type { EntradaHistorico, Vida } from './tipos';
@@ -28,7 +30,10 @@ export interface AcaoDef {
   talento?: { id: string; nomes: string[] };
   vicio?: { id: string; chance: number };
   risco?: { acima: number; chance: number; texto: string; efeitos: Efeitos };
-  especial?: 'sus' | 'bet' | 'bicho' | 'furto';
+  /** Sorteio ou regra própria: bet, bicho, SUS, furto, e as de escola e trabalho (carreira.ts). */
+  especial?: string;
+  /** Condições além da idade (ex.: estar empregado). */
+  requer?: Quando;
   semHabito?: boolean;
   textos: string[];
 }
@@ -39,15 +44,14 @@ export const acaoPorId = (id: string) => ACOES.find((a) => a.id === id);
 export const FREQUENCIAS = [1, 3, 7] as const;
 const LIMIARES_TALENTO = [25, 120, 400];
 
-/** Rendimento acumulado de n sessões por ano: a 1ª vale 1, depois achata. */
-export const curva = (n: number) => Math.log2(1 + Math.max(0, n));
+export { curva };
 
 const anosDoTurno = (vida: Vida) => (vida.config.turno === 'ano' ? 1 : 0.5);
 const idadeDe = (vida: Vida) => vida.relogio.idadeMeses / 12;
 
 export function disponivel(vida: Vida, a: AcaoDef): boolean {
   const idade = idadeDe(vida);
-  return !vida.morte && idade >= a.idade[0] && idade <= a.idade[1];
+  return !vida.morte && idade >= a.idade[0] && idade <= a.idade[1] && atende(vida, a.requer);
 }
 
 export function acoesDisponiveis(vida: Vida): AcaoDef[] {
@@ -93,7 +97,7 @@ export function fazerAcao(vida: Vida, id: string): Resultado {
   const a = acaoPorId(id);
   if (!a || !disponivel(vida, a)) return { vida, ok: false, aviso: 'Essa ação não está disponível agora.' };
   const custo = custoPara(vida, a);
-  if (custo > vida.personagem.dinheiro) {
+  if (custo > 0 && custo > vida.personagem.dinheiro) {
     return { vida, ok: false, aviso: `Sem dinheiro: precisa de ${reais(custo)}.` };
   }
 
@@ -188,14 +192,8 @@ function resolverEspecial(vida: Vida, a: AcaoDef, rng: Rng): string | null {
       return null;
     }
     default:
-      return null;
+      return a.especial ? acaoCarreira(vida, a.especial, rng) : null;
   }
-}
-
-export function lembrar(vida: Vida, id: string, texto: string, peso: number, vars?: Record<string, string>) {
-  vida.memorias.push({
-    id, texto, peso, ano: vida.relogio.ano, idadeMeses: vida.relogio.idadeMeses, ...(vars ? { vars } : {}),
-  });
 }
 
 /**
@@ -280,6 +278,11 @@ export function horasSemana(vida: Vida): number {
   return vida.habitos.reduce((s, h) => s + (h.pausado ? 0 : h.porSemana * (acaoPorId(h.acao)?.horas ?? 0)), 0);
 }
 
+/** Horas por semana de escola, trabalho e hábitos. */
+export function horasAgenda(vida: Vida): number {
+  return horasObrigacoes(vida) + horasSemana(vida);
+}
+
 /** Ação feita à mão 6 vezes no período e que ainda não é hábito: o jogo sugere. */
 export function sugereHabito(vida: Vida, id: string): boolean {
   const a = acaoPorId(id);
@@ -301,9 +304,13 @@ export function rodarHabitos(vida: Vida, anos: number, rng: Rng): string[] {
       h.pausado = 'idade';
       continue;
     }
+    if (h.imposto && idade >= 18) {
+      delete h.imposto;
+      linhas.push(`Você fez 18: ${a.nome.toLowerCase()} agora é escolha sua, não dos seus pais.`);
+    }
     const sessoes = Math.round(h.porSemana * 52 * anos);
     const custo = custoPara(vida, a) * sessoes;
-    if (custo > vida.personagem.dinheiro) {
+    if (custo > 0 && custo > vida.personagem.dinheiro) {
       if (h.pausado !== 'dinheiro') linhas.push(`${a.nome}: pausado por falta de dinheiro (custa ${reais(custo)} no período).`);
       h.pausado = 'dinheiro';
       continue;
@@ -331,11 +338,11 @@ export function rodarHabitos(vida: Vida, anos: number, rng: Rng): string[] {
     linhas.push(...extras);
   }
 
-  // Agenda cheia cansa: passou de 20 h por semana, o cansaço sobe.
-  const horas = horasSemana(vida);
-  if (horas > 20) {
-    vida.personagem.desgaste = limitar(vida.personagem.desgaste + (horas - 20) * 2 * anos);
-    linhas.push(`Sua agenda de ${Math.round(horas)} h por semana em hábitos cansou você.`);
+  // Agenda cheia cansa: escola, trabalho e hábitos passando de 50 h por semana.
+  const horas = horasAgenda(vida);
+  if (horas > 50) {
+    vida.personagem.desgaste = limitar(vida.personagem.desgaste + (horas - 50) * 2 * anos);
+    linhas.push(`Sua agenda de ${Math.round(horas)} h por semana cansou você.`);
   }
   return linhas;
 }

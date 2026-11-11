@@ -1,545 +1,3073 @@
 [
   {
-    "id": "primeira_palavra", "unico": true, "quando": { "idade": [0.9, 2.5] }, "peso": { "base": 8 },
+    "id": "primeira_palavra",
+    "unico": true,
+    "quando": {
+      "idade": [
+        0.9,
+        2.5
+      ]
+    },
+    "peso": {
+      "base": 8
+    },
     "texto": [
       "Sua primeira palavra foi \"água\". Todo mundo comemorou.",
       "Sua primeira palavra foi \"mamã\". Sua mãe chorou.",
       "Sua primeira palavra foi \"não\". Promete."
     ],
-    "efeitos": { "atributos.felicidade": 2 },
-    "memoria": ["primeira_palavra", 5, "falou a primeira palavra"]
-  },
-  {
-    "id": "catapora", "unico": true, "quando": { "idade": [2, 10] }, "peso": { "base": 2 },
-    "texto": ["Você pegou catapora e passou uma semana se coçando em casa.", "Catapora. Uma semana de bolinhas, pomada e desenho animado."],
-    "efeitos": { "atributos.saude": -3, "atributos.felicidade": -2 }
-  },
-  {
-    "id": "medo_escuro", "unico": true, "quando": { "idade": [3, 8] }, "peso": { "base": 3 },
-    "texto": ["Você começou a ter medo do escuro. Toda sombra no quarto parece um monstro."],
-    "escolhas": [
-      { "texto": "Pedir para deixar a luz acesa", "efeitos": { "personalidade.estabilidade": -2, "atributos.felicidade": 1 } },
-      { "texto": "Encarar o escuro",
-        "chance": { "base": 0.4, "x": { "personalidade.estabilidade": 0.004 } },
-        "sucesso": { "resposta": "Você descobriu que o monstro era o casaco na cadeira.", "efeitos": { "personalidade.estabilidade": 4 }, "memoria": ["venceu_escuro", 8, "perdeu o medo do escuro sozinh{o|a}"] },
-        "falha": { "resposta": "Você não dormiu nada e acordou a casa toda.", "efeitos": { "personalidade.estabilidade": -2 } } }
+    "efeitos": {
+      "atributos.felicidade": 2
+    },
+    "memoria": [
+      "primeira_palavra",
+      5,
+      "falou a primeira palavra"
     ]
   },
   {
-    "id": "amigo_imaginario", "unico": true, "quando": { "idade": [3, 7] }, "peso": { "base": 2, "x": { "personalidade.curiosidade": 0.01 } },
-    "texto": ["Você inventou um amigo imaginário chamado {amigo}. Ele sempre concorda com você."],
-    "efeitos": { "personalidade.curiosidade": 3, "atributos.felicidade": 2 },
-    "memoria": ["amigo_imaginario", 8, "tinha um amigo imaginário chamado {amigo}"]
+    "id": "catapora",
+    "unico": true,
+    "quando": {
+      "idade": [
+        2,
+        10
+      ]
+    },
+    "peso": {
+      "base": 2
+    },
+    "texto": [
+      "Você pegou catapora e passou uma semana se coçando em casa.",
+      "Catapora. Uma semana de bolinhas, pomada e desenho animado."
+    ],
+    "efeitos": {
+      "atributos.saude": -3,
+      "atributos.felicidade": -2
+    }
   },
   {
-    "id": "bicicleta", "unico": true, "quando": { "idade": [5, 11] }, "peso": { "base": 4 },
-    "texto": ["Você ganhou uma bicicleta usada e quer aprender a andar sem rodinha."],
+    "id": "medo_escuro",
+    "unico": true,
+    "quando": {
+      "idade": [
+        3,
+        8
+      ]
+    },
+    "peso": {
+      "base": 3
+    },
+    "texto": [
+      "Você começou a ter medo do escuro. Toda sombra no quarto parece um monstro."
+    ],
     "escolhas": [
-      { "texto": "Tentar até conseguir",
-        "chance": { "base": 0.55, "x": { "personalidade.disciplina": 0.003, "atributos.forma": 0.003 } },
-        "sucesso": { "resposta": "Depois de muitos tombos, você saiu pedalando sozinh{o|a}.", "efeitos": { "atributos.felicidade": 5, "personalidade.disciplina": 2 }, "memoria": ["aprendeu_bicicleta", 12, "aprendeu a andar de bicicleta"] },
-        "falha": { "resposta": "Você ralou o joelho e desistiu por hoje.", "efeitos": { "atributos.saude": -2, "atributos.felicidade": -2 } } },
-      { "texto": "Deixar para depois", "efeitos": { "personalidade.disciplina": -1 } }
+      {
+        "texto": "Pedir para deixar a luz acesa",
+        "efeitos": {
+          "personalidade.estabilidade": -2,
+          "atributos.felicidade": 1
+        }
+      },
+      {
+        "texto": "Encarar o escuro",
+        "chance": {
+          "base": 0.4,
+          "x": {
+            "personalidade.estabilidade": 0.004
+          }
+        },
+        "sucesso": {
+          "resposta": "Você descobriu que o monstro era o casaco na cadeira.",
+          "efeitos": {
+            "personalidade.estabilidade": 4
+          },
+          "memoria": [
+            "venceu_escuro",
+            8,
+            "perdeu o medo do escuro sozinh{o|a}"
+          ]
+        },
+        "falha": {
+          "resposta": "Você não dormiu nada e acordou a casa toda.",
+          "efeitos": {
+            "personalidade.estabilidade": -2
+          }
+        }
+      }
     ]
   },
   {
-    "id": "natacao_pais", "unico": true, "quando": { "idade": [4, 10] }, "peso": { "base": 2 },
-    "texto": ["Seus pais te matricularam na natação. Duas vezes por semana, sem discussão."],
-    "habito": { "acao": "natacao", "porSemana": 2, "imposto": true }
-  },
-  {
-    "id": "dente_caiu", "unico": true, "quando": { "idade": [5, 8] }, "peso": { "base": 5 },
-    "texto": ["Seu primeiro dente de leite caiu. A fada do dente deixou R$ 5 debaixo do travesseiro."],
-    "efeitos": { "dinheiro": 5, "atributos.felicidade": 2 }
-  },
-  {
-    "id": "briga_recreio", "unico": true, "quando": { "idade": [7, 13] }, "peso": { "base": 3, "x": { "personalidade.impulsividade": 0.01 } },
-    "texto": ["{amigo} {sobrenome2}, o maior da sala, te empurrou no recreio na frente de todo mundo."],
-    "escolhas": [
-      { "texto": "Revidar",
-        "chance": { "base": 0.35, "x": { "atributos.forma": 0.005 } },
-        "gancho": { "evento": "reencontro_valentao", "chance": 0.6, "em_anos": [12, 30] },
-        "sucesso": { "resposta": "Ele caiu sentado e a sala inteira viu. Ninguém mais mexeu com você.", "efeitos": { "personalidade.impulsividade": 3, "atributos.carisma": 2 }, "memoria": ["briga_recreio", -5, "brigou com {amigo} {sobrenome2} no recreio"] },
-        "falha": { "resposta": "Você levou a pior e ainda foi parar na diretoria.", "efeitos": { "atributos.saude": -3, "atributos.felicidade": -5 }, "memoria": ["briga_recreio", -15, "apanhou de {amigo} {sobrenome2} no recreio"] } },
-      { "texto": "Chamar a professora", "efeitos": { "personalidade.moralidade": 1, "personalidade.extroversao": -1, "atributos.felicidade": -2 },
-        "memoria": ["briga_recreio", -5, "chamou a professora por causa de {amigo} {sobrenome2}"],
-        "gancho": { "evento": "reencontro_valentao", "chance": 0.4, "em_anos": [12, 30] } },
-      { "texto": "Fingir que nada aconteceu", "efeitos": { "personalidade.estabilidade": 1, "atributos.felicidade": -3 } }
+    "id": "amigo_imaginario",
+    "unico": true,
+    "quando": {
+      "idade": [
+        3,
+        7
+      ]
+    },
+    "peso": {
+      "base": 2,
+      "x": {
+        "personalidade.curiosidade": 0.01
+      }
+    },
+    "texto": [
+      "Você inventou um amigo imaginário chamado {amigo}. Ele sempre concorda com você."
+    ],
+    "efeitos": {
+      "personalidade.curiosidade": 3,
+      "atributos.felicidade": 2
+    },
+    "memoria": [
+      "amigo_imaginario",
+      8,
+      "tinha um amigo imaginário chamado {amigo}"
     ]
   },
   {
-    "id": "cachorro_rua", "unico": true, "quando": { "idade": [6, 45] }, "peso": { "base": 2, "x": { "personalidade.empatia": 0.01 } },
-    "texto": ["Um vira-lata magrinho começou a te seguir na volta para casa.", "Tem um cachorro de rua dormindo na sua porta há três dias."],
+    "id": "bicicleta",
+    "unico": true,
+    "quando": {
+      "idade": [
+        5,
+        11
+      ]
+    },
+    "peso": {
+      "base": 4
+    },
+    "texto": [
+      "Você ganhou uma bicicleta usada e quer aprender a andar sem rodinha."
+    ],
     "escolhas": [
-      { "texto": "Levar para casa", "resposta": "Você deu o nome de {pet}. Ele dorme no pé da sua cama.",
-        "efeitos": { "atributos.felicidade": 8, "personalidade.empatia": 3 },
-        "memoria": ["adotou_pet", 20, "adotou o {pet}"],
-        "gancho": { "evento": "pet_velho", "chance": 1, "em_anos": [10, 14] } },
-      { "texto": "Dar comida e deixar ir", "efeitos": { "personalidade.empatia": 1, "atributos.felicidade": 1 } },
-      { "texto": "Espantar", "efeitos": { "personalidade.empatia": -3 } }
+      {
+        "texto": "Tentar até conseguir",
+        "chance": {
+          "base": 0.55,
+          "x": {
+            "personalidade.disciplina": 0.003,
+            "atributos.forma": 0.003
+          }
+        },
+        "sucesso": {
+          "resposta": "Depois de muitos tombos, você saiu pedalando sozinh{o|a}.",
+          "efeitos": {
+            "atributos.felicidade": 5,
+            "personalidade.disciplina": 2
+          },
+          "memoria": [
+            "aprendeu_bicicleta",
+            12,
+            "aprendeu a andar de bicicleta"
+          ]
+        },
+        "falha": {
+          "resposta": "Você ralou o joelho e desistiu por hoje.",
+          "efeitos": {
+            "atributos.saude": -2,
+            "atributos.felicidade": -2
+          }
+        }
+      },
+      {
+        "texto": "Deixar para depois",
+        "efeitos": {
+          "personalidade.disciplina": -1
+        }
+      }
     ]
   },
   {
-    "id": "achou_carteira", "quando": { "idade": [8, 95] }, "peso": { "base": 1.5 },
-    "texto": ["Você achou uma carteira no chão com R$ 200 e os documentos de {amiga} {sobrenome2}."],
+    "id": "natacao_pais",
+    "unico": true,
+    "quando": {
+      "idade": [
+        4,
+        10
+      ]
+    },
+    "peso": {
+      "base": 2
+    },
+    "texto": [
+      "Seus pais te matricularam na natação. Duas vezes por semana, sem discussão."
+    ],
+    "habito": {
+      "acao": "natacao",
+      "porSemana": 2,
+      "imposto": true
+    }
+  },
+  {
+    "id": "dente_caiu",
+    "unico": true,
+    "quando": {
+      "idade": [
+        5,
+        8
+      ]
+    },
+    "peso": {
+      "base": 5
+    },
+    "texto": [
+      "Seu primeiro dente de leite caiu. A fada do dente deixou R$ 5 debaixo do travesseiro."
+    ],
+    "efeitos": {
+      "dinheiro": 5,
+      "atributos.felicidade": 2
+    }
+  },
+  {
+    "id": "briga_recreio",
+    "unico": true,
+    "quando": {
+      "idade": [
+        7,
+        13
+      ]
+    },
+    "peso": {
+      "base": 3,
+      "x": {
+        "personalidade.impulsividade": 0.01
+      }
+    },
+    "texto": [
+      "{amigo} {sobrenome2}, o maior da sala, te empurrou no recreio na frente de todo mundo."
+    ],
     "escolhas": [
-      { "texto": "Devolver tudo", "efeitos": { "personalidade.moralidade": 4, "atributos.felicidade": 3 },
-        "memoria": ["devolveu_carteira", 10, "devolveu uma carteira cheia de dinheiro"],
-        "chance": { "base": 0.35 },
-        "sucesso": { "resposta": "Ela ficou tão grata que te deu R$ 50 de recompensa.", "efeitos": { "dinheiro": 50 } },
-        "falha": { "resposta": "Ela agradeceu e foi embora." } },
-      { "texto": "Ficar com o dinheiro e mandar os documentos pelo correio", "efeitos": { "dinheiro": 200, "personalidade.moralidade": -4 } },
-      { "texto": "Ficar com tudo", "efeitos": { "dinheiro": 200, "personalidade.moralidade": -8 } }
+      {
+        "texto": "Revidar",
+        "chance": {
+          "base": 0.35,
+          "x": {
+            "atributos.forma": 0.005
+          }
+        },
+        "gancho": {
+          "evento": "reencontro_valentao",
+          "chance": 0.6,
+          "em_anos": [
+            12,
+            30
+          ]
+        },
+        "sucesso": {
+          "resposta": "Ele caiu sentado e a sala inteira viu. Ninguém mais mexeu com você.",
+          "efeitos": {
+            "personalidade.impulsividade": 3,
+            "atributos.carisma": 2
+          },
+          "memoria": [
+            "briga_recreio",
+            -5,
+            "brigou com {amigo} {sobrenome2} no recreio"
+          ]
+        },
+        "falha": {
+          "resposta": "Você levou a pior e ainda foi parar na diretoria.",
+          "efeitos": {
+            "atributos.saude": -3,
+            "atributos.felicidade": -5
+          },
+          "memoria": [
+            "briga_recreio",
+            -15,
+            "apanhou de {amigo} {sobrenome2} no recreio"
+          ]
+        }
+      },
+      {
+        "texto": "Chamar a professora",
+        "efeitos": {
+          "personalidade.moralidade": 1,
+          "personalidade.extroversao": -1,
+          "atributos.felicidade": -2
+        },
+        "memoria": [
+          "briga_recreio",
+          -5,
+          "chamou a professora por causa de {amigo} {sobrenome2}"
+        ],
+        "gancho": {
+          "evento": "reencontro_valentao",
+          "chance": 0.4,
+          "em_anos": [
+            12,
+            30
+          ]
+        }
+      },
+      {
+        "texto": "Fingir que nada aconteceu",
+        "efeitos": {
+          "personalidade.estabilidade": 1,
+          "atributos.felicidade": -3
+        }
+      }
     ]
   },
   {
-    "id": "feira_ciencias", "unico": true, "quando": { "idade": [8, 15] }, "peso": { "base": 3 },
-    "texto": ["Feira de ciências na escola. Seu grupo precisa de um projeto."],
+    "id": "cachorro_rua",
+    "unico": true,
+    "quando": {
+      "idade": [
+        6,
+        45
+      ]
+    },
+    "peso": {
+      "base": 2,
+      "x": {
+        "personalidade.empatia": 0.01
+      }
+    },
+    "texto": [
+      "Um vira-lata magrinho começou a te seguir na volta para casa.",
+      "Tem um cachorro de rua dormindo na sua porta há três dias."
+    ],
     "escolhas": [
-      { "texto": "Caprichar num vulcão de verdade", "efeitos": { "desgaste": 8 },
-        "chance": { "base": 0.3, "x": { "atributos.inteligencia": 0.005, "personalidade.disciplina": 0.002 } },
-        "sucesso": { "resposta": "Seu projeto ganhou o primeiro lugar!", "efeitos": { "atributos.felicidade": 6, "atributos.inteligencia": 2 }, "memoria": ["venceu_feira", 15, "ganhou a feira de ciências"] },
-        "falha": { "resposta": "O vulcão não entrou em erupção na hora H.", "efeitos": { "atributos.felicidade": -3 } } },
-      { "texto": "Fazer o mínimo", "efeitos": { "personalidade.disciplina": -1 } }
+      {
+        "texto": "Levar para casa",
+        "resposta": "Você deu o nome de {pet}. Ele dorme no pé da sua cama.",
+        "efeitos": {
+          "atributos.felicidade": 8,
+          "personalidade.empatia": 3
+        },
+        "memoria": [
+          "adotou_pet",
+          20,
+          "adotou o {pet}"
+        ],
+        "gancho": {
+          "evento": "pet_velho",
+          "chance": 1,
+          "em_anos": [
+            10,
+            14
+          ]
+        }
+      },
+      {
+        "texto": "Dar comida e deixar ir",
+        "efeitos": {
+          "personalidade.empatia": 1,
+          "atributos.felicidade": 1
+        }
+      },
+      {
+        "texto": "Espantar",
+        "efeitos": {
+          "personalidade.empatia": -3
+        }
+      }
     ]
   },
   {
-    "id": "apelido", "unico": true, "quando": { "idade": [8, 15] }, "peso": { "base": 2, "x": { "atributos.aparencia": -0.006 } },
-    "texto": ["A turma começou a te chamar por um apelido que você odeia."],
+    "id": "achou_carteira",
+    "quando": {
+      "idade": [
+        8,
+        95
+      ]
+    },
+    "peso": {
+      "base": 1.5
+    },
+    "texto": [
+      "Você achou uma carteira no chão com R$ 200 e os documentos de {amiga} {sobrenome2}."
+    ],
     "escolhas": [
-      { "texto": "Rir junto",
-        "chance": { "base": 0.4, "x": { "atributos.carisma": 0.005 } },
-        "sucesso": { "resposta": "Em uma semana o apelido perdeu a graça.", "efeitos": { "atributos.carisma": 2, "personalidade.estabilidade": 2 } },
-        "falha": { "resposta": "Rir junto só fez o apelido pegar de vez.", "efeitos": { "atributos.felicidade": -4 }, "memoria": ["apelido", -10, "ganhou um apelido que odiava"] } },
-      { "texto": "Ficar brav{o|a}", "resposta": "O apelido virou seu nome oficial na escola.",
-        "efeitos": { "atributos.felicidade": -5, "personalidade.estabilidade": -2 },
-        "memoria": ["apelido", -10, "ganhou um apelido que odiava"] }
+      {
+        "texto": "Devolver tudo",
+        "efeitos": {
+          "personalidade.moralidade": 4,
+          "atributos.felicidade": 3
+        },
+        "memoria": [
+          "devolveu_carteira",
+          10,
+          "devolveu uma carteira cheia de dinheiro"
+        ],
+        "chance": {
+          "base": 0.35
+        },
+        "sucesso": {
+          "resposta": "Ela ficou tão grata que te deu R$ 50 de recompensa.",
+          "efeitos": {
+            "dinheiro": 50
+          }
+        },
+        "falha": {
+          "resposta": "Ela agradeceu e foi embora."
+        }
+      },
+      {
+        "texto": "Ficar com o dinheiro e mandar os documentos pelo correio",
+        "efeitos": {
+          "dinheiro": 200,
+          "personalidade.moralidade": -4
+        }
+      },
+      {
+        "texto": "Ficar com tudo",
+        "efeitos": {
+          "dinheiro": 200,
+          "personalidade.moralidade": -8
+        }
+      }
     ]
   },
   {
-    "id": "primeira_paixao", "unico": true, "quando": { "idade": [11, 16] }, "peso": { "base": 5 },
-    "vars": { "crush": ["Ana", "Lucas", "Bia", "Pedro", "Júlia", "Rafa", "Gabi", "Theo", "Duda", "Caio"] },
-    "texto": ["Você não para de pensar em {crush}, da sua turma.", "Toda vez que {crush} passa no corredor, seu coração dispara."],
+    "id": "feira_ciencias",
+    "unico": true,
+    "quando": {
+      "idade": [
+        8,
+        15
+      ]
+    },
+    "peso": {
+      "base": 3
+    },
+    "texto": [
+      "Feira de ciências na escola. Seu grupo precisa de um projeto."
+    ],
     "escolhas": [
-      { "texto": "Se declarar",
-        "chance": { "base": 0.3, "x": { "atributos.aparencia": 0.003, "atributos.carisma": 0.003 } },
-        "gancho": { "evento": "reencontro_crush", "chance": 0.35, "em_anos": [12, 30] },
-        "sucesso": { "resposta": "{crush} disse que também gostava de você. Vocês ficaram de mãos dadas no intervalo.", "efeitos": { "atributos.felicidade": 10 }, "memoria": ["primeiro_amor", 25, "se declarou para {crush} e deu certo"] },
-        "falha": { "resposta": "{crush} riu e contou para a sala toda.", "efeitos": { "atributos.felicidade": -10, "personalidade.estabilidade": -2 }, "memoria": ["primeiro_amor", -20, "levou um fora de {crush}"] } },
-      { "texto": "Guardar segredo", "resposta": "Você escreveu o nome de {crush} no caderno e ninguém nunca soube.",
-        "efeitos": { "atributos.felicidade": -2 },
-        "memoria": ["primeiro_amor", 8, "foi apaixonad{o|a} em segredo por {crush}"],
-        "gancho": { "evento": "reencontro_crush", "chance": 0.35, "em_anos": [12, 30] } }
+      {
+        "texto": "Caprichar num vulcão de verdade",
+        "efeitos": {
+          "desgaste": 8
+        },
+        "chance": {
+          "base": 0.3,
+          "x": {
+            "atributos.inteligencia": 0.005,
+            "personalidade.disciplina": 0.002
+          }
+        },
+        "sucesso": {
+          "resposta": "Seu projeto ganhou o primeiro lugar!",
+          "efeitos": {
+            "atributos.felicidade": 6,
+            "atributos.inteligencia": 2
+          },
+          "memoria": [
+            "venceu_feira",
+            15,
+            "ganhou a feira de ciências"
+          ]
+        },
+        "falha": {
+          "resposta": "O vulcão não entrou em erupção na hora H.",
+          "efeitos": {
+            "atributos.felicidade": -3
+          }
+        }
+      },
+      {
+        "texto": "Fazer o mínimo",
+        "efeitos": {
+          "personalidade.disciplina": -1
+        }
+      }
     ]
   },
   {
-    "id": "espinhas", "unico": true, "quando": { "idade": [12, 17] }, "peso": { "base": 4 },
-    "texto": ["Uma onda de espinhas tomou conta do seu rosto.", "Acordou com uma espinha enorme bem no dia da foto da turma."],
-    "efeitos": { "atributos.aparencia": -4, "atributos.felicidade": -3 }
-  },
-  {
-    "id": "festa_escondida", "quando": { "idade": [14, 17] }, "peso": { "base": 3, "x": { "personalidade.extroversao": 0.01 } },
-    "texto": ["Rola uma festa sábado na casa de {amigo}, e seus pais nunca deixariam."],
+    "id": "apelido",
+    "unico": true,
+    "quando": {
+      "idade": [
+        8,
+        15
+      ]
+    },
+    "peso": {
+      "base": 2,
+      "x": {
+        "atributos.aparencia": -0.006
+      }
+    },
+    "texto": [
+      "A turma começou a te chamar por um apelido que você odeia."
+    ],
     "escolhas": [
-      { "texto": "Ir escondid{o|a}",
-        "chance": { "base": 0.55, "x": { "atributos.sorte": 0.003 } },
-        "sucesso": { "resposta": "Você voltou de madrugada pela janela e ninguém percebeu.", "efeitos": { "atributos.felicidade": 6, "atributos.carisma": 1 } },
-        "falha": { "resposta": "Seus pais estavam acordados te esperando na sala. Castigo de um mês.", "efeitos": { "atributos.felicidade": -6 }, "memoria": ["castigo_festa", -5, "foi pego voltando escondido de uma festa"] } },
-      { "texto": "Ficar em casa", "efeitos": { "atributos.felicidade": -2, "personalidade.disciplina": 1 } }
+      {
+        "texto": "Rir junto",
+        "chance": {
+          "base": 0.4,
+          "x": {
+            "atributos.carisma": 0.005
+          }
+        },
+        "sucesso": {
+          "resposta": "Em uma semana o apelido perdeu a graça.",
+          "efeitos": {
+            "atributos.carisma": 2,
+            "personalidade.estabilidade": 2
+          }
+        },
+        "falha": {
+          "resposta": "Rir junto só fez o apelido pegar de vez.",
+          "efeitos": {
+            "atributos.felicidade": -4
+          },
+          "memoria": [
+            "apelido",
+            -10,
+            "ganhou um apelido que odiava"
+          ]
+        }
+      },
+      {
+        "texto": "Ficar brav{o|a}",
+        "resposta": "O apelido virou seu nome oficial na escola.",
+        "efeitos": {
+          "atributos.felicidade": -5,
+          "personalidade.estabilidade": -2
+        },
+        "memoria": [
+          "apelido",
+          -10,
+          "ganhou um apelido que odiava"
+        ]
+      }
     ]
   },
   {
-    "id": "colar_prova", "quando": { "idade": [11, 22] }, "peso": { "base": 2, "x": { "atributos.inteligencia<50": 2 } },
-    "texto": ["Prova difícil amanhã, e {amigo} oferece passar a cola."],
+    "id": "primeira_paixao",
+    "unico": true,
+    "quando": {
+      "idade": [
+        11,
+        16
+      ]
+    },
+    "peso": {
+      "base": 5
+    },
+    "vars": {
+      "crush": [
+        "Ana",
+        "Lucas",
+        "Bia",
+        "Pedro",
+        "Júlia",
+        "Rafa",
+        "Gabi",
+        "Theo",
+        "Duda",
+        "Caio"
+      ]
+    },
+    "texto": [
+      "Você não para de pensar em {crush}, da sua turma.",
+      "Toda vez que {crush} passa no corredor, seu coração dispara."
+    ],
     "escolhas": [
-      { "texto": "Colar", "chance": { "base": 0.75 },
-        "sucesso": { "resposta": "Nota boa e nenhum remorso. Talvez um pouco.", "efeitos": { "personalidade.moralidade": -2 } },
-        "falha": { "resposta": "A professora viu. Zero e bilhete para casa.", "efeitos": { "atributos.felicidade": -6, "personalidade.moralidade": -1 }, "memoria": ["pego_colando", -10, "foi pego colando numa prova"] } },
-      { "texto": "Estudar a noite toda", "efeitos": { "desgaste": 10, "atributos.inteligencia": 1, "personalidade.disciplina": 1 } }
+      {
+        "texto": "Se declarar",
+        "chance": {
+          "base": 0.3,
+          "x": {
+            "atributos.aparencia": 0.003,
+            "atributos.carisma": 0.003
+          }
+        },
+        "gancho": {
+          "evento": "reencontro_crush",
+          "chance": 0.35,
+          "em_anos": [
+            12,
+            30
+          ]
+        },
+        "sucesso": {
+          "resposta": "{crush} disse que também gostava de você. Vocês ficaram de mãos dadas no intervalo.",
+          "efeitos": {
+            "atributos.felicidade": 10
+          },
+          "memoria": [
+            "primeiro_amor",
+            25,
+            "se declarou para {crush} e deu certo"
+          ]
+        },
+        "falha": {
+          "resposta": "{crush} riu e contou para a sala toda.",
+          "efeitos": {
+            "atributos.felicidade": -10,
+            "personalidade.estabilidade": -2
+          },
+          "memoria": [
+            "primeiro_amor",
+            -20,
+            "levou um fora de {crush}"
+          ]
+        }
+      },
+      {
+        "texto": "Guardar segredo",
+        "resposta": "Você escreveu o nome de {crush} no caderno e ninguém nunca soube.",
+        "efeitos": {
+          "atributos.felicidade": -2
+        },
+        "memoria": [
+          "primeiro_amor",
+          8,
+          "foi apaixonad{o|a} em segredo por {crush}"
+        ],
+        "gancho": {
+          "evento": "reencontro_crush",
+          "chance": 0.35,
+          "em_anos": [
+            12,
+            30
+          ]
+        }
+      }
     ]
   },
   {
-    "id": "banda", "unico": true, "quando": { "idade": [13, 30], "traco": { "musica": 1 } }, "peso": { "base": 5 },
-    "texto": ["{amigo} está montando uma banda e precisa de alguém no violão."],
+    "id": "espinhas",
+    "unico": true,
+    "quando": {
+      "idade": [
+        12,
+        17
+      ]
+    },
+    "peso": {
+      "base": 4
+    },
+    "texto": [
+      "Uma onda de espinhas tomou conta do seu rosto.",
+      "Acordou com uma espinha enorme bem no dia da foto da turma."
+    ],
+    "efeitos": {
+      "atributos.aparencia": -4,
+      "atributos.felicidade": -3
+    }
+  },
+  {
+    "id": "festa_escondida",
+    "quando": {
+      "idade": [
+        14,
+        17
+      ]
+    },
+    "peso": {
+      "base": 3,
+      "x": {
+        "personalidade.extroversao": 0.01
+      }
+    },
+    "texto": [
+      "Rola uma festa sábado na casa de {amigo}, e seus pais nunca deixariam."
+    ],
     "escolhas": [
-      { "texto": "Entrar na banda", "efeitos": { "atributos.felicidade": 6, "atributos.carisma": 2 },
-        "memoria": ["teve_banda", 15, "tocou numa banda com {amigo}"],
-        "gancho": { "evento": "show_bar", "chance": 0.75, "em_anos": [1, 4] } },
-      { "texto": "Recusar", "efeitos": { "atributos.felicidade": -1 } }
+      {
+        "texto": "Ir escondid{o|a}",
+        "chance": {
+          "base": 0.55,
+          "x": {
+            "atributos.sorte": 0.003
+          }
+        },
+        "sucesso": {
+          "resposta": "Você voltou de madrugada pela janela e ninguém percebeu.",
+          "efeitos": {
+            "atributos.felicidade": 6,
+            "atributos.carisma": 1
+          }
+        },
+        "falha": {
+          "resposta": "Seus pais estavam acordados te esperando na sala. Castigo de um mês.",
+          "efeitos": {
+            "atributos.felicidade": -6
+          },
+          "memoria": [
+            "castigo_festa",
+            -5,
+            "foi pego voltando escondido de uma festa"
+          ]
+        }
+      },
+      {
+        "texto": "Ficar em casa",
+        "efeitos": {
+          "atributos.felicidade": -2,
+          "personalidade.disciplina": 1
+        }
+      }
     ]
   },
   {
-    "id": "cigarro_oferecido", "unico": true, "quando": { "idade": [13, 20], "semTraco": ["cigarro"] }, "peso": { "base": 3, "x": { "personalidade.impulsividade": 0.01 } },
-    "texto": ["Na saída da escola, oferecem um cigarro pra você."],
+    "id": "colar_prova",
+    "quando": {
+      "idade": [
+        11,
+        22
+      ]
+    },
+    "peso": {
+      "base": 2,
+      "x": {
+        "atributos.inteligencia<50": 2
+      }
+    },
+    "texto": [
+      "Prova difícil amanhã, e {amigo} oferece passar a cola."
+    ],
     "escolhas": [
-      { "texto": "Aceitar", "resposta": "Você tossiu, mas fingiu que estava tudo bem.", "efeitos": { "traco.cigarro": 1, "atributos.carisma": 1 } },
-      { "texto": "Recusar", "efeitos": { "personalidade.disciplina": 1 } }
+      {
+        "texto": "Colar",
+        "chance": {
+          "base": 0.75
+        },
+        "sucesso": {
+          "resposta": "Nota boa e nenhum remorso. Talvez um pouco.",
+          "efeitos": {
+            "personalidade.moralidade": -2
+          }
+        },
+        "falha": {
+          "resposta": "A professora viu. Zero e bilhete para casa.",
+          "efeitos": {
+            "atributos.felicidade": -6,
+            "personalidade.moralidade": -1
+          },
+          "memoria": [
+            "pego_colando",
+            -10,
+            "foi pego colando numa prova"
+          ]
+        }
+      },
+      {
+        "texto": "Estudar a noite toda",
+        "efeitos": {
+          "desgaste": 10,
+          "atributos.inteligencia": 1,
+          "personalidade.disciplina": 1
+        }
+      }
     ]
   },
   {
-    "id": "crise_existencial", "unico": true, "quando": { "idade": [15, 30] }, "peso": { "base": 2, "x": { "personalidade.estabilidade": -0.008 } },
-    "texto": ["Bateu uma crise: quem você é, o que quer da vida, por que nada faz sentido."],
+    "id": "banda",
+    "unico": true,
+    "quando": {
+      "idade": [
+        13,
+        30
+      ],
+      "traco": {
+        "musica": 1
+      }
+    },
+    "peso": {
+      "base": 5
+    },
+    "texto": [
+      "{amigo} está montando uma banda e precisa de alguém no violão."
+    ],
     "escolhas": [
-      { "texto": "Conversar com alguém de confiança", "efeitos": { "personalidade.estabilidade": 4, "atributos.felicidade": 3 } },
-      { "texto": "Guardar para si", "efeitos": { "personalidade.estabilidade": -3, "atributos.felicidade": -4, "desgaste": 10 } },
-      { "texto": "Escrever tudo num caderno", "efeitos": { "personalidade.curiosidade": 3, "personalidade.estabilidade": 2 } }
+      {
+        "texto": "Entrar na banda",
+        "efeitos": {
+          "atributos.felicidade": 6,
+          "atributos.carisma": 2
+        },
+        "memoria": [
+          "teve_banda",
+          15,
+          "tocou numa banda com {amigo}"
+        ],
+        "gancho": {
+          "evento": "show_bar",
+          "chance": 0.75,
+          "em_anos": [
+            1,
+            4
+          ]
+        }
+      },
+      {
+        "texto": "Recusar",
+        "efeitos": {
+          "atributos.felicidade": -1
+        }
+      }
     ]
   },
   {
-    "id": "autoescola", "unico": true, "quando": { "idade": [18, 35] }, "peso": { "base": 4 },
-    "texto": ["Todo mundo da sua idade está tirando carteira de motorista."],
+    "id": "cigarro_oferecido",
+    "unico": true,
+    "quando": {
+      "idade": [
+        13,
+        20
+      ],
+      "semTraco": [
+        "cigarro"
+      ]
+    },
+    "peso": {
+      "base": 3,
+      "x": {
+        "personalidade.impulsividade": 0.01
+      }
+    },
+    "texto": [
+      "Na saída da escola, oferecem um cigarro pra você."
+    ],
     "escolhas": [
-      { "texto": "Pagar a autoescola (R$ 2.500)", "requer": { "min": { "dinheiro": 2500 } }, "efeitos": { "dinheiro": -2500 },
-        "chance": { "base": 0.55, "x": { "atributos.inteligencia": 0.003, "personalidade.estabilidade": 0.002 } },
-        "sucesso": { "resposta": "Passou de primeira na prova de direção!", "efeitos": { "atributos.felicidade": 6 }, "memoria": ["habilitacao", 10, "tirou a carteira de motorista de primeira"] },
-        "falha": { "resposta": "Reprovou na baliza e pagou a remarcação. Na segunda, passou.", "efeitos": { "atributos.felicidade": -2, "dinheiro": -300 }, "memoria": ["habilitacao", 5, "reprovou na baliza antes de tirar a carteira"] } },
-      { "texto": "Deixar para depois" }
+      {
+        "texto": "Aceitar",
+        "resposta": "Você tossiu, mas fingiu que estava tudo bem.",
+        "efeitos": {
+          "traco.cigarro": 1,
+          "atributos.carisma": 1
+        }
+      },
+      {
+        "texto": "Recusar",
+        "efeitos": {
+          "personalidade.disciplina": 1
+        }
+      }
     ]
   },
   {
-    "id": "primeiro_porre", "unico": true, "quando": { "idade": [16, 25], "acao": "festa" }, "peso": { "base": 8 },
-    "texto": ["Você bebeu além da conta pela primeira vez e passou o dia seguinte abraçad{o|a} ao vaso."],
-    "efeitos": { "atributos.saude": -2, "atributos.felicidade": -2 },
-    "memoria": ["primeiro_porre", -3, "tomou o primeiro porre"]
-  },
-  {
-    "id": "vestibular_ansiedade", "unico": true, "quando": { "idade": [17, 18] }, "peso": { "base": 4, "x": { "desgaste": 0.01 } },
-    "texto": ["O vestibular e o ENEM chegando estão tirando seu sono."],
-    "efeitos": { "desgaste": 12, "atributos.felicidade": -3 }
-  },
-  {
-    "id": "assalto", "quando": { "idade": [15, 85] }, "peso": { "base": 1.5 },
-    "texto": ["Um cara de moto encostou e pediu seu celular.", "Na saída do ônibus em {cidade}, alguém encostou uma faca e pediu o celular."],
+    "id": "crise_existencial",
+    "unico": true,
+    "quando": {
+      "idade": [
+        15,
+        30
+      ]
+    },
+    "peso": {
+      "base": 2,
+      "x": {
+        "personalidade.estabilidade": -0.008
+      }
+    },
+    "texto": [
+      "Bateu uma crise: quem você é, o que quer da vida, por que nada faz sentido."
+    ],
     "escolhas": [
-      { "texto": "Entregar sem reagir", "efeitos": { "atributos.felicidade": -5, "personalidade.estabilidade": -2 },
-        "memoria": ["assaltado", -15, "foi assaltad{o|a} em {cidade}"] },
-      { "texto": "Reagir",
-        "chance": { "base": 0.25, "x": { "atributos.forma": 0.003 } },
-        "sucesso": { "resposta": "Você conseguiu correr e escapar com o celular.", "efeitos": { "atributos.felicidade": 2, "personalidade.impulsividade": 3 }, "memoria": ["assaltado", 5, "escapou de um assalto em {cidade}"] },
-        "falha": { "resposta": "Você levou uma pancada e perdeu o celular do mesmo jeito.", "efeitos": { "atributos.saude": -15, "atributos.felicidade": -10, "personalidade.estabilidade": -5 }, "memoria": ["assaltado", -30, "se machucou num assalto em {cidade}"] } }
+      {
+        "texto": "Conversar com alguém de confiança",
+        "efeitos": {
+          "personalidade.estabilidade": 4,
+          "atributos.felicidade": 3
+        }
+      },
+      {
+        "texto": "Guardar para si",
+        "efeitos": {
+          "personalidade.estabilidade": -3,
+          "atributos.felicidade": -4,
+          "desgaste": 10
+        }
+      },
+      {
+        "texto": "Escrever tudo num caderno",
+        "efeitos": {
+          "personalidade.curiosidade": 3,
+          "personalidade.estabilidade": 2
+        }
+      }
     ]
   },
   {
-    "id": "enchente", "quando": { "estado": ["RJ", "PE", "BA", "SP", "RS", "MG"] }, "peso": { "base": 1 },
-    "texto": ["Chuva forte em {cidade}: a água invadiu a rua e entrou em casa.", "O rio transbordou em {cidade} e a casa ficou com lama até o joelho."],
-    "efeitos": { "atributos.felicidade": -6, "dinheiro": "-15%" },
-    "memoria": ["enchente", -15, "a enchente invadiu a casa em {cidade}"]
-  },
-  {
-    "id": "seca", "quando": { "estado": ["BA", "PE"] }, "peso": { "base": 1.5 },
-    "texto": ["Uma seca longa fez o preço da comida disparar e a água faltar na torneira."],
-    "efeitos": { "atributos.felicidade": -3, "atributos.saude": -1, "dinheiro": "-5%" }
-  },
-  {
-    "id": "frio_sul", "quando": { "estado": ["RS"] }, "peso": { "base": 2.5, "x": { "idade>60": 2 } },
-    "texto": ["Inverno de geada em {cidade}: termômetro abaixo de zero e chimarrão o dia inteiro.", "Minuano soprando forte. Você não saiu de baixo do cobertor."],
-    "efeitos": { "atributos.saude": -2, "atributos.felicidade": 1 }
-  },
-  {
-    "id": "onda_calor", "quando": { "estado": ["RJ", "BA", "PE", "SP"] }, "peso": { "base": 1.5, "x": { "idade>65": 2 } },
-    "texto": ["Onda de calor de 40 graus em {cidade}. Dormir virou missão impossível."],
-    "efeitos": { "desgaste": 8, "atributos.saude": -1 }
-  },
-  {
-    "id": "carnaval", "quando": { "idade": [16, 70], "estado": ["RJ", "BA", "PE", "SP", "MG"] }, "peso": { "base": 3, "x": { "personalidade.extroversao": 0.008 } },
-    "texto": ["Carnaval chegou e {amiga} te chama para o bloco.", "Os blocos de {cidade} estão na rua e o celular não para de apitar com convite."],
+    "id": "autoescola",
+    "unico": true,
+    "quando": {
+      "idade": [
+        18,
+        35
+      ]
+    },
+    "peso": {
+      "base": 4
+    },
+    "texto": [
+      "Todo mundo da sua idade está tirando carteira de motorista."
+    ],
     "escolhas": [
-      { "texto": "Cair na folia", "efeitos": { "atributos.felicidade": 8, "desgaste": 15, "atributos.saude": -1 },
-        "chance": { "base": 0.85 },
-        "sucesso": { "resposta": "Cinco dias de bloco, purpurina e zero arrependimento." },
-        "falha": { "resposta": "Você voltou feliz e sem o celular, furtado no meio do bloco.", "efeitos": { "atributos.felicidade": -6 } } },
-      { "texto": "Descansar no feriado", "efeitos": { "desgaste": -15 } }
+      {
+        "texto": "Pagar a autoescola (R$ 2.500)",
+        "requer": {
+          "min": {
+            "dinheiro": 2500
+          }
+        },
+        "efeitos": {
+          "dinheiro": -2500
+        },
+        "chance": {
+          "base": 0.55,
+          "x": {
+            "atributos.inteligencia": 0.003,
+            "personalidade.estabilidade": 0.002
+          }
+        },
+        "sucesso": {
+          "resposta": "Passou de primeira na prova de direção!",
+          "efeitos": {
+            "atributos.felicidade": 6
+          },
+          "memoria": [
+            "habilitacao",
+            10,
+            "tirou a carteira de motorista de primeira"
+          ]
+        },
+        "falha": {
+          "resposta": "Reprovou na baliza e pagou a remarcação. Na segunda, passou.",
+          "efeitos": {
+            "atributos.felicidade": -2,
+            "dinheiro": -300
+          },
+          "memoria": [
+            "habilitacao",
+            5,
+            "reprovou na baliza antes de tirar a carteira"
+          ]
+        }
+      },
+      {
+        "texto": "Deixar para depois"
+      }
     ]
   },
   {
-    "id": "festa_junina", "quando": { "idade": [3, 100] }, "peso": { "base": 1.5 },
-    "texto": ["Festa junina: quadrilha, quentão e pamonha.", "Você dançou quadrilha com chapéu de palha e bigode pintado."],
-    "efeitos": { "atributos.felicidade": 4 }
-  },
-  {
-    "id": "sao_joao", "quando": { "idade": [5, 100], "estado": ["PE", "BA"] }, "peso": { "base": 3 },
-    "texto": ["São João em {cidade}: forró a noite inteira e fogueira na rua.", "O São João parou {cidade}. Você dançou forró até o sol nascer."],
-    "efeitos": { "atributos.felicidade": 6, "desgaste": 5 }
-  },
-  {
-    "id": "golpe_pix", "quando": { "idade": [16, 110] }, "peso": { "base": 1, "x": { "idade": 0.03 } },
-    "texto": ["Chega uma mensagem: \"Oi, troquei de número. Pode me fazer um Pix de R$ 800? Te devolvo amanhã\". A foto é de {amiga}."],
-    "escolhas": [
-      { "texto": "Fazer o Pix", "requer": { "min": { "dinheiro": 800 } }, "resposta": "Era golpe. {amiga} nunca trocou de número.",
-        "efeitos": { "dinheiro": -800, "atributos.felicidade": -8 }, "memoria": ["caiu_golpe", -15, "caiu num golpe do Pix"] },
-      { "texto": "Ligar para o número antigo antes", "resposta": "{amiga} atendeu sem saber de nada. Golpe evitado.",
-        "efeitos": { "atributos.inteligencia": 1, "personalidade.estabilidade": 1 } }
+    "id": "primeiro_porre",
+    "unico": true,
+    "quando": {
+      "idade": [
+        16,
+        25
+      ],
+      "acao": "festa"
+    },
+    "peso": {
+      "base": 8
+    },
+    "texto": [
+      "Você bebeu além da conta pela primeira vez e passou o dia seguinte abraçad{o|a} ao vaso."
+    ],
+    "efeitos": {
+      "atributos.saude": -2,
+      "atributos.felicidade": -2
+    },
+    "memoria": [
+      "primeiro_porre",
+      -3,
+      "tomou o primeiro porre"
     ]
   },
   {
-    "id": "burnout", "quando": { "idade": [16, 80], "min": { "desgaste": 70 } }, "peso": { "base": 10 },
-    "texto": ["Você acordou sem conseguir levantar. O corpo e a cabeça pediram arrego."],
+    "id": "vestibular_ansiedade",
+    "unico": true,
+    "quando": {
+      "idade": [
+        17,
+        18
+      ]
+    },
+    "peso": {
+      "base": 4,
+      "x": {
+        "desgaste": 0.01
+      }
+    },
+    "texto": [
+      "O vestibular e o ENEM chegando estão tirando seu sono."
+    ],
+    "efeitos": {
+      "desgaste": 12,
+      "atributos.felicidade": -3
+    }
+  },
+  {
+    "id": "assalto",
+    "quando": {
+      "idade": [
+        15,
+        85
+      ]
+    },
+    "peso": {
+      "base": 1.5
+    },
+    "texto": [
+      "Um cara de moto encostou e pediu seu celular.",
+      "Na saída do ônibus em {cidade}, alguém encostou uma faca e pediu o celular."
+    ],
     "escolhas": [
-      { "texto": "Parar uns dias de verdade", "efeitos": { "desgaste": -40, "atributos.felicidade": 3 } },
-      { "texto": "Aguentar firme",
-        "chance": { "base": 0.35, "x": { "personalidade.estabilidade": 0.004 } },
-        "sucesso": { "resposta": "Você atravessou a semana no limite, mas atravessou.", "efeitos": { "desgaste": -5, "personalidade.disciplina": 2 } },
-        "falha": { "resposta": "Você desabou de vez. Duas semanas de atestado.", "efeitos": { "atributos.saude": -8, "atributos.felicidade": -10, "desgaste": -30 }, "memoria": ["burnout", -25, "teve um burnout"] } }
+      {
+        "texto": "Entregar sem reagir",
+        "efeitos": {
+          "atributos.felicidade": -5,
+          "personalidade.estabilidade": -2
+        },
+        "memoria": [
+          "assaltado",
+          -15,
+          "foi assaltad{o|a} em {cidade}"
+        ]
+      },
+      {
+        "texto": "Reagir",
+        "chance": {
+          "base": 0.25,
+          "x": {
+            "atributos.forma": 0.003
+          }
+        },
+        "sucesso": {
+          "resposta": "Você conseguiu correr e escapar com o celular.",
+          "efeitos": {
+            "atributos.felicidade": 2,
+            "personalidade.impulsividade": 3
+          },
+          "memoria": [
+            "assaltado",
+            5,
+            "escapou de um assalto em {cidade}"
+          ]
+        },
+        "falha": {
+          "resposta": "Você levou uma pancada e perdeu o celular do mesmo jeito.",
+          "efeitos": {
+            "atributos.saude": -15,
+            "atributos.felicidade": -10,
+            "personalidade.estabilidade": -5
+          },
+          "memoria": [
+            "assaltado",
+            -30,
+            "se machucou num assalto em {cidade}"
+          ]
+        }
+      }
     ]
   },
   {
-    "id": "insonia", "quando": { "idade": [16, 110] }, "peso": { "base": 0.8, "x": { "desgaste": 0.03, "personalidade.estabilidade": -0.006 } },
-    "texto": ["Uma fase de insônia: você encara o teto às 3 da manhã quase toda noite."],
-    "efeitos": { "desgaste": 10, "atributos.felicidade": -4 }
-  },
-  {
-    "id": "rifa", "quando": { "idade": [8, 110] }, "peso": { "base": 0.8, "x": { "atributos.sorte": 0.015 } },
-    "texto": ["Você ganhou a rifa da igreja do bairro: R$ 300!", "Seu número saiu na rifa da quermesse: R$ 300 para você."],
-    "efeitos": { "dinheiro": 300, "atributos.felicidade": 4 }
-  },
-  {
-    "id": "dinheiro_esquecido", "quando": { "idade": [8, 110] }, "peso": { "base": 1 },
-    "texto": ["Você achou R$ 50 no bolso de uma calça velha."],
-    "efeitos": { "dinheiro": 50, "atributos.felicidade": 1 }
-  },
-  {
-    "id": "vontade_apostar", "quando": { "traco": { "jogo": 1 } }, "peso": { "base": 6, "x": { "traco.jogo": 0.5 } },
-    "texto": ["Uma notificação: \"Bônus de 100% no seu próximo depósito\". A mão coça.", "Você sonhou com a aposta que quase bateu. De novo."],
-    "escolhas": [
-      { "texto": "Depositar R$ 300", "requer": { "min": { "dinheiro": 300 } },
-        "chance": { "base": 0.3, "x": { "atributos.sorte": 0.002 } },
-        "sucesso": { "resposta": "Você ganhou R$ 600 e jurou que ia parar. Não parou.", "efeitos": { "dinheiro": 300, "atributos.felicidade": 4 } },
-        "falha": { "resposta": "Perdeu tudo em vinte minutos.", "efeitos": { "dinheiro": -300, "atributos.felicidade": -6 } } },
-      { "texto": "Apagar o app de vez",
-        "chance": { "base": 0.25, "x": { "personalidade.disciplina": 0.004 } },
-        "sucesso": { "resposta": "Você apagou o app e bloqueou os sites. Um dia de cada vez.", "efeitos": { "traco.jogo": -1 }, "memoria": ["largou_jogo", 20, "largou as apostas"] },
-        "falha": { "resposta": "Você reinstalou o app dois dias depois.", "efeitos": { "atributos.felicidade": -2 } } }
+    "id": "enchente",
+    "quando": {
+      "estado": [
+        "RJ",
+        "PE",
+        "BA",
+        "SP",
+        "RS",
+        "MG"
+      ]
+    },
+    "peso": {
+      "base": 1
+    },
+    "texto": [
+      "Chuva forte em {cidade}: a água invadiu a rua e entrou em casa.",
+      "O rio transbordou em {cidade} e a casa ficou com lama até o joelho."
+    ],
+    "efeitos": {
+      "atributos.felicidade": -6,
+      "dinheiro": "-10%"
+    },
+    "memoria": [
+      "enchente",
+      -15,
+      "a enchente invadiu a casa em {cidade}"
     ]
   },
   {
-    "id": "vontade_beber", "quando": { "traco": { "alcool": 1 } }, "peso": { "base": 6, "x": { "traco.alcool": 0.5 } },
-    "texto": ["Fim de dia pesado e aquela vontade de beber bate forte.", "Você reparou que não passa um dia sem beber."],
+    "id": "seca",
+    "quando": {
+      "estado": [
+        "BA",
+        "PE"
+      ]
+    },
+    "peso": {
+      "base": 1.5
+    },
+    "texto": [
+      "Uma seca longa fez o preço da comida disparar e a água faltar na torneira."
+    ],
+    "efeitos": {
+      "atributos.felicidade": -3,
+      "atributos.saude": -1,
+      "dinheiro": -150
+    }
+  },
+  {
+    "id": "frio_sul",
+    "quando": {
+      "estado": [
+        "RS"
+      ]
+    },
+    "peso": {
+      "base": 2.5,
+      "x": {
+        "idade>60": 2
+      }
+    },
+    "texto": [
+      "Inverno de geada em {cidade}: termômetro abaixo de zero e chimarrão o dia inteiro.",
+      "Minuano soprando forte. Você não saiu de baixo do cobertor."
+    ],
+    "efeitos": {
+      "atributos.saude": -2,
+      "atributos.felicidade": 1
+    }
+  },
+  {
+    "id": "onda_calor",
+    "quando": {
+      "estado": [
+        "RJ",
+        "BA",
+        "PE",
+        "SP"
+      ]
+    },
+    "peso": {
+      "base": 1.5,
+      "x": {
+        "idade>65": 2
+      }
+    },
+    "texto": [
+      "Onda de calor de 40 graus em {cidade}. Dormir virou missão impossível."
+    ],
+    "efeitos": {
+      "desgaste": 8,
+      "atributos.saude": -1
+    }
+  },
+  {
+    "id": "carnaval",
+    "quando": {
+      "idade": [
+        16,
+        70
+      ],
+      "estado": [
+        "RJ",
+        "BA",
+        "PE",
+        "SP",
+        "MG"
+      ]
+    },
+    "peso": {
+      "base": 3,
+      "x": {
+        "personalidade.extroversao": 0.008
+      }
+    },
+    "texto": [
+      "Carnaval chegou e {amiga} te chama para o bloco.",
+      "Os blocos de {cidade} estão na rua e o celular não para de apitar com convite."
+    ],
     "escolhas": [
-      { "texto": "Abrir uma cerveja (ou cinco)", "efeitos": { "atributos.saude": -2, "atributos.felicidade": 2, "desgaste": -5 },
-        "chance": { "base": 0.8 },
-        "sucesso": { "resposta": "Mais uma noite igual às outras." },
-        "falha": { "resposta": "No dia seguinte você não lembrava de como chegou em casa.", "efeitos": { "atributos.felicidade": -4 }, "memoria": ["apagao", -10, "apagou de tanto beber"] } },
-      { "texto": "Resistir",
-        "chance": { "base": 0.3, "x": { "personalidade.disciplina": 0.004, "personalidade.estabilidade": 0.002 } },
-        "sucesso": { "resposta": "Você trocou o bar por uma caminhada. Foi difícil.", "efeitos": { "traco.alcool": -1 }, "memoria": ["resistiu_bebida", 12, "resistiu à vontade de beber"] },
-        "falha": { "resposta": "Você resistiu até as dez da noite. Depois, não.", "efeitos": { "atributos.saude": -2 } } }
+      {
+        "texto": "Cair na folia",
+        "efeitos": {
+          "atributos.felicidade": 8,
+          "desgaste": 15,
+          "atributos.saude": -1
+        },
+        "chance": {
+          "base": 0.85
+        },
+        "sucesso": {
+          "resposta": "Cinco dias de bloco, purpurina e zero arrependimento."
+        },
+        "falha": {
+          "resposta": "Você voltou feliz e sem o celular, furtado no meio do bloco.",
+          "efeitos": {
+            "atributos.felicidade": -6
+          }
+        }
+      },
+      {
+        "texto": "Descansar no feriado",
+        "efeitos": {
+          "desgaste": -15
+        }
+      }
     ]
   },
   {
-    "id": "figado", "quando": { "idade": [25, 100], "traco": { "alcool": 2 } }, "peso": { "base": 4 },
-    "texto": ["O exame de sangue veio com o fígado reclamando."],
+    "id": "festa_junina",
+    "quando": {
+      "idade": [
+        3,
+        100
+      ]
+    },
+    "peso": {
+      "base": 1.5
+    },
+    "texto": [
+      "Festa junina: quadrilha, quentão e pamonha.",
+      "Você dançou quadrilha com chapéu de palha e bigode pintado."
+    ],
+    "efeitos": {
+      "atributos.felicidade": 4
+    }
+  },
+  {
+    "id": "sao_joao",
+    "quando": {
+      "idade": [
+        5,
+        100
+      ],
+      "estado": [
+        "PE",
+        "BA"
+      ]
+    },
+    "peso": {
+      "base": 3
+    },
+    "texto": [
+      "São João em {cidade}: forró a noite inteira e fogueira na rua.",
+      "O São João parou {cidade}. Você dançou forró até o sol nascer."
+    ],
+    "efeitos": {
+      "atributos.felicidade": 6,
+      "desgaste": 5
+    }
+  },
+  {
+    "id": "golpe_pix",
+    "quando": {
+      "idade": [
+        16,
+        110
+      ]
+    },
+    "peso": {
+      "base": 1,
+      "x": {
+        "idade": 0.03
+      }
+    },
+    "texto": [
+      "Chega uma mensagem: \"Oi, troquei de número. Pode me fazer um Pix de R$ 800? Te devolvo amanhã\". A foto é de {amiga}."
+    ],
     "escolhas": [
-      { "texto": "Levar a sério e diminuir", "efeitos": { "traco.alcool": -1, "atributos.felicidade": -2, "atributos.saude": 2 } },
-      { "texto": "Ignorar", "efeitos": { "atributos.saude": -6 } }
+      {
+        "texto": "Fazer o Pix",
+        "requer": {
+          "min": {
+            "dinheiro": 800
+          }
+        },
+        "resposta": "Era golpe. {amiga} nunca trocou de número.",
+        "efeitos": {
+          "dinheiro": -800,
+          "atributos.felicidade": -8
+        },
+        "memoria": [
+          "caiu_golpe",
+          -15,
+          "caiu num golpe do Pix"
+        ]
+      },
+      {
+        "texto": "Ligar para o número antigo antes",
+        "resposta": "{amiga} atendeu sem saber de nada. Golpe evitado.",
+        "efeitos": {
+          "atributos.inteligencia": 1,
+          "personalidade.estabilidade": 1
+        }
+      }
     ]
   },
   {
-    "id": "vontade_fumar", "quando": { "traco": { "cigarro": 1 } }, "peso": { "base": 4 },
-    "texto": ["Você está tentando entender se fuma porque quer ou porque precisa.", "Subir a escada de casa deixou você sem fôlego. O cigarro está cobrando."],
+    "id": "burnout",
+    "quando": {
+      "idade": [
+        16,
+        80
+      ],
+      "min": {
+        "desgaste": 70
+      }
+    },
+    "peso": {
+      "base": 10
+    },
+    "texto": [
+      "Você acordou sem conseguir levantar. O corpo e a cabeça pediram arrego."
+    ],
     "escolhas": [
-      { "texto": "Tentar parar de fumar",
-        "chance": { "base": 0.2, "x": { "personalidade.disciplina": 0.004 } },
-        "sucesso": { "resposta": "Você jogou o maço fora e aguentou a abstinência.", "efeitos": { "traco.cigarro": -1, "atributos.saude": 3 }, "memoria": ["parou_fumar", 15, "parou de fumar"] },
-        "falha": { "resposta": "Três dias sem cigarro, e depois um maço inteiro.", "efeitos": { "atributos.felicidade": -3 } } },
-      { "texto": "Deixar como está", "efeitos": { "atributos.saude": -2 } }
+      {
+        "texto": "Parar uns dias de verdade",
+        "efeitos": {
+          "desgaste": -40,
+          "atributos.felicidade": 3
+        }
+      },
+      {
+        "texto": "Aguentar firme",
+        "chance": {
+          "base": 0.35,
+          "x": {
+            "personalidade.estabilidade": 0.004
+          }
+        },
+        "sucesso": {
+          "resposta": "Você atravessou a semana no limite, mas atravessou.",
+          "efeitos": {
+            "desgaste": -5,
+            "personalidade.disciplina": 2
+          }
+        },
+        "falha": {
+          "resposta": "Você desabou de vez. Duas semanas de atestado.",
+          "efeitos": {
+            "atributos.saude": -8,
+            "atributos.felicidade": -10,
+            "desgaste": -30
+          },
+          "memoria": [
+            "burnout",
+            -25,
+            "teve um burnout"
+          ]
+        }
+      }
     ]
   },
   {
-    "id": "reencontro_valentao", "soGancho": true, "quando": { "idade": [16, 80] },
-    "texto": ["Numa fila de banco em {cidade}, você reconhece {amigo} {sobrenome2}, aquele do recreio. Ele também te reconheceu."],
+    "id": "insonia",
+    "quando": {
+      "idade": [
+        16,
+        110
+      ]
+    },
+    "peso": {
+      "base": 0.8,
+      "x": {
+        "desgaste": 0.03,
+        "personalidade.estabilidade": -0.006
+      }
+    },
+    "texto": [
+      "Uma fase de insônia: você encara o teto às 3 da manhã quase toda noite."
+    ],
+    "efeitos": {
+      "desgaste": 10,
+      "atributos.felicidade": -4
+    }
+  },
+  {
+    "id": "rifa",
+    "quando": {
+      "idade": [
+        8,
+        110
+      ]
+    },
+    "peso": {
+      "base": 0.8,
+      "x": {
+        "atributos.sorte": 0.015
+      }
+    },
+    "texto": [
+      "Você ganhou a rifa da igreja do bairro: R$ 300!",
+      "Seu número saiu na rifa da quermesse: R$ 300 para você."
+    ],
+    "efeitos": {
+      "dinheiro": 300,
+      "atributos.felicidade": 4
+    }
+  },
+  {
+    "id": "dinheiro_esquecido",
+    "quando": {
+      "idade": [
+        8,
+        110
+      ]
+    },
+    "peso": {
+      "base": 1
+    },
+    "texto": [
+      "Você achou R$ 50 no bolso de uma calça velha."
+    ],
+    "efeitos": {
+      "dinheiro": 50,
+      "atributos.felicidade": 1
+    }
+  },
+  {
+    "id": "vontade_apostar",
+    "quando": {
+      "traco": {
+        "jogo": 1
+      }
+    },
+    "peso": {
+      "base": 6,
+      "x": {
+        "traco.jogo": 0.5
+      }
+    },
+    "texto": [
+      "Uma notificação: \"Bônus de 100% no seu próximo depósito\". A mão coça.",
+      "Você sonhou com a aposta que quase bateu. De novo."
+    ],
     "escolhas": [
-      { "texto": "Puxar conversa como se nada fosse", "resposta": "Ele pediu desculpas, sem jeito. Disse que tinha problemas em casa naquela época.",
-        "efeitos": { "atributos.felicidade": 4, "personalidade.empatia": 3, "personalidade.estabilidade": 2 },
-        "memoria": ["paz_valentao", 15, "fez as pazes com {amigo} {sobrenome2}"] },
-      { "texto": "Fingir que não viu", "efeitos": { "atributos.felicidade": -1 } },
-      { "texto": "Lembrar ele do que fez", "chance": { "base": 0.5 },
-        "sucesso": { "resposta": "Ele ficou vermelho e pediu desculpas.", "efeitos": { "atributos.felicidade": 3 } },
-        "falha": { "resposta": "Ele riu: \"Ainda isso?\". Você saiu pior do que entrou.", "efeitos": { "atributos.felicidade": -4 } } }
+      {
+        "texto": "Depositar R$ 300",
+        "requer": {
+          "min": {
+            "dinheiro": 300
+          }
+        },
+        "chance": {
+          "base": 0.3,
+          "x": {
+            "atributos.sorte": 0.002
+          }
+        },
+        "sucesso": {
+          "resposta": "Você ganhou R$ 600 e jurou que ia parar. Não parou.",
+          "efeitos": {
+            "dinheiro": 300,
+            "atributos.felicidade": 4
+          }
+        },
+        "falha": {
+          "resposta": "Perdeu tudo em vinte minutos.",
+          "efeitos": {
+            "dinheiro": -300,
+            "atributos.felicidade": -6
+          }
+        }
+      },
+      {
+        "texto": "Apagar o app de vez",
+        "chance": {
+          "base": 0.25,
+          "x": {
+            "personalidade.disciplina": 0.004
+          }
+        },
+        "sucesso": {
+          "resposta": "Você apagou o app e bloqueou os sites. Um dia de cada vez.",
+          "efeitos": {
+            "traco.jogo": -1
+          },
+          "memoria": [
+            "largou_jogo",
+            20,
+            "largou as apostas"
+          ]
+        },
+        "falha": {
+          "resposta": "Você reinstalou o app dois dias depois.",
+          "efeitos": {
+            "atributos.felicidade": -2
+          }
+        }
+      }
     ]
   },
   {
-    "id": "pet_velho", "soGancho": true,
-    "texto": ["{pet} está velhinho, com o focinho branco e sem fôlego para correr."],
+    "id": "vontade_beber",
+    "quando": {
+      "traco": {
+        "alcool": 1
+      }
+    },
+    "peso": {
+      "base": 6,
+      "x": {
+        "traco.alcool": 0.5
+      }
+    },
+    "texto": [
+      "Fim de dia pesado e aquela vontade de beber bate forte.",
+      "Você reparou que não passa um dia sem beber."
+    ],
     "escolhas": [
-      { "texto": "Levar ao veterinário (R$ 600)", "requer": { "min": { "dinheiro": 600 } }, "resposta": "{pet} ganhou mais um tempo, devagarinho.",
-        "efeitos": { "dinheiro": -600 }, "gancho": { "evento": "pet_morre", "chance": 1, "em_anos": [1.5, 3] } },
-      { "texto": "Deixar ele quietinho em casa", "gancho": { "evento": "pet_morre", "chance": 1, "em_anos": [0.5, 1.5] } }
+      {
+        "texto": "Abrir uma cerveja (ou cinco)",
+        "efeitos": {
+          "atributos.saude": -2,
+          "atributos.felicidade": 2,
+          "desgaste": -5
+        },
+        "chance": {
+          "base": 0.8
+        },
+        "sucesso": {
+          "resposta": "Mais uma noite igual às outras."
+        },
+        "falha": {
+          "resposta": "No dia seguinte você não lembrava de como chegou em casa.",
+          "efeitos": {
+            "atributos.felicidade": -4
+          },
+          "memoria": [
+            "apagao",
+            -10,
+            "apagou de tanto beber"
+          ]
+        }
+      },
+      {
+        "texto": "Resistir",
+        "chance": {
+          "base": 0.3,
+          "x": {
+            "personalidade.disciplina": 0.004,
+            "personalidade.estabilidade": 0.002
+          }
+        },
+        "sucesso": {
+          "resposta": "Você trocou o bar por uma caminhada. Foi difícil.",
+          "efeitos": {
+            "traco.alcool": -1
+          },
+          "memoria": [
+            "resistiu_bebida",
+            12,
+            "resistiu à vontade de beber"
+          ]
+        },
+        "falha": {
+          "resposta": "Você resistiu até as dez da noite. Depois, não.",
+          "efeitos": {
+            "atributos.saude": -2
+          }
+        }
+      }
     ]
   },
   {
-    "id": "pet_morre", "soGancho": true,
-    "texto": ["{pet} morreu dormindo, no cantinho de sempre."],
-    "efeitos": { "atributos.felicidade": -12 },
-    "memoria": ["perdeu_pet", -20, "perdeu o {pet}"]
-  },
-  {
-    "id": "show_bar", "soGancho": true, "quando": { "traco": { "musica": 1 } },
-    "texto": ["A banda conseguiu um show num bar de {cidade}."],
+    "id": "figado",
+    "quando": {
+      "idade": [
+        25,
+        100
+      ],
+      "traco": {
+        "alcool": 2
+      }
+    },
+    "peso": {
+      "base": 4
+    },
+    "texto": [
+      "O exame de sangue veio com o fígado reclamando."
+    ],
     "escolhas": [
-      { "texto": "Subir no palco",
-        "chance": { "base": 0.3, "x": { "traco.musica": 0.15, "personalidade.estabilidade": 0.002 } },
-        "sucesso": { "resposta": "O bar cantou junto. Vocês saíram com R$ 400 e um convite para voltar.", "efeitos": { "dinheiro": 400, "atributos.felicidade": 10 }, "memoria": ["show", 25, "fez um show lotado em {cidade}"] },
-        "falha": { "resposta": "Você esqueceu a letra no meio da segunda música.", "efeitos": { "atributos.felicidade": -6 }, "memoria": ["show", -10, "esqueceu a letra num show em {cidade}"] } },
-      { "texto": "Desistir em cima da hora", "resposta": "A banda tocou sem você e não te chamou mais.", "efeitos": { "atributos.felicidade": -4 } }
+      {
+        "texto": "Levar a sério e diminuir",
+        "efeitos": {
+          "traco.alcool": -1,
+          "atributos.felicidade": -2,
+          "atributos.saude": 2
+        }
+      },
+      {
+        "texto": "Ignorar",
+        "efeitos": {
+          "atributos.saude": -6
+        }
+      }
     ]
   },
   {
-    "id": "arte_compra", "unico": true, "quando": { "traco": { "arte": 2 } }, "peso": { "base": 5 },
-    "texto": ["Alguém viu seus desenhos e quer comprar um."],
+    "id": "vontade_fumar",
+    "quando": {
+      "traco": {
+        "cigarro": 1
+      }
+    },
+    "peso": {
+      "base": 4
+    },
+    "texto": [
+      "Você está tentando entender se fuma porque quer ou porque precisa.",
+      "Subir a escada de casa deixou você sem fôlego. O cigarro está cobrando."
+    ],
     "escolhas": [
-      { "texto": "Vender por R$ 500", "efeitos": { "dinheiro": 500, "atributos.felicidade": 5 }, "memoria": ["vendeu_arte", 15, "vendeu o primeiro quadro"] },
-      { "texto": "Não vender, mas postar online",
-        "chance": { "base": 0.15, "x": { "traco.arte": 0.1 } },
-        "sucesso": { "resposta": "Viralizou! Mil seguidores novos numa noite.", "efeitos": { "atributos.carisma": 3, "atributos.felicidade": 8 }, "memoria": ["viralizou", 20, "viralizou com um desenho"] },
-        "falha": { "resposta": "Doze curtidas, três da sua família.", "efeitos": { "atributos.felicidade": -1 } } }
+      {
+        "texto": "Tentar parar de fumar",
+        "chance": {
+          "base": 0.2,
+          "x": {
+            "personalidade.disciplina": 0.004
+          }
+        },
+        "sucesso": {
+          "resposta": "Você jogou o maço fora e aguentou a abstinência.",
+          "efeitos": {
+            "traco.cigarro": -1,
+            "atributos.saude": 3
+          },
+          "memoria": [
+            "parou_fumar",
+            15,
+            "parou de fumar"
+          ]
+        },
+        "falha": {
+          "resposta": "Três dias sem cigarro, e depois um maço inteiro.",
+          "efeitos": {
+            "atributos.felicidade": -3
+          }
+        }
+      },
+      {
+        "texto": "Deixar como está",
+        "efeitos": {
+          "atributos.saude": -2
+        }
+      }
     ]
   },
   {
-    "id": "esporte_peneira", "unico": true, "quando": { "idade": [12, 20], "traco": { "esporte": 2 } }, "peso": { "base": 5 },
-    "texto": ["Um olheiro viu você jogar e chamou para uma peneira num clube de {cidade}."],
+    "id": "reencontro_valentao",
+    "soGancho": true,
+    "quando": {
+      "idade": [
+        16,
+        80
+      ]
+    },
+    "texto": [
+      "Numa fila de banco em {cidade}, você reconhece {amigo} {sobrenome2}, aquele do recreio. Ele também te reconheceu."
+    ],
     "escolhas": [
-      { "texto": "Ir à peneira", "efeitos": { "desgaste": 10 },
-        "chance": { "base": 0.1, "x": { "traco.esporte": 0.08, "atributos.forma": 0.002 } },
-        "sucesso": { "resposta": "Você passou! Treino no clube a partir do mês que vem.", "efeitos": { "atributos.felicidade": 12 }, "memoria": ["passou_peneira", 30, "passou na peneira de um clube"] },
-        "falha": { "resposta": "Não foi dessa vez. Eram trezentos meninos para cinco vagas.", "efeitos": { "atributos.felicidade": -5 }, "memoria": ["peneira", -8, "não passou numa peneira"] } },
-      { "texto": "Não ir", "efeitos": { "atributos.felicidade": -2 } }
+      {
+        "texto": "Puxar conversa como se nada fosse",
+        "resposta": "Ele pediu desculpas, sem jeito. Disse que tinha problemas em casa naquela época.",
+        "efeitos": {
+          "atributos.felicidade": 4,
+          "personalidade.empatia": 3,
+          "personalidade.estabilidade": 2
+        },
+        "memoria": [
+          "paz_valentao",
+          15,
+          "fez as pazes com {amigo} {sobrenome2}"
+        ]
+      },
+      {
+        "texto": "Fingir que não viu",
+        "efeitos": {
+          "atributos.felicidade": -1
+        }
+      },
+      {
+        "texto": "Lembrar ele do que fez",
+        "chance": {
+          "base": 0.5
+        },
+        "sucesso": {
+          "resposta": "Ele ficou vermelho e pediu desculpas.",
+          "efeitos": {
+            "atributos.felicidade": 3
+          }
+        },
+        "falha": {
+          "resposta": "Ele riu: \"Ainda isso?\". Você saiu pior do que entrou.",
+          "efeitos": {
+            "atributos.felicidade": -4
+          }
+        }
+      }
     ]
   },
   {
-    "id": "viagem_impulsiva", "quando": { "idade": [18, 80], "min": { "dinheiro": 1500 } }, "peso": { "base": 1.5, "x": { "personalidade.impulsividade": 0.015 } },
-    "vars": { "destino": ["Salvador", "Fortaleza", "Florianópolis", "Foz do Iguaçu", "Buenos Aires", "Lisboa", "Bonito", "Jericoacoara"] },
-    "texto": ["Passagem promocional para {destino}, saindo sexta."],
+    "id": "pet_velho",
+    "soGancho": true,
+    "texto": [
+      "{pet} está velhinho, com o focinho branco e sem fôlego para correr."
+    ],
     "escolhas": [
-      { "texto": "Ir", "efeitos": { "dinheiro": -1500, "atributos.felicidade": 10, "desgaste": -20 }, "memoria": ["viagem", 15, "viajou de última hora para {destino}"] },
-      { "texto": "Ficar" }
+      {
+        "texto": "Levar ao veterinário (R$ 600)",
+        "requer": {
+          "min": {
+            "dinheiro": 600
+          }
+        },
+        "resposta": "{pet} ganhou mais um tempo, devagarinho.",
+        "efeitos": {
+          "dinheiro": -600
+        },
+        "gancho": {
+          "evento": "pet_morre",
+          "chance": 1,
+          "em_anos": [
+            1.5,
+            3
+          ]
+        }
+      },
+      {
+        "texto": "Deixar ele quietinho em casa",
+        "gancho": {
+          "evento": "pet_morre",
+          "chance": 1,
+          "em_anos": [
+            0.5,
+            1.5
+          ]
+        }
+      }
     ]
   },
   {
-    "id": "vizinho_barulhento", "quando": { "idade": [16, 110] }, "peso": { "base": 1.5 },
-    "texto": ["O vizinho decidiu reformar a casa. Furadeira às 7 da manhã, todo dia."],
-    "escolhas": [
-      { "texto": "Reclamar com educação",
-        "chance": { "base": 0.5, "x": { "atributos.carisma": 0.004 } },
-        "sucesso": { "resposta": "Ele pediu desculpas e mudou o horário.", "efeitos": { "atributos.felicidade": 2 } },
-        "falha": { "resposta": "Ele bateu a porta na sua cara.", "efeitos": { "atributos.felicidade": -3 } } },
-      { "texto": "Aguentar calad{o|a}", "efeitos": { "desgaste": 10, "personalidade.estabilidade": -1 } }
+    "id": "pet_morre",
+    "soGancho": true,
+    "texto": [
+      "{pet} morreu dormindo, no cantinho de sempre."
+    ],
+    "efeitos": {
+      "atributos.felicidade": -12
+    },
+    "memoria": [
+      "perdeu_pet",
+      -20,
+      "perdeu o {pet}"
     ]
   },
   {
-    "id": "voluntariado", "quando": { "idade": [14, 100] }, "peso": { "base": 1.2, "x": { "personalidade.empatia": 0.01 } },
-    "texto": ["Uma ONG de {cidade} está precisando de voluntários no fim de semana."],
+    "id": "show_bar",
+    "soGancho": true,
+    "quando": {
+      "traco": {
+        "musica": 1
+      }
+    },
+    "texto": [
+      "A banda conseguiu um show num bar de {cidade}."
+    ],
     "escolhas": [
-      { "texto": "Ajudar", "efeitos": { "desgaste": 5, "atributos.felicidade": 6, "personalidade.empatia": 4 }, "memoria": ["voluntario", 12, "foi voluntári{o|a} numa ONG"] },
-      { "texto": "Não dá agora" }
+      {
+        "texto": "Subir no palco",
+        "chance": {
+          "base": 0.3,
+          "x": {
+            "traco.musica": 0.15,
+            "personalidade.estabilidade": 0.002
+          }
+        },
+        "sucesso": {
+          "resposta": "O bar cantou junto. Vocês saíram com R$ 400 e um convite para voltar.",
+          "efeitos": {
+            "dinheiro": 400,
+            "atributos.felicidade": 10
+          },
+          "memoria": [
+            "show",
+            25,
+            "fez um show lotado em {cidade}"
+          ]
+        },
+        "falha": {
+          "resposta": "Você esqueceu a letra no meio da segunda música.",
+          "efeitos": {
+            "atributos.felicidade": -6
+          },
+          "memoria": [
+            "show",
+            -10,
+            "esqueceu a letra num show em {cidade}"
+          ]
+        }
+      },
+      {
+        "texto": "Desistir em cima da hora",
+        "resposta": "A banda tocou sem você e não te chamou mais.",
+        "efeitos": {
+          "atributos.felicidade": -4
+        }
+      }
     ]
   },
   {
-    "id": "meia_maratona", "unico": true, "quando": { "idade": [18, 65], "min": { "atributos.forma": 65 } }, "peso": { "base": 3 },
-    "texto": ["Inscrições abertas para a meia maratona de {cidade}."],
+    "id": "arte_compra",
+    "unico": true,
+    "quando": {
+      "traco": {
+        "arte": 2
+      }
+    },
+    "peso": {
+      "base": 5
+    },
+    "texto": [
+      "Alguém viu seus desenhos e quer comprar um."
+    ],
     "escolhas": [
-      { "texto": "Correr", "efeitos": { "desgaste": 15 },
-        "chance": { "base": 0.35, "x": { "atributos.forma": 0.006 } },
-        "sucesso": { "resposta": "Você cruzou a linha de chegada chorando de felicidade.", "efeitos": { "atributos.felicidade": 8 }, "memoria": ["meia_maratona", 20, "completou uma meia maratona"] },
-        "falha": { "resposta": "Câimbra no km 15. Você terminou andando.", "efeitos": { "atributos.felicidade": -2, "atributos.saude": -2 } } },
-      { "texto": "Só assistir" }
+      {
+        "texto": "Vender por R$ 500",
+        "efeitos": {
+          "dinheiro": 500,
+          "atributos.felicidade": 5
+        },
+        "memoria": [
+          "vendeu_arte",
+          15,
+          "vendeu o primeiro quadro"
+        ]
+      },
+      {
+        "texto": "Não vender, mas postar online",
+        "chance": {
+          "base": 0.15,
+          "x": {
+            "traco.arte": 0.1
+          }
+        },
+        "sucesso": {
+          "resposta": "Viralizou! Mil seguidores novos numa noite.",
+          "efeitos": {
+            "atributos.carisma": 3,
+            "atributos.felicidade": 8
+          },
+          "memoria": [
+            "viralizou",
+            20,
+            "viralizou com um desenho"
+          ]
+        },
+        "falha": {
+          "resposta": "Doze curtidas, três da sua família.",
+          "efeitos": {
+            "atributos.felicidade": -1
+          }
+        }
+      }
     ]
   },
   {
-    "id": "dor_de_dente", "quando": { "idade": [16, 110] }, "peso": { "base": 1.2 },
-    "texto": ["Uma dor de dente daquelas."],
+    "id": "esporte_peneira",
+    "unico": true,
+    "quando": {
+      "idade": [
+        12,
+        20
+      ],
+      "traco": {
+        "esporte": 2
+      }
+    },
+    "peso": {
+      "base": 5
+    },
+    "texto": [
+      "Um olheiro viu você jogar e chamou para uma peneira num clube de {cidade}."
+    ],
     "escolhas": [
-      { "texto": "Dentista particular (R$ 300)", "requer": { "min": { "dinheiro": 300 } }, "efeitos": { "dinheiro": -300, "atributos.saude": 1 } },
-      { "texto": "Esperar o SUS", "resposta": "Três semanas de fila e analgésico.", "efeitos": { "desgaste": 8, "atributos.saude": -2 } }
+      {
+        "texto": "Ir à peneira",
+        "efeitos": {
+          "desgaste": 10
+        },
+        "chance": {
+          "base": 0.1,
+          "x": {
+            "traco.esporte": 0.08,
+            "atributos.forma": 0.002
+          }
+        },
+        "sucesso": {
+          "resposta": "Você passou! Treino no clube a partir do mês que vem.",
+          "efeitos": {
+            "atributos.felicidade": 12
+          },
+          "memoria": [
+            "passou_peneira",
+            30,
+            "passou na peneira de um clube"
+          ]
+        },
+        "falha": {
+          "resposta": "Não foi dessa vez. Eram trezentos meninos para cinco vagas.",
+          "efeitos": {
+            "atributos.felicidade": -5
+          },
+          "memoria": [
+            "peneira",
+            -8,
+            "não passou numa peneira"
+          ]
+        }
+      },
+      {
+        "texto": "Não ir",
+        "efeitos": {
+          "atributos.felicidade": -2
+        }
+      }
     ]
   },
   {
-    "id": "alerta_saude", "quando": { "idade": [40, 100], "max": { "atributos.saude": 55 } }, "peso": { "base": 4, "x": { "atributos.saude<45": 2 } },
-    "texto": ["O médico olhou seus exames e franziu a testa: pressão alta e glicose no limite."],
+    "id": "viagem_impulsiva",
+    "quando": {
+      "idade": [
+        18,
+        80
+      ],
+      "min": {
+        "dinheiro": 1500
+      }
+    },
+    "peso": {
+      "base": 1.5,
+      "x": {
+        "personalidade.impulsividade": 0.015
+      }
+    },
+    "vars": {
+      "destino": [
+        "Salvador",
+        "Fortaleza",
+        "Florianópolis",
+        "Foz do Iguaçu",
+        "Buenos Aires",
+        "Lisboa",
+        "Bonito",
+        "Jericoacoara"
+      ]
+    },
+    "texto": [
+      "Passagem promocional para {destino}, saindo sexta."
+    ],
     "escolhas": [
-      { "texto": "Mudar a rotina de verdade", "resposta": "Menos sal, mais caminhada. Não é fácil.",
-        "efeitos": { "atributos.saude": 4, "atributos.felicidade": -2, "personalidade.disciplina": 2 },
-        "memoria": ["susto_medico", 10, "mudou a rotina depois de um susto no médico"] },
-      { "texto": "Tomar o remédio e seguir a vida", "efeitos": { "atributos.saude": 1 } },
-      { "texto": "Ignorar", "efeitos": { "atributos.saude": -4 }, "gancho": { "evento": "infarto", "chance": 0.4, "em_anos": [1, 5] } }
+      {
+        "texto": "Ir",
+        "efeitos": {
+          "dinheiro": -1500,
+          "atributos.felicidade": 10,
+          "desgaste": -20
+        },
+        "memoria": [
+          "viagem",
+          15,
+          "viajou de última hora para {destino}"
+        ]
+      },
+      {
+        "texto": "Ficar"
+      }
     ]
   },
   {
-    "id": "infarto", "soGancho": true,
-    "texto": ["Uma dor forte no peito te levou para a emergência. Foi um infarto leve."],
-    "efeitos": { "atributos.saude": -15, "atributos.felicidade": -8 },
-    "memoria": ["infarto", -30, "teve um infarto"]
-  },
-  {
-    "id": "diabetes", "unico": true, "quando": { "idade": [40, 100], "max": { "atributos.saude": 65 }, "semTraco": ["diabetes"] }, "peso": { "base": 1.5 },
-    "texto": ["Diagnóstico: diabetes tipo 2."],
+    "id": "vizinho_barulhento",
+    "quando": {
+      "idade": [
+        16,
+        110
+      ]
+    },
+    "peso": {
+      "base": 1.5
+    },
+    "texto": [
+      "O vizinho decidiu reformar a casa. Furadeira às 7 da manhã, todo dia."
+    ],
     "escolhas": [
-      { "texto": "Seguir o tratamento à risca", "resposta": "Remédio, dieta e glicosímetro viraram rotina.", "efeitos": { "traco.diabetes": 1, "personalidade.disciplina": 2 } },
-      { "texto": "Fazer do seu jeito", "efeitos": { "traco.diabetes": 2 } }
+      {
+        "texto": "Reclamar com educação",
+        "chance": {
+          "base": 0.5,
+          "x": {
+            "atributos.carisma": 0.004
+          }
+        },
+        "sucesso": {
+          "resposta": "Ele pediu desculpas e mudou o horário.",
+          "efeitos": {
+            "atributos.felicidade": 2
+          }
+        },
+        "falha": {
+          "resposta": "Ele bateu a porta na sua cara.",
+          "efeitos": {
+            "atributos.felicidade": -3
+          }
+        }
+      },
+      {
+        "texto": "Aguentar calad{o|a}",
+        "efeitos": {
+          "desgaste": 10,
+          "personalidade.estabilidade": -1
+        }
+      }
     ]
   },
   {
-    "id": "joelho", "unico": true, "quando": { "idade": [55, 110] }, "peso": { "base": 3 },
-    "texto": ["O joelho começou a dar sinal toda vez que o tempo muda."],
-    "efeitos": { "atributos.forma": -3, "atributos.felicidade": -1 }
-  },
-  {
-    "id": "grupo_danca", "unico": true, "quando": { "idade": [60, 95] }, "peso": { "base": 3, "x": { "personalidade.extroversao": 0.01 } },
-    "texto": ["O centro comunitário abriu uma turma de dança de salão para a terceira idade."],
+    "id": "voluntariado",
+    "quando": {
+      "idade": [
+        14,
+        100
+      ]
+    },
+    "peso": {
+      "base": 1.2,
+      "x": {
+        "personalidade.empatia": 0.01
+      }
+    },
+    "texto": [
+      "Uma ONG de {cidade} está precisando de voluntários no fim de semana."
+    ],
     "escolhas": [
-      { "texto": "Entrar na turma", "efeitos": { "atributos.felicidade": 8, "atributos.forma": 3, "atributos.carisma": 2 },
-        "memoria": ["danca", 15, "entrou na dança de salão depois dos 60"],
-        "gancho": { "evento": "amizade_danca", "chance": 0.7, "em_anos": [1, 4] } },
-      { "texto": "Não é pra mim" }
+      {
+        "texto": "Ajudar",
+        "efeitos": {
+          "desgaste": 5,
+          "atributos.felicidade": 6,
+          "personalidade.empatia": 4
+        },
+        "memoria": [
+          "voluntario",
+          12,
+          "foi voluntári{o|a} numa ONG"
+        ]
+      },
+      {
+        "texto": "Não dá agora"
+      }
     ]
   },
   {
-    "id": "amizade_danca", "soGancho": true,
-    "texto": ["{amiga} {sobrenome2}, da turma de dança, virou sua melhor amiga. Vocês tomam café toda quinta."],
-    "efeitos": { "atributos.felicidade": 6 },
-    "memoria": ["amizade_danca", 15, "fez amizade com {amiga} na dança"]
-  },
-  {
-    "id": "lembranca", "quando": { "idade": [50, 120] }, "peso": { "base": 3, "x": { "idade>70": 1.5 } },
-    "texto": ["Você se pegou lembrando de quando {lembranca}.", "Uma música no rádio te levou de volta para quando {lembranca}.", "Olhando fotos antigas, você lembrou de quando {lembranca}."]
-  },
-  {
-    "id": "queda_casa", "quando": { "idade": [70, 120] }, "peso": { "base": 2.5, "x": { "atributos.forma": -0.008 } },
-    "texto": ["Você escorregou no banheiro e por pouco não bateu a cabeça."],
+    "id": "meia_maratona",
+    "unico": true,
+    "quando": {
+      "idade": [
+        18,
+        65
+      ],
+      "min": {
+        "atributos.forma": 65
+      }
+    },
+    "peso": {
+      "base": 3
+    },
+    "texto": [
+      "Inscrições abertas para a meia maratona de {cidade}."
+    ],
     "escolhas": [
-      { "texto": "Instalar barras e tapete antiderrapante (R$ 400)", "requer": { "min": { "dinheiro": 400 } }, "resposta": "Casa mais segura, orgulho um pouco ferido.", "efeitos": { "dinheiro": -400 } },
-      { "texto": "Foi só um susto",
-        "chance": { "base": 0.6, "x": { "atributos.forma": 0.004 } },
-        "sucesso": { "resposta": "Foi mesmo. Desta vez." },
-        "falha": { "resposta": "Na semana seguinte você caiu de novo e fraturou o punho.", "efeitos": { "atributos.saude": -10, "atributos.forma": -5 }, "memoria": ["fratura", -12, "fraturou o punho numa queda em casa"] } }
+      {
+        "texto": "Correr",
+        "efeitos": {
+          "desgaste": 15
+        },
+        "chance": {
+          "base": 0.35,
+          "x": {
+            "atributos.forma": 0.006
+          }
+        },
+        "sucesso": {
+          "resposta": "Você cruzou a linha de chegada chorando de felicidade.",
+          "efeitos": {
+            "atributos.felicidade": 8
+          },
+          "memoria": [
+            "meia_maratona",
+            20,
+            "completou uma meia maratona"
+          ]
+        },
+        "falha": {
+          "resposta": "Câimbra no km 15. Você terminou andando.",
+          "efeitos": {
+            "atributos.felicidade": -2,
+            "atributos.saude": -2
+          }
+        }
+      },
+      {
+        "texto": "Só assistir"
+      }
     ]
   },
   {
-    "id": "audio_whatsapp", "unico": true, "quando": { "idade": [65, 110] }, "peso": { "base": 2 },
-    "texto": ["Você aprendeu a mandar áudio no WhatsApp e agora manda áudios de quatro minutos."],
-    "efeitos": { "atributos.felicidade": 3, "atributos.carisma": 1 }
-  },
-  {
-    "id": "video_furto", "soGancho": true,
-    "texto": ["Um vídeo da câmera de segurança de uma loja circulou no grupo do bairro. Dá para ver seu rosto."],
-    "efeitos": { "atributos.felicidade": -8, "atributos.carisma": -3 },
-    "memoria": ["video_furto", -20, "apareceu num vídeo furtando uma loja"]
-  },
-  {
-    "id": "reencontro_crush", "soGancho": true, "quando": { "idade": [20, 80] },
-    "texto": ["Você esbarrou em {crush} num aniversário. Os anos passaram, mas o frio na barriga é o mesmo."],
+    "id": "dor_de_dente",
+    "quando": {
+      "idade": [
+        16,
+        110
+      ]
+    },
+    "peso": {
+      "base": 1.2
+    },
+    "texto": [
+      "Uma dor de dente daquelas."
+    ],
     "escolhas": [
-      { "texto": "Relembrar os tempos de escola", "efeitos": { "atributos.felicidade": 6 }, "memoria": ["reviu_crush", 10, "reencontrou {crush} anos depois"] },
-      { "texto": "Dar um oi rápido e ir embora", "efeitos": { "atributos.felicidade": -1 } }
+      {
+        "texto": "Dentista particular (R$ 300)",
+        "requer": {
+          "min": {
+            "dinheiro": 300
+          }
+        },
+        "efeitos": {
+          "dinheiro": -300,
+          "atributos.saude": 1
+        }
+      },
+      {
+        "texto": "Esperar o SUS",
+        "resposta": "Três semanas de fila e analgésico.",
+        "efeitos": {
+          "desgaste": 8,
+          "atributos.saude": -2
+        }
+      }
     ]
   },
   {
-    "id": "gripe_forte", "quando": { "idade": [0, 120] }, "peso": { "base": 1, "x": { "idade>65": 2, "atributos.saude<50": 2 } },
-    "texto": ["Uma gripe forte te derrubou por uma semana.", "Febre, tosse e uma semana inteira de cama."],
-    "efeitos": { "atributos.saude": -3, "desgaste": 5 }
+    "id": "alerta_saude",
+    "quando": {
+      "idade": [
+        40,
+        100
+      ],
+      "max": {
+        "atributos.saude": 55
+      }
+    },
+    "peso": {
+      "base": 4,
+      "x": {
+        "atributos.saude<45": 2
+      }
+    },
+    "texto": [
+      "O médico olhou seus exames e franziu a testa: pressão alta e glicose no limite."
+    ],
+    "escolhas": [
+      {
+        "texto": "Mudar a rotina de verdade",
+        "resposta": "Menos sal, mais caminhada. Não é fácil.",
+        "efeitos": {
+          "atributos.saude": 4,
+          "atributos.felicidade": -2,
+          "personalidade.disciplina": 2
+        },
+        "memoria": [
+          "susto_medico",
+          10,
+          "mudou a rotina depois de um susto no médico"
+        ]
+      },
+      {
+        "texto": "Tomar o remédio e seguir a vida",
+        "efeitos": {
+          "atributos.saude": 1
+        }
+      },
+      {
+        "texto": "Ignorar",
+        "efeitos": {
+          "atributos.saude": -4
+        },
+        "gancho": {
+          "evento": "infarto",
+          "chance": 0.4,
+          "em_anos": [
+            1,
+            5
+          ]
+        }
+      }
+    ]
   },
   {
-    "id": "elogio_estranho", "quando": { "idade": [14, 70], "min": { "atributos.aparencia": 70 } }, "peso": { "base": 1.5 },
-    "texto": ["Uma pessoa desconhecida parou você na rua só para dizer que você é muito bonit{o|a}."],
-    "efeitos": { "atributos.felicidade": 3 }
+    "id": "infarto",
+    "soGancho": true,
+    "texto": [
+      "Uma dor forte no peito te levou para a emergência. Foi um infarto leve."
+    ],
+    "efeitos": {
+      "atributos.saude": -15,
+      "atributos.felicidade": -8
+    },
+    "memoria": [
+      "infarto",
+      -30,
+      "teve um infarto"
+    ]
+  },
+  {
+    "id": "diabetes",
+    "unico": true,
+    "quando": {
+      "idade": [
+        40,
+        100
+      ],
+      "max": {
+        "atributos.saude": 65
+      },
+      "semTraco": [
+        "diabetes"
+      ]
+    },
+    "peso": {
+      "base": 1.5
+    },
+    "texto": [
+      "Diagnóstico: diabetes tipo 2."
+    ],
+    "escolhas": [
+      {
+        "texto": "Seguir o tratamento à risca",
+        "resposta": "Remédio, dieta e glicosímetro viraram rotina.",
+        "efeitos": {
+          "traco.diabetes": 1,
+          "personalidade.disciplina": 2
+        }
+      },
+      {
+        "texto": "Fazer do seu jeito",
+        "efeitos": {
+          "traco.diabetes": 2
+        }
+      }
+    ]
+  },
+  {
+    "id": "joelho",
+    "unico": true,
+    "quando": {
+      "idade": [
+        55,
+        110
+      ]
+    },
+    "peso": {
+      "base": 3
+    },
+    "texto": [
+      "O joelho começou a dar sinal toda vez que o tempo muda."
+    ],
+    "efeitos": {
+      "atributos.forma": -3,
+      "atributos.felicidade": -1
+    }
+  },
+  {
+    "id": "grupo_danca",
+    "unico": true,
+    "quando": {
+      "idade": [
+        60,
+        95
+      ]
+    },
+    "peso": {
+      "base": 3,
+      "x": {
+        "personalidade.extroversao": 0.01
+      }
+    },
+    "texto": [
+      "O centro comunitário abriu uma turma de dança de salão para a terceira idade."
+    ],
+    "escolhas": [
+      {
+        "texto": "Entrar na turma",
+        "efeitos": {
+          "atributos.felicidade": 8,
+          "atributos.forma": 3,
+          "atributos.carisma": 2
+        },
+        "memoria": [
+          "danca",
+          15,
+          "entrou na dança de salão depois dos 60"
+        ],
+        "gancho": {
+          "evento": "amizade_danca",
+          "chance": 0.7,
+          "em_anos": [
+            1,
+            4
+          ]
+        }
+      },
+      {
+        "texto": "Não é pra mim"
+      }
+    ]
+  },
+  {
+    "id": "amizade_danca",
+    "soGancho": true,
+    "texto": [
+      "{amiga} {sobrenome2}, da turma de dança, virou sua melhor amiga. Vocês tomam café toda quinta."
+    ],
+    "efeitos": {
+      "atributos.felicidade": 6
+    },
+    "memoria": [
+      "amizade_danca",
+      15,
+      "fez amizade com {amiga} na dança"
+    ]
+  },
+  {
+    "id": "lembranca",
+    "quando": {
+      "idade": [
+        50,
+        120
+      ]
+    },
+    "peso": {
+      "base": 3,
+      "x": {
+        "idade>70": 1.5
+      }
+    },
+    "texto": [
+      "Você se pegou lembrando de quando {lembranca}.",
+      "Uma música no rádio te levou de volta para quando {lembranca}.",
+      "Olhando fotos antigas, você lembrou de quando {lembranca}."
+    ]
+  },
+  {
+    "id": "queda_casa",
+    "quando": {
+      "idade": [
+        70,
+        120
+      ]
+    },
+    "peso": {
+      "base": 2.5,
+      "x": {
+        "atributos.forma": -0.008
+      }
+    },
+    "texto": [
+      "Você escorregou no banheiro e por pouco não bateu a cabeça."
+    ],
+    "escolhas": [
+      {
+        "texto": "Instalar barras e tapete antiderrapante (R$ 400)",
+        "requer": {
+          "min": {
+            "dinheiro": 400
+          }
+        },
+        "resposta": "Casa mais segura, orgulho um pouco ferido.",
+        "efeitos": {
+          "dinheiro": -400
+        }
+      },
+      {
+        "texto": "Foi só um susto",
+        "chance": {
+          "base": 0.6,
+          "x": {
+            "atributos.forma": 0.004
+          }
+        },
+        "sucesso": {
+          "resposta": "Foi mesmo. Desta vez."
+        },
+        "falha": {
+          "resposta": "Na semana seguinte você caiu de novo e fraturou o punho.",
+          "efeitos": {
+            "atributos.saude": -10,
+            "atributos.forma": -5
+          },
+          "memoria": [
+            "fratura",
+            -12,
+            "fraturou o punho numa queda em casa"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "audio_whatsapp",
+    "unico": true,
+    "quando": {
+      "idade": [
+        65,
+        110
+      ]
+    },
+    "peso": {
+      "base": 2
+    },
+    "texto": [
+      "Você aprendeu a mandar áudio no WhatsApp e agora manda áudios de quatro minutos."
+    ],
+    "efeitos": {
+      "atributos.felicidade": 3,
+      "atributos.carisma": 1
+    }
+  },
+  {
+    "id": "video_furto",
+    "soGancho": true,
+    "texto": [
+      "Um vídeo da câmera de segurança de uma loja circulou no grupo do bairro. Dá para ver seu rosto."
+    ],
+    "efeitos": {
+      "atributos.felicidade": -8,
+      "atributos.carisma": -3
+    },
+    "memoria": [
+      "video_furto",
+      -20,
+      "apareceu num vídeo furtando uma loja"
+    ]
+  },
+  {
+    "id": "reencontro_crush",
+    "soGancho": true,
+    "quando": {
+      "idade": [
+        20,
+        80
+      ]
+    },
+    "texto": [
+      "Você esbarrou em {crush} num aniversário. Os anos passaram, mas o frio na barriga é o mesmo."
+    ],
+    "escolhas": [
+      {
+        "texto": "Relembrar os tempos de escola",
+        "efeitos": {
+          "atributos.felicidade": 6
+        },
+        "memoria": [
+          "reviu_crush",
+          10,
+          "reencontrou {crush} anos depois"
+        ]
+      },
+      {
+        "texto": "Dar um oi rápido e ir embora",
+        "efeitos": {
+          "atributos.felicidade": -1
+        }
+      }
+    ]
+  },
+  {
+    "id": "gripe_forte",
+    "quando": {
+      "idade": [
+        0,
+        120
+      ]
+    },
+    "peso": {
+      "base": 1,
+      "x": {
+        "idade>65": 2,
+        "atributos.saude<50": 2
+      }
+    },
+    "texto": [
+      "Uma gripe forte te derrubou por uma semana.",
+      "Febre, tosse e uma semana inteira de cama."
+    ],
+    "efeitos": {
+      "atributos.saude": -3,
+      "desgaste": 5
+    }
+  },
+  {
+    "id": "elogio_estranho",
+    "quando": {
+      "idade": [
+        14,
+        70
+      ],
+      "min": {
+        "atributos.aparencia": 70
+      }
+    },
+    "peso": {
+      "base": 1.5
+    },
+    "texto": [
+      "Uma pessoa desconhecida parou você na rua só para dizer que você é muito bonit{o|a}."
+    ],
+    "efeitos": {
+      "atributos.felicidade": 3
+    }
+  },
+  {
+    "id": "professor_inspirador",
+    "unico": true,
+    "quando": {
+      "etapa": [
+        "fundamental",
+        "medio"
+      ]
+    },
+    "peso": {
+      "base": 2
+    },
+    "vars": {
+      "materia": [
+        "matemática",
+        "história",
+        "biologia",
+        "português",
+        "física",
+        "geografia"
+      ]
+    },
+    "texto": [
+      "Uma professora de {materia} fez você gostar de estudar pela primeira vez.",
+      "O novo professor de {materia} explica de um jeito que finalmente faz sentido."
+    ],
+    "efeitos": {
+      "estudo.nota": 6,
+      "personalidade.curiosidade": 3
+    },
+    "memoria": [
+      "professor_inspirador",
+      15,
+      "um professor de {materia} mudou sua relação com a escola"
+    ]
+  },
+  {
+    "id": "greve_professores",
+    "quando": {
+      "etapa": [
+        "fundamental",
+        "medio"
+      ],
+      "rede": "publica"
+    },
+    "peso": {
+      "base": 1.5
+    },
+    "texto": [
+      "Greve dos professores da rede pública: dois meses sem aula.",
+      "A escola ficou sem aula por semanas por causa da greve."
+    ],
+    "efeitos": {
+      "estudo.nota": -4,
+      "atributos.felicidade": 2
+    }
+  },
+  {
+    "id": "trabalho_grupo",
+    "quando": {
+      "etapa": [
+        "medio",
+        "faculdade"
+      ]
+    },
+    "peso": {
+      "base": 2
+    },
+    "texto": [
+      "Trabalho em grupo valendo nota, e {amigo} e {amiga} sumiram do grupo."
+    ],
+    "escolhas": [
+      {
+        "texto": "Fazer tudo sozinh{o|a}",
+        "efeitos": {
+          "desgaste": 12,
+          "estudo.nota": 3,
+          "personalidade.disciplina": 1
+        }
+      },
+      {
+        "texto": "Cobrar os dois",
+        "chance": {
+          "base": 0.4,
+          "x": {
+            "atributos.carisma": 0.005
+          }
+        },
+        "sucesso": {
+          "resposta": "Eles apareceram com a parte deles na véspera. Ufa.",
+          "efeitos": {
+            "estudo.nota": 2
+          }
+        },
+        "falha": {
+          "resposta": "Eles ignoraram você e a nota veio baixa para todo mundo.",
+          "efeitos": {
+            "estudo.nota": -4,
+            "atributos.felicidade": -3
+          }
+        }
+      },
+      {
+        "texto": "Entregar como está",
+        "efeitos": {
+          "estudo.nota": -5
+        }
+      }
+    ]
+  },
+  {
+    "id": "festa_formatura",
+    "soGancho": true,
+    "texto": [
+      "Chegou a festa de formatura do ensino médio. A turma alugou um salão."
+    ],
+    "escolhas": [
+      {
+        "texto": "Ir com tudo (R$ 300)",
+        "requer": {
+          "min": {
+            "dinheiro": 300
+          }
+        },
+        "efeitos": {
+          "dinheiro": -300,
+          "atributos.felicidade": 8
+        },
+        "memoria": [
+          "formatura",
+          12,
+          "dançou a valsa na formatura do médio"
+        ]
+      },
+      {
+        "texto": "Ir só na colação de grau",
+        "efeitos": {
+          "atributos.felicidade": 3
+        }
+      },
+      {
+        "texto": "Não ir",
+        "efeitos": {
+          "atributos.felicidade": -2
+        }
+      }
+    ]
+  },
+  {
+    "id": "estagio",
+    "unico": true,
+    "quando": {
+      "etapa": [
+        "faculdade"
+      ]
+    },
+    "peso": {
+      "base": 4
+    },
+    "texto": [
+      "Apareceu uma vaga de estágio na sua área: R$ 1.200 por mês, 6 horas por dia."
+    ],
+    "escolhas": [
+      {
+        "texto": "Aceitar o estágio",
+        "efeitos": {
+          "dinheiro": 7200,
+          "desgaste": 12,
+          "estudo.nota": -2
+        },
+        "memoria": [
+          "estagio",
+          12,
+          "fez estágio durante a faculdade"
+        ]
+      },
+      {
+        "texto": "Focar só nos estudos",
+        "efeitos": {
+          "estudo.nota": 3
+        }
+      }
+    ]
+  },
+  {
+    "id": "primeiro_salario",
+    "unico": true,
+    "quando": {
+      "empregado": true
+    },
+    "peso": {
+      "base": 12
+    },
+    "texto": [
+      "Seu primeiro salário caiu na conta. Você conferiu o extrato três vezes."
+    ],
+    "efeitos": {
+      "atributos.felicidade": 5
+    },
+    "memoria": [
+      "primeiro_salario",
+      12,
+      "recebeu o primeiro salário"
+    ]
+  },
+  {
+    "id": "chefe_abusivo",
+    "quando": {
+      "empregado": true
+    },
+    "peso": {
+      "base": 1.5
+    },
+    "texto": [
+      "Seu chefe novo grita com a equipe e humilha quem erra.",
+      "O gerente passou a te cobrar aos berros na frente de todo mundo."
+    ],
+    "escolhas": [
+      {
+        "texto": "Aguentar calad{o|a}",
+        "efeitos": {
+          "desgaste": 15,
+          "personalidade.estabilidade": -3,
+          "atributos.felicidade": -4
+        }
+      },
+      {
+        "texto": "Denunciar no RH",
+        "chance": {
+          "base": 0.45,
+          "x": {
+            "trabalho.desempenho": 0.003
+          }
+        },
+        "sucesso": {
+          "resposta": "Outras pessoas também reclamaram e o chefe foi transferido.",
+          "efeitos": {
+            "atributos.felicidade": 6
+          },
+          "memoria": [
+            "denunciou_chefe",
+            12,
+            "denunciou um chefe abusivo e ganhou"
+          ]
+        },
+        "falha": {
+          "resposta": "Nada mudou, e ele passou a pegar no seu pé.",
+          "efeitos": {
+            "trabalho.desempenho": -15,
+            "atributos.felicidade": -5
+          }
+        }
+      },
+      {
+        "texto": "Pedir demissão",
+        "efeitos": {
+          "trabalho.demitir": 1,
+          "atributos.felicidade": 3,
+          "desgaste": -10
+        },
+        "resposta": "Você saiu de cabeça erguida."
+      }
+    ]
+  },
+  {
+    "id": "hora_extra",
+    "quando": {
+      "empregado": true
+    },
+    "peso": {
+      "base": 2
+    },
+    "texto": [
+      "Seu chefe pediu hora extra no fim de semana."
+    ],
+    "escolhas": [
+      {
+        "texto": "Aceitar",
+        "efeitos": {
+          "dinheiro": 400,
+          "desgaste": 10,
+          "trabalho.desempenho": 4
+        }
+      },
+      {
+        "texto": "Recusar",
+        "efeitos": {
+          "trabalho.desempenho": -3,
+          "desgaste": -3
+        }
+      }
+    ]
+  },
+  {
+    "id": "proposta_concorrente",
+    "quando": {
+      "empregado": true,
+      "min": {
+        "trabalho.desempenho": 65
+      }
+    },
+    "peso": {
+      "base": 2
+    },
+    "texto": [
+      "Uma empresa concorrente te chamou para conversar e ofereceu 30% a mais."
+    ],
+    "escolhas": [
+      {
+        "texto": "Aceitar a proposta",
+        "efeitos": {
+          "trabalho.salario": "30%",
+          "trabalho.desempenho": -10,
+          "atributos.felicidade": 5
+        },
+        "resposta": "Mesmo cargo, empresa nova, salário melhor."
+      },
+      {
+        "texto": "Usar a proposta para pedir aumento",
+        "chance": {
+          "base": 0.5,
+          "x": {
+            "atributos.carisma": 0.004
+          }
+        },
+        "sucesso": {
+          "resposta": "Seu chefe cobriu a oferta.",
+          "efeitos": {
+            "trabalho.salario": "20%"
+          }
+        },
+        "falha": {
+          "resposta": "Seu chefe pagou para ver. A proposta já tinha ido para outra pessoa.",
+          "efeitos": {
+            "trabalho.desempenho": -5
+          }
+        }
+      },
+      {
+        "texto": "Ficar onde está",
+        "efeitos": {
+          "personalidade.estabilidade": 1
+        }
+      }
+    ]
+  },
+  {
+    "id": "corte_empresa",
+    "quando": {
+      "empregado": true
+    },
+    "peso": {
+      "base": 1
+    },
+    "texto": [
+      "A empresa anunciou que vai cortar 20% das pessoas."
+    ],
+    "escolhas": [
+      {
+        "texto": "Esperar a lista sair",
+        "chance": {
+          "base": 0.4,
+          "x": {
+            "trabalho.desempenho": 0.006
+          }
+        },
+        "sucesso": {
+          "resposta": "Seu nome não estava na lista."
+        },
+        "falha": {
+          "resposta": "Seu nome estava na lista.",
+          "efeitos": {
+            "trabalho.demitir": 1,
+            "atributos.felicidade": -10
+          },
+          "memoria": [
+            "demitido",
+            -18,
+            "foi cortad{o|a} num corte em massa"
+          ]
+        }
+      },
+      {
+        "texto": "Trabalhar dobrado até a lista sair",
+        "efeitos": {
+          "desgaste": 15
+        },
+        "chance": {
+          "base": 0.6,
+          "x": {
+            "trabalho.desempenho": 0.004
+          }
+        },
+        "sucesso": {
+          "resposta": "Você ficou, e ainda chamou a atenção da chefia.",
+          "efeitos": {
+            "trabalho.desempenho": 6
+          }
+        },
+        "falha": {
+          "resposta": "Não adiantou. Você foi cortad{o|a}.",
+          "efeitos": {
+            "trabalho.demitir": 1,
+            "atributos.felicidade": -10
+          },
+          "memoria": [
+            "demitido",
+            -18,
+            "foi cortad{o|a} num corte em massa"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "colega_fofoca",
+    "quando": {
+      "empregado": true
+    },
+    "peso": {
+      "base": 1.5
+    },
+    "texto": [
+      "{amiga}, do trabalho, anda espalhando que você leva o crédito pelo trabalho dos outros."
+    ],
+    "escolhas": [
+      {
+        "texto": "Tirar satisfação",
+        "chance": {
+          "base": 0.5,
+          "x": {
+            "atributos.carisma": 0.004
+          }
+        },
+        "sucesso": {
+          "resposta": "Ela recuou e pediu desculpas.",
+          "efeitos": {
+            "atributos.felicidade": 2
+          }
+        },
+        "falha": {
+          "resposta": "Virou barraco no corredor. A chefia não gostou.",
+          "efeitos": {
+            "trabalho.desempenho": -6,
+            "atributos.felicidade": -3
+          }
+        }
+      },
+      {
+        "texto": "Deixar o trabalho falar por você",
+        "efeitos": {
+          "desgaste": 5,
+          "trabalho.desempenho": 2
+        }
+      }
+    ]
+  },
+  {
+    "id": "serasa",
+    "quando": {
+      "max": {
+        "dinheiro": -4000
+      }
+    },
+    "peso": {
+      "base": 5
+    },
+    "texto": [
+      "Chegou a carta: seu nome foi para o Serasa.",
+      "Seu cartão foi recusado no mercado. Nome sujo."
+    ],
+    "escolhas": [
+      {
+        "texto": "Entrar no feirão para negociar",
+        "chance": {
+          "base": 0.6
+        },
+        "sucesso": {
+          "resposta": "Você conseguiu um desconto grande nos juros.",
+          "efeitos": {
+            "dinheiro": "-40%"
+          },
+          "memoria": [
+            "limpou_nome",
+            8,
+            "limpou o nome no feirão do Serasa"
+          ]
+        },
+        "falha": {
+          "resposta": "A proposta não cabia no seu bolso.",
+          "efeitos": {
+            "atributos.felicidade": -3
+          }
+        }
+      },
+      {
+        "texto": "Ignorar",
+        "efeitos": {
+          "atributos.felicidade": -6,
+          "desgaste": 8
+        },
+        "memoria": [
+          "nome_sujo",
+          -12,
+          "teve o nome no Serasa"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "aposentadoria_tedio",
+    "unico": true,
+    "quando": {
+      "aposentado": true
+    },
+    "peso": {
+      "base": 4
+    },
+    "texto": [
+      "Os primeiros meses de aposentadoria foram ótimos. Agora os dias parecem todos iguais."
+    ],
+    "escolhas": [
+      {
+        "texto": "Arrumar uma ocupação",
+        "efeitos": {
+          "atributos.felicidade": 5,
+          "personalidade.curiosidade": 2
+        }
+      },
+      {
+        "texto": "Aproveitar o sossego",
+        "efeitos": {
+          "desgaste": -20,
+          "atributos.felicidade": -2
+        }
+      }
+    ]
   }
 ]

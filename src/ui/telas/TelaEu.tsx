@@ -1,5 +1,9 @@
 import { EIXOS, type Vida } from '../../motor/tipos';
+import { CURSOS, estadoDe, orcamentoMensal, textoClasse, textoEstudo, tituloEmprego } from '../../motor/carreira';
+import { reais } from '../../motor/efeitos';
 import { POLOS_EIXO } from '../textos';
+
+const NOME_ESCOLARIDADE = { nenhuma: 'Nenhuma ainda', fundamental: 'Fundamental completo', medio: 'Médio completo', superior: 'Superior completo' };
 
 const NOME_TRACO: Record<string, string[]> = {
   musica: ['Arranha o violão', 'Toca violão bem', 'Músico de verdade'],
@@ -39,6 +43,53 @@ export function TelaEu({ vida }: { vida: Vida }) {
       </section>
 
       <section class="cartao">
+        <h2>Estudo</h2>
+        <dl class="dados">
+          <dt>Agora</dt><dd>{textoEstudo(vida) ?? 'Não está estudando'}</dd>
+          <dt>Escolaridade</dt><dd>{NOME_ESCOLARIDADE[vida.personagem.estudo.escolaridade]}</dd>
+          {vida.personagem.estudo.formacoes.length > 0 && (
+            <><dt>Formação</dt><dd>{vida.personagem.estudo.formacoes.map((f) => CURSOS.find((c) => c.id === f)?.nome ?? f).join(', ')}</dd></>
+          )}
+          {vida.personagem.estudo.enem !== undefined && <><dt>Último ENEM</dt><dd>{vida.personagem.estudo.enem} pontos</dd></>}
+          {vida.personagem.estudo.reprovacoes > 0 && <><dt>Reprovações</dt><dd>{vida.personagem.estudo.reprovacoes}</dd></>}
+        </dl>
+      </section>
+
+      <section class="cartao">
+        <h2>Trabalho</h2>
+        <dl class="dados">
+          {vida.personagem.trabalho.emprego ? (
+            <>
+              <dt>Cargo</dt><dd>{tituloEmprego(vida, vida.personagem.trabalho.emprego)}</dd>
+              <dt>Salário</dt><dd>{reais(vida.personagem.trabalho.emprego.salario)}/mês</dd>
+              <dt>Desempenho</dt><dd>{vida.personagem.trabalho.emprego.desempenho}/100</dd>
+            </>
+          ) : <><dt>Agora</dt><dd>{vida.personagem.trabalho.aposentadoria > 0 ? 'Aposentado(a)' : 'Sem emprego'}</dd></>}
+          <dt>Contribuição</dt><dd>{Math.floor(vida.personagem.trabalho.anosContribuicao)} anos de INSS</dd>
+        </dl>
+      </section>
+
+      <section class="cartao">
+        <h2>Dinheiro</h2>
+        {(() => {
+          const pe = vida.personagem;
+          const o = orcamentoMensal(vida);
+          return (
+            <dl class="dados">
+              <dt>Saldo</dt><dd class={pe.dinheiro < 0 ? 'desce' : ''}>{reais(pe.dinheiro)}{pe.dinheiro < 0 ? ' (cheque especial, 60% ao ano)' : ''}</dd>
+              <dt>Renda</dt><dd>{reais(o.renda)}/mês</dd>
+              <dt>Gastos fixos</dt><dd>{reais(o.gastos)}/mês</dd>
+              <dt>Moradia</dt><dd>{pe.moradia === 'pais' ? 'Com os pais' : `Aluguel em ${pe.cidade} (custo de vida ${reais(estadoDe(vida).custoVida)})`}</dd>
+              <dt>Família</dt><dd>{textoClasse(pe.classe).replace(/^de /, '')}</dd>
+              {pe.dividas.map((d) => (
+                <><dt>{d.nome}</dt><dd>{reais(d.saldo)}{d.parcela > 0 ? ` · ${reais(d.parcela)}/mês` : ' (cobra depois de formado)'}</dd></>
+              ))}
+            </dl>
+          );
+        })()}
+      </section>
+
+      <section class="cartao">
         <h2>Talentos e condições</h2>
         {vida.personagem.tracos.length === 0
           ? <p class="dica">Nada ainda. Talentos vêm da prática; vícios, do excesso.</p>
@@ -75,7 +126,7 @@ export function TelaEu({ vida }: { vida: Vida }) {
         </dl>
       </section>
 
-      <p class="vazio">Escola, carreira e dinheiro chegam no marco 4.</p>
+      <p class="vazio">Família e pessoas chegam no marco 5.</p>
     </>
   );
 }

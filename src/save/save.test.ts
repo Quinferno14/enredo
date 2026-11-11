@@ -64,4 +64,19 @@ describe('save', () => {
     expect(() => importarTexto('{"ola": 1}')).toThrow();
     expect(() => importarTexto('nada')).toThrow();
   });
+
+  it('converte um save antigo (versão 1) preenchendo tudo o que falta', () => {
+    const v = vida('antiga') as unknown as Record<string, unknown> & { personagem: Record<string, unknown> };
+    const antigo = structuredClone(v);
+    antigo.versao = 1;
+    for (const k of ['habitos', 'memorias', 'ganchos', 'pendente', 'periodo', 'totais', 'vistos', 'ganchosCumpridos']) delete antigo[k];
+    for (const k of ['dinheiro', 'desgaste', 'tracos', 'classe', 'estudo', 'trabalho', 'dividas', 'moradia', 'potencial']) delete antigo.personagem[k];
+    const lido = importarTexto(JSON.stringify(antigo));
+    expect(lido.versao).toBe(3);
+    expect(lido.habitos).toEqual([]);
+    expect(lido.personagem.estudo.etapa).toBe('nenhuma');
+    expect(lido.personagem.trabalho.emprego).toBeNull();
+    expect(lido.personagem.moradia).toBe('pais');
+    expect(lido.personagem.dinheiro).toBe(0);
+  });
 });

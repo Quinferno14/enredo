@@ -3,7 +3,7 @@
 
 import type { EstadoRng } from './rng';
 
-export const VERSAO_SAVE = 2;
+export const VERSAO_SAVE = 3;
 
 export const ATRIBUTOS = [
   'saude', 'felicidade', 'inteligencia', 'aparencia', 'forma', 'carisma', 'sorte',
@@ -60,6 +60,57 @@ export interface Personagem {
   desgaste: number;
   /** Talentos, vícios e condições, com nível. */
   tracos: Traco[];
+  /** Origem da família: muda escola, mesada e ajuda dos pais. */
+  classe: Classe;
+  estudo: Estudo;
+  trabalho: Trabalho;
+  dividas: Divida[];
+  moradia: 'pais' | 'aluguel';
+}
+
+export type Classe = 'baixa' | 'media' | 'alta';
+export type Escolaridade = 'nenhuma' | 'fundamental' | 'medio' | 'superior';
+export const ORDEM_ESCOLARIDADE: Escolaridade[] = ['nenhuma', 'fundamental', 'medio', 'superior'];
+
+export interface Estudo {
+  /** O que está cursando agora. */
+  etapa: 'nenhuma' | 'fundamental' | 'medio' | 'faculdade';
+  rede: 'publica' | 'particular';
+  serie: number; // 1º ano, 2º ano...
+  /** Fração do ano letivo já cursada (o modo semestre anda de 0,5 em 0,5). */
+  progresso: number;
+  nota: number; // 0 a 100
+  reprovacoes: number;
+  escolaridade: Escolaridade;
+  enem?: number;
+  curso?: string;
+  /** Cursos superiores concluídos. */
+  formacoes: string[];
+  /** Fez cursinho: o ENEM do fim do ano vem com bônus. */
+  cursinho?: boolean;
+}
+
+export interface Emprego {
+  id: string;
+  salario: number; // mensal, R$
+  desempenho: number; // 0 a 100
+  nivel: number; // 0 = cargo de entrada
+  desdeMeses: number;
+}
+
+export interface Trabalho {
+  emprego: Emprego | null;
+  anosContribuicao: number;
+  /** Aposentadoria mensal do INSS; 0 enquanto não aposentou. */
+  aposentadoria: number;
+}
+
+export interface Divida {
+  id: string;
+  nome: string;
+  saldo: number;
+  /** Parcela mensal; 0 = ainda não começou a pagar (ex.: FIES durante o curso). */
+  parcela: number;
 }
 
 export interface Traco {
@@ -96,6 +147,10 @@ export interface Gancho {
 /** Evento que espera uma decisão antes do próximo Avançar. */
 export interface Pendente {
   evento: string;
+  /** Decisões do próprio jogo (vagas de emprego, escolha de curso), fora dos eventos. */
+  sistema?: 'vagas' | 'curso';
+  /** Ids alinhados com as escolhas (empregos ou cursos). */
+  dados?: string[];
   texto: string;
   vars: Record<string, string>;
   escolhas: { texto: string; motivo?: string }[];

@@ -251,3 +251,5 @@ details.cartao summary { cursor: pointer; font-weight: 600; }
 .habito-botao.sugerido { border-color: var(--acento); color: var(--acento); font-weight: 700; }
 .aviso-acao { font-size: 0.875rem; color: var(--desce); }
 .memorias { margin: 0; padding-left: 18px; font-size: 0.875rem; display: flex; flex-direction: column; gap: 4px; }
+
+.status { margin-top: 2px; }

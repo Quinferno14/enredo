@@ -1,8 +1,8 @@
 [
-  { "sigla": "SP", "nome": "São Paulo", "cidades": ["São Paulo", "Campinas", "Santos", "Ribeirão Preto"] },
-  { "sigla": "RJ", "nome": "Rio de Janeiro", "cidades": ["Rio de Janeiro", "Niterói", "Petrópolis", "Nova Iguaçu"] },
-  { "sigla": "MG", "nome": "Minas Gerais", "cidades": ["Belo Horizonte", "Uberlândia", "Juiz de Fora", "Ouro Preto"] },
-  { "sigla": "BA", "nome": "Bahia", "cidades": ["Salvador", "Feira de Santana", "Ilhéus", "Vitória da Conquista"] },
-  { "sigla": "RS", "nome": "Rio Grande do Sul", "cidades": ["Porto Alegre", "Caxias do Sul", "Pelotas", "Santa Maria"] },
-  { "sigla": "PE", "nome": "Pernambuco", "cidades": ["Recife", "Olinda", "Caruaru", "Petrolina"] }
+  { "sigla": "SP", "nome": "São Paulo", "cidades": ["São Paulo", "Campinas", "Santos", "Ribeirão Preto"], "custoVida": 2800, "salario": 1.2, "universidade": "USP" },
+  { "sigla": "RJ", "nome": "Rio de Janeiro", "cidades": ["Rio de Janeiro", "Niterói", "Petrópolis", "Nova Iguaçu"], "custoVida": 2600, "salario": 1.1, "universidade": "UFRJ" },
+  { "sigla": "MG", "nome": "Minas Gerais", "cidades": ["Belo Horizonte", "Uberlândia", "Juiz de Fora", "Ouro Preto"], "custoVida": 2000, "salario": 1.0, "universidade": "UFMG" },
+  { "sigla": "BA", "nome": "Bahia", "cidades": ["Salvador", "Feira de Santana", "Ilhéus", "Vitória da Conquista"], "custoVida": 1800, "salario": 0.9, "universidade": "UFBA" },
+  { "sigla": "RS", "nome": "Rio Grande do Sul", "cidades": ["Porto Alegre", "Caxias do Sul", "Pelotas", "Santa Maria"], "custoVida": 2200, "salario": 1.05, "universidade": "UFRGS" },
+  { "sigla": "PE", "nome": "Pernambuco", "cidades": ["Recife", "Olinda", "Caruaru", "Petrolina"], "custoVida": 1800, "salario": 0.9, "universidade": "UFPE" }
 ]

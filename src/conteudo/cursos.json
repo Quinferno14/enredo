@@ -1,0 +1,12 @@
+[
+  { "id": "medicina", "nome": "Medicina", "anos": 6, "corte": 790, "mensalidade": 9000 },
+  { "id": "direito", "nome": "Direito", "anos": 5, "corte": 700, "mensalidade": 2200 },
+  { "id": "engenharia", "nome": "Engenharia", "anos": 5, "corte": 720, "mensalidade": 2000 },
+  { "id": "computacao", "nome": "Ciência da Computação", "anos": 4, "corte": 710, "mensalidade": 1700 },
+  { "id": "enfermagem", "nome": "Enfermagem", "anos": 5, "corte": 650, "mensalidade": 1400 },
+  { "id": "administracao", "nome": "Administração", "anos": 4, "corte": 630, "mensalidade": 1100 },
+  { "id": "contabeis", "nome": "Ciências Contábeis", "anos": 4, "corte": 620, "mensalidade": 1000 },
+  { "id": "educacao_fisica", "nome": "Educação Física", "anos": 4, "corte": 610, "mensalidade": 900 },
+  { "id": "letras", "nome": "Letras", "anos": 4, "corte": 600, "mensalidade": 700 },
+  { "id": "pedagogia", "nome": "Pedagogia", "anos": 4, "corte": 590, "mensalidade": 700 }
+]

@@ -4,6 +4,7 @@
 import estados from '../conteudo/estados.json';
 import nomes from '../conteudo/nomes.json';
 import { rodarHabitos } from './acoes';
+import { estudoInicial, rodarDinheiro, rodarEscola, rodarTrabalho, sortearClasse, textoClasse } from './carreira';
 import { aplicar } from './efeitos';
 import { atributosNaIdade, envelhecer, limitar, sortearMorte } from './envelhecer';
 import { rodarEventos } from './eventos';
@@ -65,10 +66,12 @@ export function criarVida(o: OpcoesNovaVida): Vida {
     sorte: rng.normalAprox(0, 100),
   };
 
+  const classe = sortearClasse(rng);
+  const estudo = estudoInicial(classe, rng, idadeMeses / 12);
   const relogio: Relogio = { ano: o.ano, semestre: 1, idadeMeses };
   const abertura = o.inicio === 'adulto'
     ? `Sua história começa aos ${IDADE_INICIO_ADULTO} anos, em ${cidade} (${estado.sigla}).`
-    : `Você nasceu em ${cidade} (${estado.sigla}).`;
+    : `Você nasceu em ${cidade} (${estado.sigla}), numa família ${textoClasse(classe)}.`;
 
   return {
     versao: VERSAO_SAVE,
@@ -80,6 +83,7 @@ export function criarVida(o: OpcoesNovaVida): Vida {
     personagem: {
       nome, sobrenome, sexo, estado: estado.sigla, cidade, atributos, personalidade, potencial,
       dinheiro: 0, desgaste: 0, tracos: [],
+      classe, estudo, trabalho: { emprego: null, anosContribuicao: 0, aposentadoria: 0 }, dividas: [], moradia: 'pais',
     },
     atributosAnteriores: { ...atributos },
     historico: [{ quando: rotuloPeriodo(relogio, o.turno), texto: abertura }],
@@ -151,6 +155,9 @@ export function avancarPeriodo(vida: Vida): Vida {
   for (const m of MARCOS_IDADE) {
     if (mesesAntes < m.meses && r.idadeMeses >= m.meses) nota(m.texto(p.sexo));
   }
+  for (const t of rodarEscola(prox, anos, rng)) nota(t);
+  for (const t of rodarTrabalho(prox, anos, rng)) nota(t);
+  const linhasDinheiro = rodarDinheiro(prox, anos);
   const eventos = rodarEventos(prox, anos, rng);
   for (const t of eventos) nota(t);
 
@@ -175,7 +182,10 @@ export function avancarPeriodo(vida: Vida): Vida {
   p.desgaste = limitar(p.desgaste * 0.5 ** anos);
   prox.periodo = {};
 
-  prox.historico.push(...linhasHabitos.map((texto) => ({ quando, texto })), ...novidades);
+  prox.historico.push(
+    ...[...linhasHabitos, ...linhasDinheiro].map((texto) => ({ quando, texto })),
+    ...novidades,
+  );
   prox.rng = rng.estado();
   return prox;
 }

@@ -5,7 +5,10 @@
 import nomes from '../conteudo/nomes.json';
 import { limitar } from './envelhecer';
 import type { Rng } from './rng';
-import { ATRIBUTOS, EIXOS, type Atributo, type Eixo, type Sexo, type Vida } from './tipos';
+import {
+  ATRIBUTOS, EIXOS, ORDEM_ESCOLARIDADE,
+  type Atributo, type Classe, type Eixo, type Escolaridade, type Estudo, type Sexo, type Vida,
+} from './tipos';
 
 export type Efeitos = Record<string, number | string>;
 
@@ -22,6 +25,15 @@ export interface Quando {
   semTraco?: string[];
   /** Fez a ação à mão neste período ou tem o hábito ativo. */
   acao?: string;
+  etapa?: Estudo['etapa'][];
+  rede?: Estudo['rede'];
+  escolaridadeMin?: Escolaridade;
+  /** Tem pelo menos um destes cursos superiores. */
+  formacao?: string[];
+  empregado?: boolean;
+  aposentado?: boolean;
+  moradia?: 'pais' | 'aluguel';
+  classe?: Classe[];
 }
 
 const lista = (x: string | string[] | undefined) => (x === undefined ? [] : Array.isArray(x) ? x : [x]);
@@ -45,6 +57,10 @@ export function valor(vida: Vida, caminho: string): number {
     case 'dinheiro': return p.dinheiro;
     case 'desgaste': return p.desgaste;
     case 'idade': return vida.relogio.idadeMeses / 12;
+    case 'estudo': return chave === 'enem' ? p.estudo.enem ?? 0 : p.estudo.nota;
+    case 'trabalho':
+      if (!p.trabalho.emprego) return 0;
+      return chave === 'salario' ? p.trabalho.emprego.salario : p.trabalho.emprego.desempenho;
     default: return 0;
   }
 }
@@ -62,6 +78,15 @@ export function atende(vida: Vida, q: Quando | undefined): boolean {
   if (lista(q.semMemoria).some((m) => temMemoria(vida, m))) return false;
   for (const [t, n] of Object.entries(q.traco ?? {})) if (nivelTraco(vida, t) < n) return false;
   if ((q.semTraco ?? []).some((t) => nivelTraco(vida, t) > 0)) return false;
+  const est = p.estudo;
+  if (q.etapa && !q.etapa.includes(est.etapa)) return false;
+  if (q.rede && est.rede !== q.rede) return false;
+  if (q.escolaridadeMin && ORDEM_ESCOLARIDADE.indexOf(est.escolaridade) < ORDEM_ESCOLARIDADE.indexOf(q.escolaridadeMin)) return false;
+  if (q.formacao && !q.formacao.some((f) => est.formacoes.includes(f))) return false;
+  if (q.empregado !== undefined && !!p.trabalho.emprego !== q.empregado) return false;
+  if (q.aposentado !== undefined && p.trabalho.aposentadoria > 0 !== q.aposentado) return false;
+  if (q.moradia && p.moradia !== q.moradia) return false;
+  if (q.classe && !q.classe.includes(p.classe)) return false;
   if (q.acao) {
     const habito = vida.habitos.some((h) => h.acao === q.acao && !h.pausado);
     if (!habito && !(vida.periodo[q.acao] ?? 0)) return false;
@@ -117,8 +142,21 @@ export function aplicar(vida: Vida, efeitos: Efeitos | undefined, fator = 1): vo
       p.desgaste = limitar(p.desgaste + d);
     } else if (raiz === 'traco' && chave) {
       mudarTraco(vida, chave, Math.round(d));
+    } else if (raiz === 'estudo') {
+      p.estudo.nota = limitar(p.estudo.nota + d);
+    } else if (raiz === 'trabalho' && p.trabalho.emprego) {
+      const e = p.trabalho.emprego;
+      if (chave === 'salario') e.salario = Math.round(e.salario + d);
+      else if (chave === 'demitir') { if (d > 0) p.trabalho.emprego = null; }
+      else e.desempenho = limitar(e.desempenho + d);
     }
   }
+}
+
+export function lembrar(vida: Vida, id: string, texto: string, peso: number, vars?: Record<string, string>) {
+  vida.memorias.push({
+    id, texto, peso, ano: vida.relogio.ano, idadeMeses: vida.relogio.idadeMeses, ...(vars ? { vars } : {}),
+  });
 }
 
 export function mudarTraco(vida: Vida, id: string, delta: number): void {

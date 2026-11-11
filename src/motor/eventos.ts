@@ -3,11 +3,11 @@
 // e o Avançar espera. Escolhas deixam memórias e ganchos que voltam depois.
 
 import eventosJson from '../conteudo/eventos.json';
-import { lembrar } from './acoes';
 import {
-  aplicar, atende, diferenca, foto, motivo, multiplicador, preencher, resumo, sortearVars,
+  aplicar, atende, diferenca, foto, lembrar, motivo, multiplicador, preencher, resumo, sortearVars,
   valor, type Efeitos, type Quando,
 } from './efeitos';
+import { resolverSistema } from './carreira';
 import { Rng } from './rng';
 import type { Vida } from './tipos';
 
@@ -179,6 +179,20 @@ export function chanceEscolha(vida: Vida, c: EscolhaDef): number | null {
 export function escolher(vida: Vida, indice: number): Vida {
   const pend = vida.pendente;
   if (!pend) return vida;
+  if (pend.sistema) {
+    if (pend.escolhas[indice]?.motivo) return vida;
+    const prox = structuredClone(vida);
+    const rng = new Rng(prox.rng);
+    const quando = prox.historico.at(-1)?.quando ?? '';
+    const antes = foto(prox);
+    const texto = resolverSistema(prox, pend, indice, rng);
+    const r = resumo(diferenca(antes, foto(prox)));
+    prox.historico.push({ quando, texto: pend.texto });
+    prox.historico.push({ quando, texto: [`→ ${pend.escolhas[indice]?.texto ?? ''}.`, texto, r].filter(Boolean).join(' ') });
+    prox.pendente = null;
+    prox.rng = rng.estado();
+    return prox;
+  }
   const e = eventoPorId(pend.evento);
   const c = e?.escolhas?.[indice];
   if (!e || !c || !atende(vida, c.requer)) return vida;

@@ -1,5 +1,6 @@
 import { useState } from 'preact/hooks';
-import { acaoPorId, horasSemana } from '../../motor/acoes';
+import { acaoPorId, horasAgenda } from '../../motor/acoes';
+import { textoEstudo, tituloEmprego } from '../../motor/carreira';
 import { reais } from '../../motor/efeitos';
 import type { Atributo, EntradaHistorico, Vida } from '../../motor/tipos';
 import { nomeCompleto, proximoRelogio, rotuloPeriodo, textoIdade } from '../../motor/vida';
@@ -38,7 +39,13 @@ export function TelaVida(props: Props) {
   const morte = vida.morte;
   const proximo = rotuloPeriodo(proximoRelogio(vida.relogio, vida.config.turno), vida.config.turno);
   const [habitoAberto, setHabitoAberto] = useState<string | null>(null);
-  const horas = horasSemana(vida);
+  const horas = horasAgenda(vida);
+  const emp = p.trabalho.emprego;
+  const status = [
+    textoEstudo(vida),
+    emp ? `${tituloEmprego(vida, emp)} · ${reais(emp.salario)}/mês` : null,
+    p.trabalho.aposentadoria > 0 ? `Aposentad${p.sexo === 'feminino' ? 'a' : 'o'} · ${reais(p.trabalho.aposentadoria)}/mês` : null,
+  ].filter(Boolean).join(' · ');
   const desgaste = Math.round(p.desgaste);
 
   return (
@@ -52,6 +59,7 @@ export function TelaVida(props: Props) {
             {' · '}{p.cidade}, {p.estado}
             {' · '}<span class={p.dinheiro < 0 ? 'desce' : ''}>{reais(p.dinheiro)}</span>
           </p>
+          {status && !morte && <p class="sutil status">{status}</p>}
         </div>
       </header>
 
@@ -97,7 +105,7 @@ export function TelaVida(props: Props) {
         </div>
       </section>
 
-      {!morte && (vida.habitos.length > 0 || p.tracos.length > 0) && (
+      {!morte && (vida.habitos.length > 0 || horas > 0) && (
         <section class="habitos" aria-label="Hábitos">
           <div class="chips">
             {vida.habitos.map((h) => {
@@ -114,7 +122,7 @@ export function TelaVida(props: Props) {
               );
             })}
             {horas > 0 && (
-              <span class={horas > 40 ? 'agenda vermelho' : horas > 20 ? 'agenda amarelo' : 'agenda'}>
+              <span class={horas > 60 ? 'agenda vermelho' : horas > 50 ? 'agenda amarelo' : 'agenda'} title="Escola, trabalho e hábitos">
                 Agenda: {horas.toLocaleString('pt-BR')} h/sem
               </span>
             )}

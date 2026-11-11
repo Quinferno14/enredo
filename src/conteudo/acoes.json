@@ -1,143 +1,924 @@
 [
   {
-    "id": "colo", "nome": "Pedir colo", "busca": ["colo", "chorar", "bebe"],
-    "idade": [0, 2], "horas": 0, "desgaste": -2,
-    "efeitos": { "atributos.felicidade": 2.5 },
-    "textos": ["Você chorou até ganhar colo.", "Você dormiu no colo, quentinho."]
+    "id": "colo",
+    "nome": "Pedir colo",
+    "busca": [
+      "colo",
+      "chorar",
+      "bebe"
+    ],
+    "idade": [
+      0,
+      2
+    ],
+    "horas": 0,
+    "desgaste": -2,
+    "efeitos": {
+      "atributos.felicidade": 2.5
+    },
+    "textos": [
+      "Você chorou até ganhar colo.",
+      "Você dormiu no colo, quentinho."
+    ]
   },
   {
-    "id": "brincar", "nome": "Brincar", "busca": ["brincar", "brinquedo", "parquinho"],
-    "idade": [1, 11], "horas": 0, "desgaste": 1,
-    "efeitos": { "atributos.felicidade": 2.5, "personalidade.curiosidade": 0.15, "atributos.forma": 0.3 },
-    "textos": ["Você brincou até cansar.", "Você passou a tarde inventando brincadeiras.", "Você brincou no quintal até escurecer."]
+    "id": "brincar",
+    "nome": "Brincar",
+    "busca": [
+      "brincar",
+      "brinquedo",
+      "parquinho"
+    ],
+    "idade": [
+      1,
+      11
+    ],
+    "horas": 0,
+    "desgaste": 1,
+    "efeitos": {
+      "atributos.felicidade": 2.5,
+      "personalidade.curiosidade": 0.15,
+      "atributos.forma": 0.3
+    },
+    "textos": [
+      "Você brincou até cansar.",
+      "Você passou a tarde inventando brincadeiras.",
+      "Você brincou no quintal até escurecer."
+    ]
   },
   {
-    "id": "estudar", "nome": "Estudar", "busca": ["estudar", "estudo", "prova", "livro"],
-    "idade": [6, 120], "horas": 1.5, "desgaste": 3,
-    "efeitos": { "atributos.inteligencia": 1.4, "personalidade.disciplina": 0.1, "atributos.felicidade": -0.3 },
-    "textos": ["Você estudou.", "Você passou umas horas estudando.", "Você revisou a matéria."]
+    "id": "estudar",
+    "nome": "Estudar",
+    "busca": [
+      "estudar",
+      "estudo",
+      "prova",
+      "livro"
+    ],
+    "idade": [
+      6,
+      120
+    ],
+    "horas": 1.5,
+    "desgaste": 3,
+    "efeitos": {
+      "atributos.inteligencia": 1.4,
+      "personalidade.disciplina": 0.1,
+      "atributos.felicidade": -0.3
+    },
+    "textos": [
+      "Você estudou.",
+      "Você passou umas horas estudando.",
+      "Você revisou a matéria."
+    ]
   },
   {
-    "id": "ler", "nome": "Ler um livro", "busca": ["ler", "livro", "leitura"],
-    "idade": [5, 120], "horas": 1, "desgaste": 0,
-    "efeitos": { "atributos.inteligencia": 0.7, "personalidade.curiosidade": 0.15, "atributos.felicidade": 0.6 },
-    "textos": ["Você leu um livro.", "Você terminou um livro que estava enrolando.", "Você se perdeu num livro."]
+    "id": "ler",
+    "nome": "Ler um livro",
+    "busca": [
+      "ler",
+      "livro",
+      "leitura"
+    ],
+    "idade": [
+      5,
+      120
+    ],
+    "horas": 1,
+    "desgaste": 0,
+    "efeitos": {
+      "atributos.inteligencia": 0.7,
+      "personalidade.curiosidade": 0.15,
+      "atributos.felicidade": 0.6
+    },
+    "textos": [
+      "Você leu um livro.",
+      "Você terminou um livro que estava enrolando.",
+      "Você se perdeu num livro."
+    ]
   },
   {
-    "id": "esporte", "nome": "Jogar bola / praticar esporte", "busca": ["esporte", "bola", "futebol", "volei", "correr", "corrida"],
-    "idade": [5, 75], "horas": 1.5, "desgaste": 4,
-    "efeitos": { "atributos.forma": 1.5, "atributos.saude": 0.5, "atributos.felicidade": 1, "atributos.carisma": 0.3 },
-    "talento": { "id": "esporte", "nomes": ["Joga razoavelmente", "Bom de esporte", "Atleta de verdade"] },
-    "risco": { "acima": 50, "chance": 0.06, "texto": "Você torceu o tornozelo no meio do jogo.", "efeitos": { "atributos.saude": -4, "atributos.forma": -3 } },
-    "textos": ["Você jogou bola.", "Você suou a camisa no esporte.", "Você treinou com a turma."]
+    "id": "esporte",
+    "nome": "Jogar bola / praticar esporte",
+    "busca": [
+      "esporte",
+      "bola",
+      "futebol",
+      "volei",
+      "correr",
+      "corrida"
+    ],
+    "idade": [
+      5,
+      75
+    ],
+    "horas": 1.5,
+    "desgaste": 4,
+    "efeitos": {
+      "atributos.forma": 1.5,
+      "atributos.saude": 0.5,
+      "atributos.felicidade": 1,
+      "atributos.carisma": 0.3
+    },
+    "talento": {
+      "id": "esporte",
+      "nomes": [
+        "Joga razoavelmente",
+        "Bom de esporte",
+        "Atleta de verdade"
+      ]
+    },
+    "risco": {
+      "acima": 50,
+      "chance": 0.06,
+      "texto": "Você torceu o tornozelo no meio do jogo.",
+      "efeitos": {
+        "atributos.saude": -4,
+        "atributos.forma": -3
+      }
+    },
+    "textos": [
+      "Você jogou bola.",
+      "Você suou a camisa no esporte.",
+      "Você treinou com a turma."
+    ]
   },
   {
-    "id": "natacao", "nome": "Natação", "busca": ["natacao", "nadar", "piscina"],
-    "idade": [4, 100], "horas": 1, "desgaste": 3, "custo": 12, "paisPagam": true,
-    "efeitos": { "atributos.forma": 1.3, "atributos.saude": 0.8 },
-    "textos": ["Você nadou.", "Você foi à natação.", "Você fez umas boas voltas na piscina."]
+    "id": "natacao",
+    "nome": "Natação",
+    "busca": [
+      "natacao",
+      "nadar",
+      "piscina"
+    ],
+    "idade": [
+      4,
+      100
+    ],
+    "horas": 1,
+    "desgaste": 3,
+    "custo": 12,
+    "paisPagam": true,
+    "efeitos": {
+      "atributos.forma": 1.3,
+      "atributos.saude": 0.8
+    },
+    "textos": [
+      "Você nadou.",
+      "Você foi à natação.",
+      "Você fez umas boas voltas na piscina."
+    ]
   },
   {
-    "id": "academia", "nome": "Academia", "busca": ["academia", "musculacao", "treino", "malhar"],
-    "idade": [14, 100], "horas": 1.5, "desgaste": 4, "custo": 8, "paisPagam": true,
-    "efeitos": { "atributos.forma": 1.4, "atributos.saude": 0.6, "atributos.aparencia": 0.5 },
-    "risco": { "acima": 50, "chance": 0.06, "texto": "Você exagerou no peso e machucou o ombro.", "efeitos": { "atributos.saude": -5, "atributos.forma": -3 } },
-    "textos": ["Você foi à academia.", "Você treinou pesado.", "Você malhou."]
+    "id": "academia",
+    "nome": "Academia",
+    "busca": [
+      "academia",
+      "musculacao",
+      "treino",
+      "malhar"
+    ],
+    "idade": [
+      14,
+      100
+    ],
+    "horas": 1.5,
+    "desgaste": 4,
+    "custo": 8,
+    "paisPagam": true,
+    "efeitos": {
+      "atributos.forma": 1.4,
+      "atributos.saude": 0.6,
+      "atributos.aparencia": 0.5
+    },
+    "risco": {
+      "acima": 50,
+      "chance": 0.06,
+      "texto": "Você exagerou no peso e machucou o ombro.",
+      "efeitos": {
+        "atributos.saude": -5,
+        "atributos.forma": -3
+      }
+    },
+    "textos": [
+      "Você foi à academia.",
+      "Você treinou pesado.",
+      "Você malhou."
+    ]
   },
   {
-    "id": "comer_bem", "nome": "Comer bem / cozinhar", "busca": ["comer", "cozinhar", "dieta", "salada", "alimentacao"],
-    "idade": [10, 120], "horas": 1, "desgaste": 1, "custo": 15, "paisPagam": true,
-    "efeitos": { "atributos.saude": 0.8, "atributos.forma": 0.4, "atributos.aparencia": 0.2 },
-    "textos": ["Você cozinhou algo saudável.", "Você caprichou na comida.", "Você trocou o salgado por comida de verdade."]
+    "id": "comer_bem",
+    "nome": "Comer bem / cozinhar",
+    "busca": [
+      "comer",
+      "cozinhar",
+      "dieta",
+      "salada",
+      "alimentacao"
+    ],
+    "idade": [
+      10,
+      120
+    ],
+    "horas": 1,
+    "desgaste": 1,
+    "custo": 15,
+    "paisPagam": true,
+    "efeitos": {
+      "atributos.saude": 0.8,
+      "atributos.forma": 0.4,
+      "atributos.aparencia": 0.2
+    },
+    "textos": [
+      "Você cozinhou algo saudável.",
+      "Você caprichou na comida.",
+      "Você trocou o salgado por comida de verdade."
+    ]
   },
   {
-    "id": "amigos", "nome": "Sair com amigos", "busca": ["amigos", "sair", "role", "rolê", "passeio"],
-    "idade": [10, 120], "horas": 3, "desgaste": 3, "custo": 40, "paisPagam": true,
-    "efeitos": { "atributos.felicidade": 2, "atributos.carisma": 0.6, "personalidade.extroversao": 0.1 },
-    "textos": ["Você saiu com os amigos.", "Você passou a noite rindo com a turma.", "Você foi dar um rolê."]
+    "id": "amigos",
+    "nome": "Sair com amigos",
+    "busca": [
+      "amigos",
+      "sair",
+      "role",
+      "rolê",
+      "passeio"
+    ],
+    "idade": [
+      10,
+      120
+    ],
+    "horas": 3,
+    "desgaste": 3,
+    "custo": 40,
+    "paisPagam": true,
+    "efeitos": {
+      "atributos.felicidade": 2,
+      "atributos.carisma": 0.6,
+      "personalidade.extroversao": 0.1
+    },
+    "textos": [
+      "Você saiu com os amigos.",
+      "Você passou a noite rindo com a turma.",
+      "Você foi dar um rolê."
+    ]
   },
   {
-    "id": "musica", "nome": "Tocar violão", "busca": ["musica", "violao", "tocar", "instrumento", "cantar"],
-    "idade": [7, 120], "horas": 1, "desgaste": 1,
-    "efeitos": { "atributos.felicidade": 1.2, "atributos.carisma": 0.2 },
-    "talento": { "id": "musica", "nomes": ["Arranha o violão", "Toca violão bem", "Músico de verdade"] },
-    "textos": ["Você tocou violão.", "Você tirou uma música nova no violão.", "Você praticou acordes."]
+    "id": "musica",
+    "nome": "Tocar violão",
+    "busca": [
+      "musica",
+      "violao",
+      "tocar",
+      "instrumento",
+      "cantar"
+    ],
+    "idade": [
+      7,
+      120
+    ],
+    "horas": 1,
+    "desgaste": 1,
+    "efeitos": {
+      "atributos.felicidade": 1.2,
+      "atributos.carisma": 0.2
+    },
+    "talento": {
+      "id": "musica",
+      "nomes": [
+        "Arranha o violão",
+        "Toca violão bem",
+        "Músico de verdade"
+      ]
+    },
+    "textos": [
+      "Você tocou violão.",
+      "Você tirou uma música nova no violão.",
+      "Você praticou acordes."
+    ]
   },
   {
-    "id": "desenhar", "nome": "Desenhar / pintar", "busca": ["desenhar", "desenho", "pintar", "arte"],
-    "idade": [3, 120], "horas": 1, "desgaste": 0,
-    "efeitos": { "atributos.felicidade": 1, "personalidade.curiosidade": 0.1 },
-    "talento": { "id": "arte", "nomes": ["Desenha razoavelmente", "Desenha bem", "Artista de verdade"] },
-    "textos": ["Você desenhou.", "Você pintou um quadro.", "Você encheu um caderno de desenhos."]
+    "id": "desenhar",
+    "nome": "Desenhar / pintar",
+    "busca": [
+      "desenhar",
+      "desenho",
+      "pintar",
+      "arte"
+    ],
+    "idade": [
+      3,
+      120
+    ],
+    "horas": 1,
+    "desgaste": 0,
+    "efeitos": {
+      "atributos.felicidade": 1,
+      "personalidade.curiosidade": 0.1
+    },
+    "talento": {
+      "id": "arte",
+      "nomes": [
+        "Desenha razoavelmente",
+        "Desenha bem",
+        "Artista de verdade"
+      ]
+    },
+    "textos": [
+      "Você desenhou.",
+      "Você pintou um quadro.",
+      "Você encheu um caderno de desenhos."
+    ]
   },
   {
-    "id": "videogame", "nome": "Jogar videogame", "busca": ["videogame", "game", "jogar", "jogo"],
-    "idade": [5, 120], "horas": 2, "desgaste": -1,
-    "efeitos": { "atributos.felicidade": 1.6, "atributos.forma": -0.3 },
-    "textos": ["Você jogou videogame.", "Você virou a noite num jogo.", "Você zerou uma fase difícil."]
+    "id": "videogame",
+    "nome": "Jogar videogame",
+    "busca": [
+      "videogame",
+      "game",
+      "jogar",
+      "jogo"
+    ],
+    "idade": [
+      5,
+      120
+    ],
+    "horas": 2,
+    "desgaste": -1,
+    "efeitos": {
+      "atributos.felicidade": 1.6,
+      "atributos.forma": -0.3
+    },
+    "textos": [
+      "Você jogou videogame.",
+      "Você virou a noite num jogo.",
+      "Você zerou uma fase difícil."
+    ]
   },
   {
-    "id": "festa", "nome": "Ir a festas e beber", "busca": ["festa", "beber", "balada", "bebida", "bar", "cerveja"],
-    "idade": [16, 100], "horas": 4, "desgaste": 6, "custo": 80,
-    "efeitos": { "atributos.felicidade": 2.5, "atributos.carisma": 0.4, "atributos.saude": -0.5 },
-    "vicio": { "id": "alcool", "chance": 0.004 },
-    "textos": ["Você foi a uma festa e bebeu.", "Você virou a noite na balada.", "Você tomou umas no bar."]
+    "id": "festa",
+    "nome": "Ir a festas e beber",
+    "busca": [
+      "festa",
+      "beber",
+      "balada",
+      "bebida",
+      "bar",
+      "cerveja"
+    ],
+    "idade": [
+      16,
+      100
+    ],
+    "horas": 4,
+    "desgaste": 6,
+    "custo": 80,
+    "efeitos": {
+      "atributos.felicidade": 2.5,
+      "atributos.carisma": 0.4,
+      "atributos.saude": -0.5
+    },
+    "vicio": {
+      "id": "alcool",
+      "chance": 0.004
+    },
+    "textos": [
+      "Você foi a uma festa e bebeu.",
+      "Você virou a noite na balada.",
+      "Você tomou umas no bar."
+    ]
   },
   {
-    "id": "fumar", "nome": "Fumar", "busca": ["fumar", "cigarro", "vape"],
-    "idade": [14, 120], "horas": 0, "desgaste": -1, "custo": 12,
-    "efeitos": { "atributos.felicidade": 0.5, "atributos.saude": -0.7, "atributos.aparencia": -0.2 },
-    "vicio": { "id": "cigarro", "chance": 0.03 },
-    "textos": ["Você fumou um cigarro.", "Você fumou para relaxar."]
+    "id": "fumar",
+    "nome": "Fumar",
+    "busca": [
+      "fumar",
+      "cigarro",
+      "vape"
+    ],
+    "idade": [
+      14,
+      120
+    ],
+    "horas": 0,
+    "desgaste": -1,
+    "custo": 12,
+    "efeitos": {
+      "atributos.felicidade": 0.5,
+      "atributos.saude": -0.7,
+      "atributos.aparencia": -0.2
+    },
+    "vicio": {
+      "id": "cigarro",
+      "chance": 0.03
+    },
+    "textos": [
+      "Você fumou um cigarro.",
+      "Você fumou para relaxar."
+    ]
   },
   {
-    "id": "meditar", "nome": "Meditar", "busca": ["meditar", "meditacao", "respirar", "calma"],
-    "idade": [10, 120], "horas": 0.5, "desgaste": -8,
-    "efeitos": { "personalidade.estabilidade": 0.25, "atributos.felicidade": 0.6 },
-    "textos": ["Você meditou.", "Você parou para respirar um pouco.", "Você meditou e a cabeça desacelerou."]
+    "id": "meditar",
+    "nome": "Meditar",
+    "busca": [
+      "meditar",
+      "meditacao",
+      "respirar",
+      "calma"
+    ],
+    "idade": [
+      10,
+      120
+    ],
+    "horas": 0.5,
+    "desgaste": -8,
+    "efeitos": {
+      "personalidade.estabilidade": 0.25,
+      "atributos.felicidade": 0.6
+    },
+    "textos": [
+      "Você meditou.",
+      "Você parou para respirar um pouco.",
+      "Você meditou e a cabeça desacelerou."
+    ]
   },
   {
-    "id": "descansar", "nome": "Descansar", "busca": ["descansar", "dormir", "folga", "relaxar"],
-    "idade": [0, 120], "horas": 0, "desgaste": -15,
-    "efeitos": { "atributos.felicidade": 0.3 },
-    "textos": ["Você descansou.", "Você dormiu bem a noite toda.", "Você tirou o dia para não fazer nada."]
+    "id": "descansar",
+    "nome": "Descansar",
+    "busca": [
+      "descansar",
+      "dormir",
+      "folga",
+      "relaxar"
+    ],
+    "idade": [
+      0,
+      120
+    ],
+    "horas": 0,
+    "desgaste": -15,
+    "efeitos": {
+      "atributos.felicidade": 0.3
+    },
+    "textos": [
+      "Você descansou.",
+      "Você dormiu bem a noite toda.",
+      "Você tirou o dia para não fazer nada."
+    ]
   },
   {
-    "id": "medico_sus", "nome": "Ir ao posto de saúde (SUS)", "busca": ["medico", "sus", "posto", "consulta", "exame", "saude"],
-    "idade": [0, 120], "horas": 2, "desgaste": 2, "especial": "sus", "semHabito": true,
-    "efeitos": { "atributos.saude": 1.2 },
-    "textos": ["Você foi ao posto de saúde e fez um check-up."]
+    "id": "medico_sus",
+    "nome": "Ir ao posto de saúde (SUS)",
+    "busca": [
+      "medico",
+      "sus",
+      "posto",
+      "consulta",
+      "exame",
+      "saude"
+    ],
+    "idade": [
+      0,
+      120
+    ],
+    "horas": 2,
+    "desgaste": 2,
+    "especial": "sus",
+    "semHabito": true,
+    "efeitos": {
+      "atributos.saude": 1.2
+    },
+    "textos": [
+      "Você foi ao posto de saúde e fez um check-up."
+    ]
   },
   {
-    "id": "medico_particular", "nome": "Consulta particular", "busca": ["medico", "particular", "consulta", "exame", "saude", "plano"],
-    "idade": [0, 120], "horas": 1, "desgaste": 0, "custo": 250, "paisPagam": true, "semHabito": true,
-    "efeitos": { "atributos.saude": 1.8 },
-    "textos": ["Você fez uma consulta particular e uns exames."]
+    "id": "medico_particular",
+    "nome": "Consulta particular",
+    "busca": [
+      "medico",
+      "particular",
+      "consulta",
+      "exame",
+      "saude",
+      "plano"
+    ],
+    "idade": [
+      0,
+      120
+    ],
+    "horas": 1,
+    "desgaste": 0,
+    "custo": 250,
+    "paisPagam": true,
+    "semHabito": true,
+    "efeitos": {
+      "atributos.saude": 1.8
+    },
+    "textos": [
+      "Você fez uma consulta particular e uns exames."
+    ]
   },
   {
-    "id": "bico", "nome": "Fazer um bico", "busca": ["bico", "trabalho", "dinheiro", "freela", "extra"],
-    "idade": [14, 80], "horas": 5, "desgaste": 6, "ganho": [80, 160],
-    "efeitos": { "personalidade.disciplina": 0.1 },
-    "textos": ["Você fez um bico.", "Você descolou um trampo de um dia.", "Você ajudou numa entrega e recebeu por isso."]
+    "id": "bico",
+    "nome": "Fazer um bico",
+    "busca": [
+      "bico",
+      "trabalho",
+      "dinheiro",
+      "freela",
+      "extra"
+    ],
+    "idade": [
+      14,
+      80
+    ],
+    "horas": 5,
+    "desgaste": 6,
+    "ganho": [
+      80,
+      160
+    ],
+    "efeitos": {
+      "personalidade.disciplina": 0.1
+    },
+    "textos": [
+      "Você fez um bico.",
+      "Você descolou um trampo de um dia.",
+      "Você ajudou numa entrega e recebeu por isso."
+    ]
   },
   {
-    "id": "bet", "nome": "Apostar numa bet", "busca": ["apostar", "aposta", "bet", "cassino", "jogo"],
-    "idade": [18, 120], "horas": 0.5, "desgaste": 1, "custo": 50, "especial": "bet",
+    "id": "bet",
+    "nome": "Apostar numa bet",
+    "busca": [
+      "apostar",
+      "aposta",
+      "bet",
+      "cassino",
+      "jogo"
+    ],
+    "idade": [
+      18,
+      120
+    ],
+    "horas": 0.5,
+    "desgaste": 1,
+    "custo": 50,
+    "especial": "bet",
     "efeitos": {},
-    "vicio": { "id": "jogo", "chance": 0.015 },
-    "textos": ["Você apostou R$ 50 numa bet."]
+    "vicio": {
+      "id": "jogo",
+      "chance": 0.015
+    },
+    "textos": [
+      "Você apostou R$ 50 numa bet."
+    ]
   },
   {
-    "id": "bicho", "nome": "Jogar no bicho", "busca": ["bicho", "jogo do bicho", "apostar", "aposta"],
-    "idade": [18, 120], "horas": 0, "desgaste": 0, "custo": 10, "especial": "bicho",
+    "id": "bicho",
+    "nome": "Jogar no bicho",
+    "busca": [
+      "bicho",
+      "jogo do bicho",
+      "apostar",
+      "aposta"
+    ],
+    "idade": [
+      18,
+      120
+    ],
+    "horas": 0,
+    "desgaste": 0,
+    "custo": 10,
+    "especial": "bicho",
     "efeitos": {},
-    "vicio": { "id": "jogo", "chance": 0.008 },
-    "textos": ["Você jogou R$ 10 no bicho."]
+    "vicio": {
+      "id": "jogo",
+      "chance": 0.008
+    },
+    "textos": [
+      "Você jogou R$ 10 no bicho."
+    ]
   },
   {
-    "id": "furtar", "nome": "Furtar numa loja", "busca": ["furtar", "roubar", "furto", "crime"],
-    "idade": [12, 90], "horas": 0, "desgaste": 3, "especial": "furto", "semHabito": true,
-    "efeitos": { "personalidade.moralidade": -1.5 },
-    "textos": ["Você saiu de uma loja com algo no bolso."]
+    "id": "furtar",
+    "nome": "Furtar numa loja",
+    "busca": [
+      "furtar",
+      "roubar",
+      "furto",
+      "crime"
+    ],
+    "idade": [
+      12,
+      90
+    ],
+    "horas": 0,
+    "desgaste": 3,
+    "especial": "furto",
+    "semHabito": true,
+    "efeitos": {
+      "personalidade.moralidade": -1.5
+    },
+    "textos": [
+      "Você saiu de uma loja com algo no bolso."
+    ]
+  },
+  {
+    "id": "matar_aula",
+    "nome": "Matar aula",
+    "busca": [
+      "matar aula",
+      "cabular",
+      "faltar",
+      "gazear"
+    ],
+    "idade": [
+      8,
+      17
+    ],
+    "requer": {
+      "etapa": [
+        "fundamental",
+        "medio"
+      ]
+    },
+    "horas": 0,
+    "desgaste": -2,
+    "efeitos": {
+      "atributos.felicidade": 2
+    },
+    "textos": [
+      "Você matou aula.",
+      "Você cabulou aula e foi para a praça.",
+      "Você faltou e passou o dia jogando."
+    ]
+  },
+  {
+    "id": "trabalhar_duro",
+    "nome": "Trabalhar duro",
+    "busca": [
+      "trabalhar",
+      "trabalho",
+      "esforço",
+      "hora extra",
+      "emprego"
+    ],
+    "idade": [
+      14,
+      100
+    ],
+    "requer": {
+      "empregado": true
+    },
+    "horas": 4,
+    "desgaste": 6,
+    "efeitos": {
+      "trabalho.desempenho": 4
+    },
+    "textos": [
+      "Você deu o sangue no trabalho.",
+      "Você ficou até mais tarde resolvendo pepino.",
+      "Você entregou antes do prazo."
+    ]
+  },
+  {
+    "id": "procurar_emprego",
+    "nome": "Procurar emprego",
+    "busca": [
+      "emprego",
+      "vaga",
+      "trabalho",
+      "curriculo",
+      "currículo"
+    ],
+    "idade": [
+      16,
+      75
+    ],
+    "requer": {
+      "aposentado": false
+    },
+    "horas": 0,
+    "desgaste": 2,
+    "especial": "procurar_emprego",
+    "semHabito": true,
+    "efeitos": {},
+    "textos": [
+      "Você mandou currículos e olhou as vagas."
+    ]
+  },
+  {
+    "id": "pedir_aumento",
+    "nome": "Pedir aumento",
+    "busca": [
+      "aumento",
+      "salario",
+      "salário"
+    ],
+    "idade": [
+      14,
+      100
+    ],
+    "requer": {
+      "empregado": true
+    },
+    "horas": 0,
+    "desgaste": 2,
+    "especial": "pedir_aumento",
+    "semHabito": true,
+    "efeitos": {},
+    "textos": [
+      "Você pediu aumento."
+    ]
+  },
+  {
+    "id": "pedir_demissao",
+    "nome": "Pedir demissão",
+    "busca": [
+      "demissao",
+      "demissão",
+      "sair do emprego",
+      "largar emprego"
+    ],
+    "idade": [
+      14,
+      100
+    ],
+    "requer": {
+      "empregado": true
+    },
+    "horas": 0,
+    "desgaste": 0,
+    "especial": "pedir_demissao",
+    "semHabito": true,
+    "efeitos": {},
+    "textos": [
+      "Você foi até o RH."
+    ]
+  },
+  {
+    "id": "prestar_enem",
+    "nome": "Prestar o ENEM",
+    "busca": [
+      "enem",
+      "vestibular",
+      "faculdade",
+      "universidade"
+    ],
+    "idade": [
+      17,
+      100
+    ],
+    "requer": {
+      "escolaridadeMin": "medio",
+      "etapa": [
+        "nenhuma"
+      ]
+    },
+    "horas": 0,
+    "desgaste": 8,
+    "especial": "prestar_enem",
+    "semHabito": true,
+    "efeitos": {},
+    "textos": [
+      "Você se inscreveu e fez a prova do ENEM."
+    ]
+  },
+  {
+    "id": "supletivo",
+    "nome": "Voltar a estudar (EJA)",
+    "busca": [
+      "supletivo",
+      "eja",
+      "voltar a estudar",
+      "escola"
+    ],
+    "idade": [
+      18,
+      100
+    ],
+    "requer": {
+      "etapa": [
+        "nenhuma"
+      ]
+    },
+    "horas": 0,
+    "desgaste": 0,
+    "especial": "supletivo",
+    "semHabito": true,
+    "efeitos": {},
+    "textos": [
+      "Você foi até a escola pública mais perto."
+    ]
+  },
+  {
+    "id": "largar_estudo",
+    "nome": "Largar os estudos",
+    "busca": [
+      "largar",
+      "desistir",
+      "trancar",
+      "sair da escola",
+      "faculdade"
+    ],
+    "idade": [
+      16,
+      100
+    ],
+    "requer": {
+      "etapa": [
+        "medio",
+        "faculdade"
+      ]
+    },
+    "horas": 0,
+    "desgaste": -5,
+    "especial": "largar_estudo",
+    "semHabito": true,
+    "efeitos": {},
+    "textos": [
+      "Você foi à secretaria."
+    ]
+  },
+  {
+    "id": "sair_de_casa",
+    "nome": "Sair da casa dos pais",
+    "busca": [
+      "morar sozinho",
+      "alugar",
+      "mudar",
+      "casa",
+      "apartamento",
+      "aluguel"
+    ],
+    "idade": [
+      18,
+      100
+    ],
+    "requer": {
+      "moradia": "pais"
+    },
+    "horas": 0,
+    "desgaste": 5,
+    "especial": "sair_de_casa",
+    "semHabito": true,
+    "efeitos": {
+      "atributos.felicidade": 4
+    },
+    "textos": [
+      "Você procurou um lugar para morar."
+    ]
+  },
+  {
+    "id": "voltar_pais",
+    "nome": "Voltar para a casa dos pais",
+    "busca": [
+      "voltar",
+      "pais",
+      "casa",
+      "economizar"
+    ],
+    "idade": [
+      18,
+      70
+    ],
+    "requer": {
+      "moradia": "aluguel"
+    },
+    "horas": 0,
+    "desgaste": 3,
+    "especial": "voltar_pais",
+    "semHabito": true,
+    "efeitos": {},
+    "textos": [
+      "Você fez as malas."
+    ]
+  },
+  {
+    "id": "aposentar",
+    "nome": "Aposentar-se",
+    "busca": [
+      "aposentar",
+      "aposentadoria",
+      "inss"
+    ],
+    "idade": [
+      65,
+      120
+    ],
+    "requer": {
+      "aposentado": false
+    },
+    "horas": 0,
+    "desgaste": 0,
+    "especial": "aposentar",
+    "semHabito": true,
+    "efeitos": {},
+    "textos": [
+      "Você deu entrada na aposentadoria."
+    ]
   }
 ]
