@@ -41,6 +41,11 @@ export interface EventoDef extends ResultadoDef {
   recorrente?: boolean;
   /** Só acontece quando um gancho chama. */
   soGancho?: boolean;
+  /**
+   * Data do calendário (Natal, almoço de domingo): fora do sorteio comum, com esta
+   * chance a cada mês que bate com `quando.mes`. Não repete em menos de 10 meses.
+   */
+  calendario?: number;
   vars?: Record<string, string[]>;
   texto: string[];
   escolhas?: EscolhaDef[];
@@ -53,7 +58,7 @@ export const eventoPorId = (id: string) => EVENTOS.find((e) => e.id === id);
 const ANOS_RECENTE = 6;
 
 export function pesoEvento(vida: Vida, e: EventoDef): number {
-  if (e.soGancho) return 0;
+  if (e.soGancho || e.calendario) return 0;
   if (e.unico && vida.vistos[e.id] !== undefined) return 0;
   if (!atende(vida, e.quando)) return 0;
   let p = (e.peso?.base ?? 1) * multiplicador(vida, e.peso?.x);
@@ -81,6 +86,18 @@ export function rodarEventos(vida: Vida, anos: number, rng: Rng): string[] {
     }
     if (disparar(vida, e, g.vars ?? {}, rng, linhas)) vida.ganchosCumpridos += 1;
   }
+
+  // Datas do calendário: no máximo uma por passo.
+  const dinamico = vida.config.turno === 'dinamico';
+  const datas = EVENTOS.filter((e) => {
+    if (!e.calendario || (e.escolhas && vida.pendente)) return false;
+    if (e.unico && vida.vistos[e.id] !== undefined) return false;
+    const visto = vida.vistos[e.id];
+    if (visto !== undefined && agora - visto < 10) return false;
+    if (!atende(vida, e.quando)) return false;
+    return rng.proximo() < Math.min(1, e.calendario * (dinamico ? 1 : anos * 2));
+  });
+  if (datas.length) disparar(vida, rng.escolher(datas), {}, rng, linhas);
 
   const idade = agora / 12;
   // Na velhice o mundo encolhe, então cada coisa que acontece pesa mais: um pouco mais de eventos.
@@ -110,7 +127,11 @@ export function disparar(vida: Vida, e: EventoDef, varsGancho: Record<string, st
     const servem = pessoasQueAtendem(vida, e.quando.pessoa);
     const pe = servem.find((x) => x.id === varsGancho.pessoaId) ?? (varsGancho.pessoaId ? undefined : servem.length ? rng.escolher(servem) : undefined);
     if (!pe) return false;
-    Object.assign(vars, { pessoaId: pe.id, pessoa: pe.nome, papel: papelTexto(pe), Papel: capitalizar(papelTexto(pe)) });
+    const f = pe.sexo === 'feminino';
+    Object.assign(vars, {
+      pessoaId: pe.id, pessoa: pe.nome, papel: papelTexto(pe), Papel: capitalizar(papelTexto(pe)),
+      pa: f ? 'a' : 'o', pele: f ? 'ela' : 'ele', pdo: f ? 'da' : 'do', pparceiro: pe.parceiroNome ?? '',
+    });
   }
   let texto = rng.escolher(e.texto);
   let efeitoExtra: Efeitos | undefined;
@@ -174,6 +195,9 @@ function aplicarResultado(vida: Vida, r: ResultadoDef | undefined, vars: Record<
     if (campo === 'terminar') { if (pe.papel === 'parceiro') fim = terminar(vida, pe); continue; }
     if (campo === 'renda') { pe.renda = Math.max(0, Math.round(typeof v === 'string' ? pe.renda * (1 + Number(v.slice(0, -1)) / 100) : pe.renda + v)); continue; }
     if (campo === 'afeto' || campo === 'saude') pe[campo] = Math.max(0, Math.min(100, Math.round(pe[campo] + Number(v))));
+    if (campo === 'rival') { if (Number(v)) pe.rival = true; else delete pe.rival; }
+    if (campo === 'afastado') { if (Number(v)) pe.afastado = true; else delete pe.afastado; }
+    if (campo === 'socio' && vida.personagem.negocio?.socio === pe.id) delete vida.personagem.negocio.socio;
   }
   aplicar(vida, deVida);
   if (r.memoria) {

@@ -1,7 +1,7 @@
 import { useState } from 'preact/hooks';
 import type { Vida } from '../motor/tipos';
 import { definirHabito, fazerAcao, pedirParaSair } from '../motor/acoes';
-import { editarAtributo, editarEixo, editarPessoa } from '../motor/deus';
+import { criarPessoaDeus, editarAtributo, editarEixo, editarPessoa } from '../motor/deus';
 import { sairDoEmprego } from '../motor/carreira';
 import { escolher } from '../motor/eventos';
 import { continuarComoFilho, fazerAcaoPessoa } from '../motor/familia';
@@ -93,14 +93,19 @@ export function App() {
             vida={vida}
             aviso={aviso}
             deus={deus}
-            onEditar={(pid, campo, valor) => usarVida(editarPessoa(vida, pid, campo, valor))}
-            onAcao={(pid, acao) => {
-              const r = fazerAcaoPessoa(vida, pid, acao);
-              setAviso(r.aviso ?? '');
+            onEditar={(pid, campo, valor) => { setAviso(''); usarVida(editarPessoa(vida, pid, campo, valor)); }}
+            onCriar={(papel, sexo, idade, nome) => { setAviso(''); usarVida(criarPessoaDeus(vida, papel, sexo, idade, nome)); }}
+            onAcao={(pid, acao, opcao) => {
+              // Convidar é fazer a atividade com essa pessoa, do jeito de sempre.
+              const r = acao === 'convidar' && opcao
+                ? fazerAcao(vida, opcao, { com: pid, variante: vida.ultimas?.[opcao]?.variante })
+                : fazerAcaoPessoa(vida, pid, acao, opcao);
               if (r.ok) {
+                // O resultado aparece aqui mesmo, sem precisar voltar para a Vida.
+                setAviso(r.vida.historico.slice(vida.historico.length).map((h) => h.texto).join(' '));
                 usarVida(r.vida);
                 if (r.vida.pendente && !vida.pendente) setAba('vida');
-              }
+              } else setAviso(r.aviso ?? '');
             }}
           />
         )}
@@ -128,7 +133,7 @@ export function App() {
             key={a.id}
             class={aba === a.id ? 'aba ativa' : 'aba'}
             aria-current={aba === a.id ? 'page' : undefined}
-            onClick={() => setAba(a.id)}
+            onClick={() => { setAba(a.id); setAviso(''); }}
           >
             {a.nome}
           </button>

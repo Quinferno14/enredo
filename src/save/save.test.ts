@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { VERSAO_SAVE } from '../motor/tipos';
 import { avancarPeriodo, criarVida } from '../motor/vida';
 import {
   CHAVE, MAX_VIDAS, carregar, exportarTexto, importarTexto, salvarVida,
@@ -72,7 +73,7 @@ describe('save', () => {
     for (const k of ['habitos', 'memorias', 'ganchos', 'pendente', 'periodo', 'totais', 'vistos', 'ganchosCumpridos', 'pessoas', 'linhagem', 'anterior', 'voltas']) delete antigo[k];
     for (const k of ['dinheiro', 'desgaste', 'tracos', 'classe', 'estudo', 'trabalho', 'dividas', 'moradia', 'potencial', 'interesse']) delete antigo.personagem[k];
     const lido = importarTexto(JSON.stringify(antigo));
-    expect(lido.versao).toBe(7);
+    expect(lido.versao).toBe(VERSAO_SAVE);
     expect(lido.personagem.trabalho.extras).toEqual([]);
     expect(lido.config.turno).toBe('dinamico');
     expect(lido.anterior).toBeNull();

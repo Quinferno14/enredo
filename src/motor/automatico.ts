@@ -4,7 +4,7 @@
 import { acoesDisponiveis, definirHabito, fazerAcao, FREQUENCIAS, variantesPossiveis } from './acoes';
 import { chanceContratar, empregoPorId, salarioInicial } from './carreira';
 import { atende } from './efeitos';
-import { fazerAcaoPessoa } from './familia';
+import { acoesDaPessoa, assuntosCom, fazerAcaoPessoa } from './familia';
 import { escolher, eventoPorId } from './eventos';
 import { Rng } from './rng';
 import type { Vida } from './tipos';
@@ -99,9 +99,30 @@ export function jogarPeriodo(vida: Vida, o: OpcoesAuto = {}): Vida {
         v = r.ok ? r.vida : fazerAcaoPessoa(v, parc.id, 'adotar').vida;
       }
     }
-    for (const pe of v.pessoas.filter((x) => x.vivo && x.papel !== 'ex')) {
-      if (sorteio() < 0.3) v = fazerAcaoPessoa(v, pe.id, pe.papel === 'filho' && pe.idadeMeses < 144 ? 'brincar' : 'tempo').vida;
+    // Algumas pessoas por período: brincar, passar tempo ou conversar sobre algo.
+    const perto = v.pessoas.filter((x) => x.vivo && !x.afastado && x.papel !== 'ex');
+    for (let k = 0; k < 4 && perto.length; k++) {
+      const pe = sortear(perto);
+      const acoes = acoesDaPessoa(v, pe).filter((a) => ['tempo', 'brincar', 'conversar', 'presente', 'ajudar', 'elogiar', 'segredo'].includes(a.id));
+      if (!acoes.length || sorteio() >= 0.6) continue;
+      const a = sortear(acoes);
+      v = fazerAcaoPessoa(v, pe.id, a.id, a.abre === 'assuntos' ? sortear(assuntosCom(v, pe)).id : undefined).vida;
     }
+    if (idade >= 5 && sorteio() < 0.25) v = fazerAcao(v, 'puxar_papo').vida;
+    // De vez em quando, alguém implica com alguém (para rivalidades existirem).
+    const sociais = v.pessoas.filter((x) => x.vivo && !x.afastado && ['amigo', 'colega', 'vizinho', 'primo'].includes(x.papel));
+    if (idade >= 8 && sociais.length && sorteio() < 0.12) {
+      const alvo = sortear(sociais);
+      v = fazerAcaoPessoa(v, alvo.id, 'provocar').vida;
+      if (sorteio() < 0.5) v = fazerAcaoPessoa(v, alvo.id, 'brigar').vida;
+    }
+    // Quem tem negócio chama o melhor amigo para sócio.
+    const neg = v.personagem.negocio;
+    if (neg && !neg.socio && sorteio() < 0.3) {
+      const s = v.pessoas.find((x) => acoesDaPessoa(v, x).some((a) => a.id === 'socio'));
+      if (s) v = fazerAcaoPessoa(v, s.id, 'socio').vida;
+    }
+    if (idade >= 10 && sorteio() < 0.4) v = fazerAcao(v, 'amigos', { com: 'turma' }).vida;
   }
   if (o.chanceHabito && sorteio() < o.chanceHabito) {
     const lista = acoesDisponiveis(v).filter((a) => !a.semHabito);

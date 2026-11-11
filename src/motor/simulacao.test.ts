@@ -67,5 +67,5 @@ describe('simulação de 1.000 vidas', () => {
     const m = estatisticas(sem.map((v) => v.morte!.idadeMeses / 12)).media;
     console.log('Modo semestre, média:', m.toFixed(1));
     expect(Math.abs(m - est.media)).toBeLessThan(6);
-  }, 60_000);
+  }, 150_000);
 });

@@ -3,7 +3,7 @@
 
 import type { EstadoRng } from './rng';
 
-export const VERSAO_SAVE = 7;
+export const VERSAO_SAVE = 8;
 
 export const ATRIBUTOS = [
   'saude', 'felicidade', 'inteligencia', 'aparencia', 'forma', 'carisma', 'sorte',
@@ -81,7 +81,21 @@ export interface Personagem {
   interesse: 'homens' | 'mulheres' | 'todos';
 }
 
-export type Papel = 'mae' | 'pai' | 'irmao' | 'parceiro' | 'ex' | 'filho';
+export type Papel =
+  | 'mae' | 'pai' | 'irmao' | 'parceiro' | 'ex' | 'filho'
+  | 'avo' | 'tio' | 'primo' | 'sobrinho' | 'neto'
+  | 'amigo' | 'colega' | 'vizinho';
+
+/** Onde vocês se conheceram (amigos, colegas e vizinhos). */
+export type Origem = 'escola' | 'faculdade' | 'trabalho' | 'bairro' | 'atividade' | 'internet';
+
+/** Algo que você fez com a pessoa e que ela guarda. */
+export interface Lembranca {
+  texto: string;
+  idadeMeses: number;
+  peso: number;
+  desculpado?: boolean;
+}
 
 /** Alguém da família ou da vida amorosa. */
 export interface Pessoa {
@@ -107,6 +121,31 @@ export interface Pessoa {
   outroGenitor?: string;
   adotado?: boolean;
   morte?: Morte;
+  // ---- Pessoas vivas (R3) ----
+  origem?: Origem;
+  /** Dois assuntos favoritos (futebol, fofoca...). */
+  gostos?: string[];
+  /** Gostos que você já descobriu conversando. */
+  conhecidos?: string[];
+  /** Últimas coisas que você fez com ela (no máximo 6). */
+  lembrancas?: Lembranca[];
+  rival?: boolean;
+  /** Perderam o contato: some da lista principal. */
+  afastado?: boolean;
+  /** Mudou para longe: a amizade esfria mais rápido. */
+  longe?: boolean;
+  /** Com quem a pessoa namora ou é casada (vida própria). */
+  parceiroNome?: string;
+  casado?: boolean;
+  /** Quantos filhos tem (os da família viram pessoas de verdade). */
+  filhos?: number;
+  /** Netos e sobrinhos: id do pai ou da mãe deles. */
+  genitor?: string;
+  ocupacao?: string;
+  /** Parceiro: mora junto sem ser casado. */
+  moraJunto?: boolean;
+  /** Parceiro: já foi apresentado à família. */
+  apresentado?: boolean;
 }
 
 export interface Linhagem {
@@ -165,6 +204,8 @@ export interface Negocio {
   /** 0 a 100: abaixo de 40 dá prejuízo, em 0 quebra. */
   saude: number;
   desdeMeses: number;
+  /** Id da pessoa sócia. */
+  socio?: string;
 }
 
 export interface Divida {

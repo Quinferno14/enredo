@@ -4,7 +4,9 @@
 
 import { estudoInicial } from '../motor/carreira';
 import { familiaParaSaveAntigo } from '../motor/familia';
-import { ATRIBUTOS, EIXOS, VERSAO_SAVE, type Vida } from '../motor/tipos';
+import { Rng } from '../motor/rng';
+import { familiaEstendida, sortearGostos } from '../motor/social';
+import { ATRIBUTOS, EIXOS, VERSAO_SAVE, type Pessoa, type Vida } from '../motor/tipos';
 
 export const CHAVE = 'enredo.saves';
 export const MAX_VIDAS = 5;
@@ -147,6 +149,19 @@ export function migrar(dados: unknown): Vida | null {
   p2.fama ??= 0;
   p2.seguidores ??= 0;
   p2.negocio ??= null;
+  // Versão 7 → 8: pessoas vivas. Ganham gostos, e a família ganha avós, tios, primos e um vizinho.
+  if (versao < 8) {
+    const rng = Rng.daSeed(`${vida.config.seed}/r3`);
+    for (const pe of vida.pessoas) pe.gostos ??= sortearGostos(rng);
+    const temExtensa = vida.pessoas.some((x) => ['avo', 'tio', 'primo', 'vizinho'].includes(x.papel));
+    if (!temExtensa) {
+      // Mãe e pai como estariam hoje (para quem já morreu, a idade que teriam).
+      const hoje = (x?: Pessoa) => x && (x.vivo ? x : { ...x, idadeMeses: x.idadeMeses + Math.max(0, vida.relogio.ano - (x.morte?.ano ?? vida.relogio.ano)) * 12 });
+      const mae = hoje(vida.pessoas.find((x) => x.papel === 'mae'));
+      const pai = hoje(vida.pessoas.find((x) => x.papel === 'pai'));
+      vida.pessoas.push(...familiaEstendida(rng, p2.sobrenome, vida.relogio.idadeMeses, mae, pai, vida.relogio.ano, new Set([p2.nome, ...vida.pessoas.map((x) => x.nome)])));
+    }
+  }
   vida.versao = VERSAO_SAVE;
   return vida;
 }

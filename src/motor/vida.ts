@@ -9,6 +9,7 @@ import { aplicar, reais } from './efeitos';
 import { atributosNaIdade, envelhecer, limitar, sortearMorte } from './envelhecer';
 import { rodarEventos } from './eventos';
 import { criarFamilia, rodarPessoas } from './familia';
+import { amigosDeInicio } from './social';
 import { Rng } from './rng';
 import { anosDoPasso, proximoRelogio, quandoAgora, rotuloPeriodo } from './tempo';
 import {
@@ -53,7 +54,7 @@ export function criarVida(o: OpcoesNovaVida): Vida {
   const cidade = rng.escolher(estado.cidades);
 
   const personalidade = {} as Record<Eixo, number>;
-  for (const e of EIXOS) personalidade[e] = rng.normalAprox(-70, 70);
+  for (const e of EIXOS) personalidade[e] = rng.normalAprox(-70, 70) + 0;
 
   const potencial: Potencial = {
     saude: rng.normalAprox(45, 100),
@@ -101,7 +102,12 @@ export function criarVida(o: OpcoesNovaVida): Vida {
     totais: {},
     vistos: {},
     ganchosCumpridos: 0,
-    pessoas: criarFamilia(rng, sobrenome, idadeMeses, classe),
+    pessoas: (() => {
+      const usados = new Set([nome]);
+      const familia = criarFamilia(rng, sobrenome, idadeMeses, classe, o.ano, nome);
+      for (const x of familia) usados.add(x.nome);
+      return [...familia, ...(idadeMeses >= 18 * 12 ? amigosDeInicio(rng, idadeMeses, o.ano, usados) : [])];
+    })(),
     linhagem: { geracao: 1, anteriores: [] },
     anterior: null,
     voltas: 0,

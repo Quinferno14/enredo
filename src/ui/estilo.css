@@ -406,3 +406,22 @@ details.cartao summary { cursor: pointer; font-weight: 600; }
 .bloco span { font-size: 0.75rem; }
 
 .trabalho-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--borda); border-radius: 10px; }
+
+/* R3 · pessoas vivas */
+.pessoa-det { padding: 8px 4px 2px; display: flex; flex-direction: column; gap: 6px; }
+.pessoa-det p { margin: 0; }
+.grupo-rotulo { margin: 4px 0 2px; font-size: 0.75rem; font-weight: 600; color: var(--sutil); text-transform: uppercase; letter-spacing: 0.04em; }
+.pessoa-nome .tag { margin-left: 6px; vertical-align: middle; }
+.aviso-pessoas {
+  position: sticky; top: 0; z-index: 2;
+  margin: 0 0 12px; padding: 10px 12px;
+  border-radius: var(--raio); border: 1px solid var(--acento);
+  background: var(--acento-fraco); color: var(--texto); font-size: 0.875rem;
+}
+.cartao h2 .sutil, summary .sutil { font-weight: 400; margin-left: 4px; }
+.deus-form { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-bottom: 6px; }
+.deus-form label { display: flex; align-items: center; gap: 6px; font-size: 0.8125rem; color: var(--sutil); }
+.deus-form input:not([type]), .deus-form select {
+  padding: 4px 6px; border-radius: 6px; border: 1px solid var(--acento);
+  background: var(--fundo); color: var(--texto); max-width: 160px;
+}

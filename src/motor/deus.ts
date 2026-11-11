@@ -5,10 +5,11 @@ import { empregoPorId, ESTADOS_DEF, salarioInicial, tituloEmprego } from './carr
 import { reais } from './efeitos';
 import { alvoAparencia, alvoForma, alvoInteligencia, alvoSaude, limitar } from './envelhecer';
 import { disparar, eventoPorId } from './eventos';
-import { capitalizar, papelTexto } from './familia';
+import { capitalizar, gerarPessoa, nomesEmUso, papelTexto } from './familia';
+import { SOCIAIS, ocupar } from './social';
 import { quandoAgora } from './tempo';
 import { Rng, estadoDaSeed } from './rng';
-import type { Atributo, Eixo, Vida } from './tipos';
+import type { Atributo, Eixo, Papel, Sexo, Vida } from './tipos';
 import { textoIdade } from './vida';
 
 const NOMES: Record<string, string> = {
@@ -119,14 +120,103 @@ export function definirEmprego(vida: Vida, id: string | null): Vida {
   return prox;
 }
 
-export function editarPessoa(vida: Vida, pessoaId: string, campo: 'afeto' | 'saude', valor: number): Vida {
+export type CampoPessoa = 'afeto' | 'saude' | 'idade' | 'nome' | 'papel' | 'rival' | 'vivo' | `eixo:${Eixo}`;
+
+/** Papéis que o Modo Deus pode dar a alguém (parceiro e ex têm regras próprias). */
+export const PAPEIS_DEUS: Papel[] = ['amigo', 'colega', 'vizinho', 'irmao', 'primo', 'tio', 'avo', 'sobrinho', 'neto', 'filho', 'mae', 'pai'];
+
+/** Edita qualquer coisa de uma pessoa. Números chegam como número; nome e papel como texto. */
+export function editarPessoa(vida: Vida, pessoaId: string, campo: CampoPessoa, valor: number | string): Vida {
   const prox = structuredClone(vida);
   const pe = prox.pessoas.find((x) => x.id === pessoaId);
-  if (!pe || !pe.vivo) return vida;
-  const antes = pe[campo];
-  pe[campo] = Math.round(limitar(valor));
-  if (antes === pe[campo]) return vida;
-  marcar(prox, `${capitalizar(papelTexto(pe))}, ${pe.nome}: ${campo === 'afeto' ? 'afeto' : 'saúde'} ${antes} → ${pe[campo]}`);
+  if (!pe) return vida;
+  const rotulo = `${capitalizar(papelTexto(pe))}, ${pe.nome}`;
+  const n = Number(valor);
+  if (campo === 'vivo') {
+    const vivo = !!n;
+    if (vivo === pe.vivo) return vida;
+    if (vivo) {
+      pe.vivo = true;
+      if (pe.morte) pe.idadeMeses = pe.morte.idadeMeses + Math.max(0, prox.relogio.ano - pe.morte.ano) * 12;
+      delete pe.morte;
+      pe.saude = Math.max(pe.saude, 50);
+      marcar(prox, `${rotulo} voltou à vida`);
+    } else {
+      pe.vivo = false;
+      pe.morte = { ano: prox.relogio.ano, idadeMeses: pe.idadeMeses, causa: 'por vontade divina' };
+      marcar(prox, `${rotulo} morreu por vontade divina`);
+    }
+    return prox;
+  }
+  if (!pe.vivo) return vida;
+  switch (campo) {
+    case 'afeto': case 'saude': {
+      if (!Number.isFinite(n)) return vida;
+      const antes = pe[campo];
+      pe[campo] = Math.round(limitar(n));
+      if (antes === pe[campo]) return vida;
+      marcar(prox, `${rotulo}: ${campo === 'afeto' ? 'afeto' : 'saúde'} ${antes} → ${pe[campo]}`);
+      return prox;
+    }
+    case 'idade': {
+      if (!Number.isFinite(n)) return vida;
+      const meses = Math.round(Math.max(0, Math.min(130, n)) * 12);
+      if (meses === pe.idadeMeses) return vida;
+      marcar(prox, `${rotulo}: idade ${textoIdade(pe.idadeMeses)} → ${textoIdade(meses)}`);
+      pe.idadeMeses = meses;
+      return prox;
+    }
+    case 'nome': {
+      const nome = String(valor).trim().slice(0, 40);
+      if (!nome || nome === pe.nome) return vida;
+      marcar(prox, `${rotulo} agora se chama ${nome}`);
+      pe.nome = nome;
+      return prox;
+    }
+    case 'papel': {
+      const papel = String(valor) as Papel;
+      if (!PAPEIS_DEUS.includes(papel) || papel === pe.papel) return vida;
+      pe.papel = papel;
+      delete pe.relacao;
+      delete pe.afastado;
+      marcar(prox, `${pe.nome} agora é ${papelTexto(pe)}`);
+      return prox;
+    }
+    case 'rival': {
+      if (!!n === !!pe.rival) return vida;
+      if (n) pe.rival = true; else delete pe.rival;
+      marcar(prox, `${rotulo}: ${n ? 'virou rival' : 'deixou de ser rival'}`);
+      return prox;
+    }
+    default: {
+      const eixo = campo.slice(5) as Eixo;
+      if (!Number.isFinite(n) || !(eixo in pe.personalidade)) return vida;
+      const antes = Math.round(pe.personalidade[eixo]);
+      const v = Math.round(limitar(n, -100, 100));
+      if (antes === v) return vida;
+      pe.personalidade[eixo] = v;
+      marcar(prox, `${rotulo}: ${NOMES[eixo]} ${antes} → ${v}`);
+      return prox;
+    }
+  }
+}
+
+/** Cria uma pessoa nova do nada, com o papel, o sexo e a idade escolhidos. */
+export function criarPessoaDeus(vida: Vida, papel: Papel, sexo: Sexo, idadeAnos: number, nome?: string): Vida {
+  if (!PAPEIS_DEUS.includes(papel)) return vida;
+  const prox = structuredClone(vida);
+  const rng = new Rng(prox.rng);
+  const pe = gerarPessoa(rng, {
+    papel, sexo, idadeMeses: Math.round(Math.max(0, Math.min(120, idadeAnos)) * 12),
+    sobrenome: ['irmao', 'filho', 'pai', 'neto'].includes(papel) ? prox.personagem.sobrenome : undefined,
+    afeto: [50, 75], ano: prox.relogio.ano, usados: nomesEmUso(prox),
+  });
+  if (nome?.trim()) pe.nome = nome.trim().slice(0, 40);
+  if (SOCIAIS.includes(papel)) pe.origem = 'bairro';
+  ocupar(rng, pe);
+  prox.pessoas.push(pe);
+  prox.rng = rng.estado();
+  marcar(prox, `${pe.nome} apareceu na sua vida: ${papelTexto(pe)}, ${textoIdade(pe.idadeMeses)}`);
   return prox;
 }
 

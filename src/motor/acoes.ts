@@ -7,6 +7,7 @@ import {
 } from './efeitos';
 import { acaoCarreira, horasObrigacoes } from './carreira';
 import { acaoFamilia } from './familia';
+import { talvezConhecer } from './social';
 import { curva } from './curva';
 import { limitar } from './envelhecer';
 import { anosDaJanela, quandoAgora } from './tempo';
@@ -127,8 +128,10 @@ export function variantesPossiveis(vida: Vida, a: AcaoDef): VarianteDef[] {
 /** Quem pode ir junto: pessoas vivas da aba Pessoas com idade para isso. */
 export function companhias(vida: Vida): { id: string; nome: string }[] {
   const idade = idadeDe(vida);
+  const ordem = ['parceiro', 'amigo', 'irmao', 'primo', 'colega', 'filho', 'neto', 'vizinho', 'mae', 'pai', 'avo', 'tio', 'sobrinho'];
   return vida.pessoas
-    .filter((p) => p.vivo && p.papel !== 'ex' && p.idadeMeses >= 4 * 12 && (idade >= 14 || p.papel !== 'parceiro'))
+    .filter((p) => p.vivo && !p.afastado && p.papel !== 'ex' && !p.rival && p.idadeMeses >= 4 * 12 && (idade >= 14 || p.papel !== 'parceiro'))
+    .sort((a, b) => ordem.indexOf(a.papel) - ordem.indexOf(b.papel) || b.afeto - a.afeto)
     .map((p) => ({ id: p.id, nome: p.nome }));
 }
 
@@ -200,6 +203,18 @@ export function fazerAcao(vida: Vida, id: string, opcoes: OpcoesAcao = {}): Resu
     const antesAfeto = pessoa.afeto;
     pessoa.afeto = Math.round(limitar(pessoa.afeto + 6 * r));
     if (pessoa.afeto !== antesAfeto) extrasAfeto.push(`Afeto de ${pessoa.nome} +${pessoa.afeto - antesAfeto}`);
+  } else if (a.comQuem) {
+    // "A turma" são os seus amigos de verdade: cada um ganha um pouco.
+    const turma = prox.pessoas
+      .filter((x) => x.vivo && !x.afastado && x.papel === 'amigo' && Math.abs(x.idadeMeses - prox.relogio.idadeMeses) <= 20 * 12)
+      .sort((x, y) => y.afeto - x.afeto).slice(0, 4);
+    const subiram: string[] = [];
+    for (const x of turma) {
+      const antesAfeto = x.afeto;
+      x.afeto = Math.round(limitar(x.afeto + 2.5 * r));
+      if (x.afeto > antesAfeto) subiram.push(x.nome);
+    }
+    if (subiram.length) extrasAfeto.push(`Afeto de ${subiram.join(', ')} +${Math.max(1, Math.round(2.5 * r))}`);
   }
   if (a.ganho) {
     const mult = idadeDe(prox) >= 18 ? 1.5 : 1;
@@ -211,6 +226,11 @@ export function fazerAcao(vida: Vida, id: string, opcoes: OpcoesAcao = {}): Resu
 
   const especial = resolverEspecial(prox, a, rng, v?.id);
   if (especial) extras.push(especial);
+  // Esporte, curso, sair: às vezes aparece gente nova.
+  if (a.comQuem || a.categoria === 'corpo' || id === 'curso') {
+    const nova = talvezConhecer(prox, rng, 0.05, (v?.nome ?? a.nome).split(' (')[0]!);
+    if (nova) extras.push(nova);
+  }
   extras.push(...sessoesFeitas(prox, a, 1, rng));
   if (a.risco && prox.personagem.desgaste >= a.risco.acima && rng.proximo() < a.risco.chance) {
     aplicar(prox, a.risco.efeitos);
@@ -290,7 +310,7 @@ function resolverEspecial(vida: Vida, a: AcaoDef, rng: Rng, variante?: string): 
     }
     default:
       if (!a.especial) return null;
-      return a.especial === 'procurar_parceiro' ? acaoFamilia(vida, a.especial, rng) : acaoCarreira(vida, a.especial, rng, variante);
+      return a.especial === 'procurar_parceiro' || a.especial === 'conhecer' ? acaoFamilia(vida, a.especial, rng) : acaoCarreira(vida, a.especial, rng, variante);
   }
 }
 

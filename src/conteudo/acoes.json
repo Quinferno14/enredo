@@ -46,7 +46,8 @@
       "Você passou a tarde inventando brincadeiras.",
       "Você brincou no quintal até escurecer."
     ],
-    "categoria": "lazer"
+    "categoria": "lazer",
+    "comQuem": true
   },
   {
     "id": "estudar",
@@ -220,7 +221,8 @@
       "Você foi à natação.",
       "Você fez umas boas voltas na piscina."
     ],
-    "categoria": "corpo"
+    "categoria": "corpo",
+    "comQuem": true
   },
   {
     "id": "academia",
@@ -281,7 +283,8 @@
           "Você fez um treino ao ar livre."
         ]
       }
-    ]
+    ],
+    "comQuem": true
   },
   {
     "id": "comer_bem",
@@ -421,6 +424,36 @@
     ]
   },
   {
+    "id": "puxar_papo",
+    "nome": "Puxar papo com alguém novo",
+    "busca": [
+      "conhecer",
+      "amigo",
+      "amiga",
+      "amizade",
+      "fazer amigos",
+      "papo",
+      "gente nova",
+      "socializar"
+    ],
+    "idade": [
+      4,
+      120
+    ],
+    "horas": 1,
+    "desgaste": 1,
+    "efeitos": {
+      "atributos.felicidade": 0.5,
+      "atributos.carisma": 0.2
+    },
+    "especial": "conhecer",
+    "semHabito": true,
+    "textos": [
+      "Você puxou papo com alguém."
+    ],
+    "categoria": "social"
+  },
+  {
     "id": "musica",
     "nome": "Tocar ou cantar",
     "busca": [
@@ -490,7 +523,8 @@
           "Seu professor de música finalmente sorriu."
         ]
       }
-    ]
+    ],
+    "comQuem": true
   },
   {
     "id": "desenhar",
@@ -524,7 +558,8 @@
       "Você pintou um quadro.",
       "Você encheu um caderno de desenhos."
     ],
-    "categoria": "lazer"
+    "categoria": "lazer",
+    "comQuem": true
   },
   {
     "id": "videogame",
@@ -550,7 +585,8 @@
       "Você virou a noite num jogo.",
       "Você zerou uma fase difícil."
     ],
-    "categoria": "lazer"
+    "categoria": "lazer",
+    "comQuem": true
   },
   {
     "id": "festa",

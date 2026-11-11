@@ -12,8 +12,12 @@ import {
 import { anosDaJanela, quandoAgora, rotuloPeriodo } from './tempo';
 import { Rng } from './rng';
 import {
+  ASSUNTOS, SOCIAIS, alvoAfeto, compatCom, compatibilidade, conhecer, familiaEstendida, lembrarPessoa, magoaRecente,
+  multiplicadorGesto, nomeAssunto, origemAtual, rodarSocial, rotuloCompat, sortearGostos,
+} from './social';
+import {
   EIXOS, VERSAO_SAVE,
-  type Atributo, type Classe, type Eixo, type Pendente, type Pessoa, type Potencial, type Sexo, type Vida,
+  type Atributo, type Classe, type Eixo, type Papel, type Pendente, type Pessoa, type Potencial, type Sexo, type Vida,
 } from './tipos';
 
 const idadeAnos = (p: { idadeMeses: number }) => p.idadeMeses / 12;
@@ -30,6 +34,14 @@ export function papelTexto(p: Pessoa): string {
     case 'parceiro':
       if (p.relacao === 'casamento') return fem(p) ? 'sua esposa' : 'seu marido';
       return fem(p) ? 'sua namorada' : 'seu namorado';
+    case 'avo': return fem(p) ? 'sua avó' : 'seu avô';
+    case 'tio': return fem(p) ? 'sua tia' : 'seu tio';
+    case 'primo': return fem(p) ? 'sua prima' : 'seu primo';
+    case 'sobrinho': return fem(p) ? 'sua sobrinha' : 'seu sobrinho';
+    case 'neto': return fem(p) ? 'sua neta' : 'seu neto';
+    case 'amigo': return fem(p) ? 'sua amiga' : 'seu amigo';
+    case 'colega': return fem(p) ? 'sua colega' : 'seu colega';
+    case 'vizinho': return fem(p) ? 'sua vizinha' : 'seu vizinho';
   }
 }
 export const capitalizar = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -44,7 +56,23 @@ export interface OpcoesPessoa {
   afeto?: [number, number];
   /** Genética herdada: média dos dois genitores com variação. */
   pais?: [Potencial, Potencial?];
+  /** Ano de agora: quem nasceu antes de 1975 ganha um nome da época. */
+  ano?: number;
+  /** Nomes que já existem na família, para não repetir. */
+  usados?: Set<string>;
 }
+
+/** Um nome da geração da pessoa que ainda não está em uso na família. */
+export function sortearNome(rng: Rng, sexo: Sexo, nascimento: number, usados?: Set<string>): string {
+  const pool = nascimento < 1975 ? nomes[sexo === 'feminino' ? 'femininoAntigo' : 'masculinoAntigo'] : nomes[sexo];
+  let nome = rng.escolher(pool);
+  for (let i = 0; i < 8 && usados?.has(nome); i++) nome = rng.escolher(pool);
+  usados?.add(nome);
+  return nome;
+}
+
+/** Nomes de todo mundo na vida (para não repetir). */
+export const nomesEmUso = (vida: Vida) => new Set([vida.personagem.nome, ...vida.pessoas.map((x) => x.nome)]);
 
 export function gerarPessoa(rng: Rng, o: OpcoesPessoa): Pessoa {
   const sexo: Sexo = o.sexo ?? (rng.proximo() < 0.5 ? 'feminino' : 'masculino');
@@ -62,12 +90,12 @@ export function gerarPessoa(rng: Rng, o: OpcoesPessoa): Pessoa {
     carisma: herdar('carisma', 15, 95),
   };
   const personalidade = {} as Record<Eixo, number>;
-  for (const e of EIXOS) personalidade[e] = rng.normalAprox(-70, 70);
+  for (const e of EIXOS) personalidade[e] = rng.normalAprox(-70, 70) + 0;
   const idade = o.idadeMeses / 12;
   const [amin, amax] = o.afeto ?? [50, 85];
   return {
     id: novoIdPessoa(rng),
-    nome: rng.escolher(nomes[sexo]),
+    nome: sortearNome(rng, sexo, (o.ano ?? 2026) - Math.floor(o.idadeMeses / 12), o.usados),
     sobrenome: o.sobrenome ?? rng.escolher(nomes.sobrenomes),
     sexo,
     papel: o.papel,
@@ -81,6 +109,7 @@ export function gerarPessoa(rng: Rng, o: OpcoesPessoa): Pessoa {
     potencial,
     personalidade,
     renda: idade >= 18 ? rendaSorteada(rng) : 0,
+    gostos: sortearGostos(rng),
   };
 }
 
@@ -90,14 +119,15 @@ function rendaSorteada(rng: Rng): number {
 }
 
 /** Pais e irmãos de quem acabou de nascer (ou começa adulto). */
-export function criarFamilia(rng: Rng, sobrenome: string, idadeJogadorMeses: number, classe: Classe): Pessoa[] {
+export function criarFamilia(rng: Rng, sobrenome: string, idadeJogadorMeses: number, classe: Classe, ano = 2026, nomeJogador = ''): Pessoa[] {
   const pessoas: Pessoa[] = [];
+  const usados = new Set([nomeJogador]);
   const idadeMae = rng.inteiro(18, 40);
-  const mae = gerarPessoa(rng, { papel: 'mae', sexo: 'feminino', idadeMeses: (idadeMae * 12) + idadeJogadorMeses, afeto: [70, 95] });
+  const mae = gerarPessoa(rng, { papel: 'mae', sexo: 'feminino', idadeMeses: (idadeMae * 12) + idadeJogadorMeses, afeto: [70, 95], ano, usados });
   pessoas.push(mae);
   if (rng.proximo() < 0.85) {
     const idadePai = Math.max(18, idadeMae + rng.inteiro(-3, 8));
-    pessoas.push(gerarPessoa(rng, { papel: 'pai', sexo: 'masculino', sobrenome, idadeMeses: (idadePai * 12) + idadeJogadorMeses, afeto: [60, 90] }));
+    pessoas.push(gerarPessoa(rng, { papel: 'pai', sexo: 'masculino', sobrenome, idadeMeses: (idadePai * 12) + idadeJogadorMeses, afeto: [60, 90], ano, usados }));
   }
   const x = rng.proximo();
   const irmaos = classe === 'baixa' ? (x < 0.35 ? 0 : x < 0.65 ? 1 : x < 0.85 ? 2 : 3) : (x < 0.5 ? 0 : x < 0.85 ? 1 : 2);
@@ -105,9 +135,11 @@ export function criarFamilia(rng: Rng, sobrenome: string, idadeJogadorMeses: num
     const maxMais = Math.max(1, idadeMae - 18);
     pessoas.push(gerarPessoa(rng, {
       papel: 'irmao', sobrenome, idadeMeses: rng.inteiro(1, Math.min(12, maxMais)) * 12 + idadeJogadorMeses,
-      pais: [mae.potencial], afeto: [45, 85],
+      pais: [mae.potencial], afeto: [45, 85], ano, usados,
     }));
   }
+  const pai = pessoas.find((x) => x.papel === 'pai');
+  pessoas.push(...familiaEstendida(rng, sobrenome, idadeJogadorMeses, mae, pai, ano, usados));
   return pessoas;
 }
 
@@ -136,8 +168,7 @@ export function rodarPessoas(vida: Vida, anos: number, rng: Rng, resumir = true)
     if (idade >= 18 && pe.renda === 0 && rng.proximo() < 0.3 * anos) pe.renda = rendaSorteada(rng);
 
     // O afeto esfria sem contato; criança pequena adora quem cuida.
-    const alvo = pe.papel === 'filho' && idade < 12 ? 85 : pe.papel === 'parceiro' ? 35 : pe.papel === 'ex' ? 20 : 45;
-    const vel = pe.papel === 'parceiro' ? 0.15 : 0.08;
+    const [alvo, vel] = alvoAfeto(pe, vida);
     pe.afeto = Math.round(limitar(pe.afeto + (alvo - pe.afeto) * vel * anos));
 
     if (pe.papel === 'filho' && idade >= 18 && idade - anos < 18) linhas.push(`${capitalizar(papelTexto(pe))} ${pe.nome} fez 18 anos.`);
@@ -149,8 +180,11 @@ export function rodarPessoas(vida: Vida, anos: number, rng: Rng, resumir = true)
       pe.vivo = false;
       pe.morte = { ano: vida.relogio.ano, idadeMeses: pe.idadeMeses, causa };
       if (pe.papel === 'ex') continue;
+      // De quem já saiu da sua vida, você nem fica sabendo.
+      if ((pe.afastado || SOCIAIS.includes(pe.papel)) && pe.afeto < 40) continue;
       linhas.push(`${capitalizar(papelTexto(pe))}, ${pe.nome}, morreu aos ${Math.floor(idade)} anos, ${causa}.`);
-      const dor = Math.round(pe.afeto / 5 + (pe.papel === 'filho' || pe.papel === 'parceiro' ? 10 : 0));
+      const perto = ['mae', 'pai', 'irmao', 'filho', 'parceiro', 'avo', 'neto'].includes(pe.papel);
+      const dor = Math.round((pe.afeto / 5) * (perto ? 1 : 0.6) + (pe.papel === 'filho' || pe.papel === 'parceiro' ? 10 : 0));
       aplicar(vida, { 'atributos.felicidade': -dor, 'personalidade.estabilidade': -2 });
       lembrar(vida, `morte_${pe.papel}`, `perdeu ${papelTexto(pe)}, ${pe.nome}`, -Math.round(10 + pe.afeto / 3), { pessoa: pe.nome });
       if (pe.papel === 'mae' || pe.papel === 'pai') linhas.push(...talvezHeranca(vida, rng));
@@ -161,7 +195,7 @@ export function rodarPessoas(vida: Vida, anos: number, rng: Rng, resumir = true)
   const mae = vida.pessoas.find((x) => x.papel === 'mae' && x.vivo);
   const pai = vida.pessoas.find((x) => x.papel === 'pai' && x.vivo);
   if (mae && pai && idadeAnos(mae) < 42 && idadeJogador < 14 && rng.proximo() < 0.15 * anos) {
-    const bebe = gerarPessoa(rng, { papel: 'irmao', idadeMeses: 0, sobrenome: p.sobrenome, pais: [mae.potencial, pai.potencial], afeto: [60, 85] });
+    const bebe = gerarPessoa(rng, { papel: 'irmao', idadeMeses: 0, sobrenome: p.sobrenome, pais: [mae.potencial, pai.potencial], afeto: [60, 85], ano: vida.relogio.ano, usados: nomesEmUso(vida) });
     vida.pessoas.push(bebe);
     linhas.push(`Nasceu ${fem(bebe) ? 'sua irmã' : 'seu irmão'}, ${bebe.nome}!`);
   }
@@ -170,7 +204,7 @@ export function rodarPessoas(vida: Vida, anos: number, rng: Rng, resumir = true)
   if (idadeJogador >= 18) {
     const filhos = vida.pessoas.filter((x) => x.papel === 'filho' && x.vivo && idadeAnos(x) < 18).length;
     let custo = filhos * 600 * 12 * anos;
-    const parc = vida.pessoas.find((x) => x.papel === 'parceiro' && x.vivo && x.relacao === 'casamento');
+    const parc = vida.pessoas.find((x) => x.papel === 'parceiro' && x.vivo && (x.relacao === 'casamento' || x.moraJunto));
     let ajuda = 0;
     if (parc && parc.renda > 0) {
       ajuda = Math.min(parc.renda * 0.5, custo / (12 * anos) * 0.5 + (p.moradia === 'aluguel' ? estadoDe(vida).custoVida * 0.5 : 0)) * 12 * anos;
@@ -181,6 +215,7 @@ export function rodarPessoas(vida: Vida, anos: number, rng: Rng, resumir = true)
       if (filhos > 0 && resumir) linhas.push(`Criar ${filhos === 1 ? 'seu filho' : `${filhos} filhos`} custou ${reais(filhos * 600 * 12 * anos)} no período${ajuda > 0 ? `; ${parc!.nome} ajudou com ${reais(ajuda)}` : ''}.`);
     }
   }
+  linhas.push(...rodarSocial(vida, anos, rng));
   return linhas;
 }
 
@@ -189,7 +224,7 @@ function nascer(vida: Vida, rng: Rng, adotado: boolean, outroId?: string): strin
   const outro = vida.pessoas.find((x) => x.id === outroId);
   const idadeMeses = adotado ? rng.inteiro(0, 6) * 12 : 0;
   const filho = gerarPessoa(rng, {
-    papel: 'filho', idadeMeses, sobrenome: p.sobrenome, afeto: [75, 95],
+    papel: 'filho', idadeMeses, sobrenome: p.sobrenome, afeto: [75, 95], ano: vida.relogio.ano, usados: nomesEmUso(vida),
     ...(adotado ? {} : { pais: [p.potencial, outro?.potencial] as [Potencial, Potencial?] }),
   });
   if (outro) filho.outroGenitor = outro.id;
@@ -218,30 +253,73 @@ function talvezHeranca(vida: Vida, rng: Rng): string[] {
 
 // ---- Ações com uma pessoa ----
 
+export type GrupoAcaoPessoa = 'juntos' | 'conversa' | 'amor' | 'conflito' | 'dinheiro' | 'contato';
+
 export interface AcaoPessoaDef {
   id: string;
   nome: string;
+  grupo: GrupoAcaoPessoa;
   pode: (vida: Vida, pe: Pessoa) => boolean;
   custo?: number;
+  /** Abre uma segunda escolha: o assunto da conversa ou a atividade do convite. */
+  abre?: 'assuntos' | 'atividades';
 }
 
 const adulto = (vida: Vida) => vida.relogio.idadeMeses >= 18 * 12;
 const temParceiroVivo = (vida: Vida) => vida.pessoas.some((x) => x.papel === 'parceiro' && x.vivo);
+const anosJ = (v: Vida) => v.relogio.idadeMeses / 12;
+const pequenos: Papel[] = ['filho', 'neto', 'sobrinho'];
+
+/** Pode virar amor: gente de fora da família, no interesse e na idade certa. */
+function podeChamarParaSair(v: Vida, pe: Pessoa): boolean {
+  if (!SOCIAIS.includes(pe.papel) || temParceiroVivo(v) || pe.rival) return false;
+  const i = v.personagem.interesse;
+  if ((i === 'homens' && pe.sexo !== 'masculino') || (i === 'mulheres' && pe.sexo !== 'feminino')) return false;
+  const a = anosJ(v);
+  const b = idadeAnos(pe);
+  if (a < 14 || b < 14) return false;
+  if (a < 18 || b < 18) return a < 18 && b < 18 && Math.abs(a - b) <= 3;
+  return Math.abs(a - b) <= 15;
+}
 
 export const ACOES_PESSOA: AcaoPessoaDef[] = [
-  { id: 'tempo', nome: 'Passar tempo junto', pode: (v, pe) => pe.vivo && v.relogio.idadeMeses >= 12 },
-  { id: 'conversar', nome: 'Conversar', pode: (v, pe) => pe.vivo && v.relogio.idadeMeses >= 36 && pe.idadeMeses >= 36 },
-  { id: 'presente', nome: 'Dar um presente', custo: 100, pode: (v, pe) => pe.vivo && v.relogio.idadeMeses >= 10 * 12 },
-  { id: 'brigar', nome: 'Brigar', pode: (v, pe) => pe.vivo && v.relogio.idadeMeses >= 4 * 12 && pe.idadeMeses >= 4 * 12 },
-  { id: 'pedir_dinheiro', nome: 'Pedir dinheiro', pode: (v, pe) => pe.vivo && v.relogio.idadeMeses >= 6 * 12 && (pe.papel === 'mae' || pe.papel === 'pai' || pe.papel === 'parceiro' || (pe.papel === 'irmao' && pe.idadeMeses >= 18 * 12)) },
-  { id: 'encontro', nome: 'Sair para um encontro', custo: 120, pode: (_v, pe) => pe.vivo && pe.papel === 'parceiro' },
-  { id: 'casar', nome: 'Pedir em casamento', pode: (v, pe) => pe.vivo && pe.papel === 'parceiro' && pe.relacao === 'namoro' && adulto(v) },
-  { id: 'filho', nome: 'Tentar ter um filho', pode: (v, pe) => pe.vivo && pe.papel === 'parceiro' && adulto(v) && podeGestar(v, pe) },
-  { id: 'adotar', nome: 'Adotar uma criança', pode: (v, pe) => pe.vivo && pe.papel === 'parceiro' && v.relogio.idadeMeses >= 25 * 12 },
-  { id: 'terminar', nome: 'Terminar', pode: (_v, pe) => pe.vivo && pe.papel === 'parceiro' },
-  { id: 'reatar', nome: 'Tentar voltar', pode: (v, pe) => pe.vivo && pe.papel === 'ex' && !temParceiroVivo(v) && v.relogio.idadeMeses >= 15 * 12 },
-  { id: 'brincar', nome: 'Brincar junto', pode: (_v, pe) => pe.vivo && pe.papel === 'filho' && pe.idadeMeses < 12 * 12 },
-  { id: 'ensinar', nome: 'Ensinar algo', pode: (_v, pe) => pe.vivo && pe.papel === 'filho' && pe.idadeMeses >= 3 * 12 && pe.idadeMeses < 18 * 12 },
+  // Juntos
+  { id: 'tempo', nome: 'Passar tempo junto', grupo: 'juntos', pode: (v) => v.relogio.idadeMeses >= 12 },
+  { id: 'convidar', nome: 'Convidar para…', grupo: 'juntos', abre: 'atividades', pode: (v, pe) => anosJ(v) >= 4 && idadeAnos(pe) >= 4 && (anosJ(v) >= 14 || pe.papel !== 'parceiro') },
+  { id: 'brincar', nome: 'Brincar junto', grupo: 'juntos', pode: (v, pe) => idadeAnos(pe) >= 1 && idadeAnos(pe) < 12 && (pequenos.includes(pe.papel) ? anosJ(v) >= 14 : anosJ(v) >= 2 && anosJ(v) < 12) },
+  { id: 'ensinar', nome: 'Ensinar algo', grupo: 'juntos', pode: (v, pe) => pequenos.includes(pe.papel) && idadeAnos(pe) >= 3 && idadeAnos(pe) < 18 && anosJ(v) >= 14 },
+  { id: 'presente', nome: 'Dar um presente', grupo: 'juntos', custo: 100, pode: (v) => anosJ(v) >= 10 },
+  { id: 'ajudar', nome: 'Ajudar em algo', grupo: 'juntos', pode: (v, pe) => anosJ(v) >= 8 && idadeAnos(pe) >= 6 },
+  // Conversa
+  { id: 'conversar', nome: 'Conversar sobre…', grupo: 'conversa', abre: 'assuntos', pode: (v, pe) => anosJ(v) >= 3 && idadeAnos(pe) >= 3 },
+  { id: 'elogiar', nome: 'Elogiar', grupo: 'conversa', pode: (v, pe) => anosJ(v) >= 5 && idadeAnos(pe) >= 3 },
+  { id: 'conselho', nome: 'Pedir conselho', grupo: 'conversa', pode: (v, pe) => anosJ(v) >= 8 && idadeAnos(pe) >= 12 },
+  { id: 'segredo', nome: 'Contar um segredo', grupo: 'conversa', pode: (v, pe) => anosJ(v) >= 8 && idadeAnos(pe) >= 8 && pe.afeto >= 45 },
+  // Amor
+  { id: 'chamar_sair', nome: 'Chamar para sair', grupo: 'amor', pode: podeChamarParaSair },
+  { id: 'encontro', nome: 'Sair para um encontro', grupo: 'amor', custo: 120, pode: (_v, pe) => pe.papel === 'parceiro' },
+  { id: 'apresentar', nome: 'Apresentar à família', grupo: 'amor', pode: (v, pe) => pe.papel === 'parceiro' && !pe.apresentado && v.pessoas.some((x) => (x.papel === 'mae' || x.papel === 'pai') && x.vivo) },
+  { id: 'morar_junto', nome: 'Morar junto', grupo: 'amor', pode: (v, pe) => pe.papel === 'parceiro' && pe.relacao === 'namoro' && !pe.moraJunto && adulto(v) && idadeAnos(pe) >= 18 },
+  { id: 'casar', nome: 'Pedir em casamento', grupo: 'amor', pode: (v, pe) => pe.papel === 'parceiro' && pe.relacao === 'namoro' && adulto(v) },
+  { id: 'filho', nome: 'Tentar ter um filho', grupo: 'amor', pode: (v, pe) => pe.papel === 'parceiro' && adulto(v) && podeGestar(v, pe) },
+  { id: 'adotar', nome: 'Adotar uma criança', grupo: 'amor', pode: (v, pe) => pe.papel === 'parceiro' && v.relogio.idadeMeses >= 25 * 12 },
+  { id: 'terminar', nome: 'Terminar', grupo: 'amor', pode: (_v, pe) => pe.papel === 'parceiro' },
+  { id: 'reatar', nome: 'Tentar voltar', grupo: 'amor', pode: (v, pe) => pe.papel === 'ex' && !temParceiroVivo(v) && v.relogio.idadeMeses >= 15 * 12 },
+  // Conflito
+  { id: 'desculpas', nome: 'Pedir desculpas', grupo: 'conflito', pode: (v, pe) => !!magoaRecente(v, pe) },
+  { id: 'provocar', nome: 'Provocar', grupo: 'conflito', pode: (v, pe) => anosJ(v) >= 4 && idadeAnos(pe) >= 4 },
+  { id: 'brigar', nome: 'Brigar', grupo: 'conflito', pode: (v, pe) => anosJ(v) >= 4 && idadeAnos(pe) >= 4 },
+  // Dinheiro
+  {
+    id: 'pedir_dinheiro', nome: 'Pedir dinheiro', grupo: 'dinheiro', pode: (v, pe) => anosJ(v) >= 6 && (
+      ['mae', 'pai', 'parceiro', 'avo'].includes(pe.papel)
+      || (['irmao', 'tio'].includes(pe.papel) && idadeAnos(pe) >= 18)
+      || (pe.papel === 'amigo' && idadeAnos(pe) >= 18 && pe.afeto >= 50)),
+  },
+  { id: 'socio', nome: 'Chamar para sócio', grupo: 'dinheiro', pode: (v, pe) => !!v.personagem.negocio && !v.personagem.negocio.socio && idadeAnos(pe) >= 18 && pe.afeto >= 55 && pe.papel !== 'ex' },
+  // Contato
+  { id: 'cortar', nome: 'Cortar contato', grupo: 'contato', pode: (v, pe) => anosJ(v) >= 12 && ['amigo', 'colega', 'vizinho', 'primo', 'tio', 'sobrinho', 'ex'].includes(pe.papel) },
+  { id: 'reaproximar', nome: 'Tentar se reaproximar', grupo: 'contato', pode: (v, pe) => !!pe.afastado && anosJ(v) >= 6 },
 ];
 
 /** Um dos dois pode engravidar (simplificação: casal de sexos diferentes, idade fértil). */
@@ -253,16 +331,23 @@ function podeGestar(vida: Vida, pe: Pessoa): boolean {
 }
 
 export function acoesDaPessoa(vida: Vida, pe: Pessoa): AcaoPessoaDef[] {
-  if (vida.morte) return [];
-  return ACOES_PESSOA.filter((a) => a.pode(vida, pe));
+  if (vida.morte || !pe.vivo) return [];
+  if (pe.afastado) return ACOES_PESSOA.filter((a) => a.id === 'reaproximar' && a.pode(vida, pe));
+  return ACOES_PESSOA.filter((a) => a.id !== 'reaproximar' && a.pode(vida, pe));
+}
+
+/** Assuntos que dá para puxar com essa pessoa (pelas duas idades). */
+export function assuntosCom(vida: Vida, pe: Pessoa) {
+  const min = Math.min(anosJ(vida), idadeAnos(pe));
+  return ASSUNTOS.filter((a) => min >= a.idadeMin);
 }
 
 export interface ResultadoPessoa { vida: Vida; ok: boolean; aviso?: string }
 
-export function fazerAcaoPessoa(vida: Vida, pessoaId: string, acaoId: string): ResultadoPessoa {
+export function fazerAcaoPessoa(vida: Vida, pessoaId: string, acaoId: string, opcao?: string): ResultadoPessoa {
   const pe0 = vida.pessoas.find((x) => x.id === pessoaId);
   const a = ACOES_PESSOA.find((x) => x.id === acaoId);
-  if (!pe0 || !a || !a.pode(vida, pe0)) return { vida, ok: false, aviso: 'Não dá para fazer isso agora.' };
+  if (!pe0 || !a || !acoesDaPessoa(vida, pe0).includes(a)) return { vida, ok: false, aviso: 'Não dá para fazer isso agora.' };
   const custo = vida.relogio.idadeMeses < 18 * 12 && acaoId === 'presente' ? 30 : a.custo ?? 0;
   if (custo > 0 && vida.personagem.dinheiro < custo) return { vida, ok: false, aviso: `Sem dinheiro: precisa de ${reais(custo)}.` };
 
@@ -276,44 +361,181 @@ export function fazerAcaoPessoa(vida: Vida, pessoaId: string, acaoId: string): R
   const anos = anosDaJanela(prox.config.turno);
   const rend = anos * (curva((m + 1) / anos) - curva(m / anos));
   const quem = `${papelTexto(pe)}, ${pe.nome}`;
+  const Ele = pe.nome;
+  const o = fem(pe) ? 'a' : 'o';
   const afetoAntes = pe.afeto;
+  const g = multiplicadorGesto(prox, pe);
+  let usouGesto = false;
   const mudar = (d: number) => { pe.afeto = Math.round(limitar(pe.afeto + d)); };
+  /** Gesto de carinho: rende mais ou menos pela compatibilidade e pela mágoa. */
+  const carinho = (d: number) => { usouGesto = true; mudar(d * rend * g.mult); };
+  const virarRival = () => {
+    if (!pe.rival && pe.afeto < 25 && [...SOCIAIS, 'primo'].includes(pe.papel)) {
+      pe.rival = true;
+      return ` ${Ele} virou ${fem(pe) ? 'sua rival' : 'seu rival'}.`;
+    }
+    return '';
+  };
   let texto = '';
   p.dinheiro -= custo;
 
   switch (acaoId) {
     case 'tempo':
-      mudar(7 * rend); aplicar(prox, { 'atributos.felicidade': 1.5 * rend, desgaste: 1 });
-      texto = rng.escolher([`Você passou a tarde com ${quem}.`, `Você e ${quem}, saíram para dar uma volta.`, `Você almoçou com ${quem}.`]);
+      carinho(7); aplicar(prox, { 'atributos.felicidade': 1.5 * rend, desgaste: 1 });
+      texto = pe.papel === 'avo'
+        ? rng.escolher([`Você visitou ${quem}. Saiu de lá com a barriga cheia.`, `Você passou a tarde na casa d${fem(pe) ? 'a' : 'o'} ${papelTexto(pe).split(' ')[1]} ${Ele}, ouvindo histórias de antigamente.`])
+        : rng.escolher([`Você passou a tarde com ${quem}.`, `Você e ${quem}, saíram para dar uma volta.`, `Você almoçou com ${quem}.`]);
       break;
-    case 'conversar':
-      mudar(4 * rend); aplicar(prox, { 'atributos.felicidade': 0.5 * rend });
-      texto = `Você conversou com ${quem}.`;
+    case 'conversar': {
+      const assunto = assuntosCom(prox, pe).find((x) => x.id === opcao)?.id ?? 'dia';
+      const nome = nomeAssunto(assunto);
+      const gosta = pe.gostos?.includes(assunto) ?? false;
+      const c = compatCom(prox, pe);
+      if (assunto === 'politica' && !gosta && rng.proximo() < 0.35 - c * 0.2) {
+        mudar(-6); aplicar(prox, { 'atributos.felicidade': -1, desgaste: 2 });
+        lembrarPessoa(prox, pe, 'vocês discutiram política', -4);
+        texto = `Você e ${quem}, falaram de política. Virou discussão, e o clima ficou pesado.`;
+      } else if (gosta) {
+        carinho(7); aplicar(prox, { 'atributos.felicidade': 1 * rend });
+        const novo = !(pe.conhecidos ?? []).includes(assunto);
+        if (novo) pe.conhecidos = [...(pe.conhecidos ?? []), assunto];
+        texto = `Você e ${quem}, conversaram sobre ${nome} por horas.${novo ? ` Descobriu que ${Ele} adora o assunto.` : ''}`;
+      } else {
+        carinho(assunto === 'dia' ? 4 : 3);
+        texto = `Você conversou com ${quem}, sobre ${nome}.${assunto !== 'dia' && rng.proximo() < 0.35 ? ` ${Ele} não pareceu muito interessad${o}.` : ''}`;
+      }
+      break;
+    }
+    case 'elogiar':
+      if (m >= 2) {
+        mudar(-2);
+        texto = `Você elogiou ${quem}, de novo. Soou forçado.`;
+      } else {
+        carinho(3 + p.atributos.carisma / 40);
+        texto = rng.escolher([`Você elogiou ${quem}. ${Ele} ficou sem graça, mas gostou.`, `Você disse para ${quem}, o quanto gosta da companhia ${fem(pe) ? 'dela' : 'dele'}.`]);
+      }
+      break;
+    case 'conselho': {
+      carinho(3);
+      const sabio = idadeAnos(pe) >= anosJ(prox) + 15 || pe.inteligencia >= 70;
+      aplicar(prox, { 'atributos.felicidade': (sabio ? 1.5 : 0.8) * rend, 'personalidade.estabilidade': sabio ? 0.6 : 0.3 });
+      texto = sabio
+        ? `Você pediu conselho para ${quem}. Ouviu algo que ainda vai lembrar por muito tempo.`
+        : `Você pediu conselho para ${quem}. Ajudou a pensar.`;
+      break;
+    }
+    case 'segredo':
+      carinho(8);
+      lembrarPessoa(prox, pe, 'você contou um segredo', 4);
+      if (pe.personalidade.moralidade < -25 && rng.proximo() < 0.5 && !prox.ganchos.some((x) => x.evento === 'segredo_vazou')) {
+        prox.ganchos.push({ evento: 'segredo_vazou', idadeMeses: prox.relogio.idadeMeses + rng.inteiro(2, 10), vars: { pessoaId: pe.id } });
+      }
+      texto = `Você contou um segredo para ${quem}. ${Ele} prometeu não contar para ninguém.`;
       break;
     case 'presente':
-      mudar(6 * rend);
+      carinho(6);
+      lembrarPessoa(prox, pe, 'você deu um presente', 3);
       texto = `Você deu um presente para ${quem}.`;
       break;
-    case 'brigar':
-      mudar(-12); aplicar(prox, { 'atributos.felicidade': -2, desgaste: 3 });
-      texto = rng.escolher([`Você brigou feio com ${quem}.`, `Você e ${quem}, discutiram aos gritos.`]);
-      break;
-    case 'encontro':
-      mudar(8 * rend); aplicar(prox, { 'atributos.felicidade': 2 * rend });
-      texto = rng.escolher([`Você levou ${pe.nome} para jantar.`, `Você e ${pe.nome} foram ao cinema.`, `Você e ${pe.nome} passaram o domingo juntos.`]);
+    case 'ajudar':
+      carinho(7); aplicar(prox, { desgaste: 4, 'personalidade.empatia': 0.4 });
+      lembrarPessoa(prox, pe, 'você ajudou quando precisou', 4);
+      texto = idadeAnos(pe) < 18
+        ? `Você ajudou ${quem}, com a lição de casa.`
+        : rng.escolher([`Você ajudou ${quem}, com a mudança.`, `Você passou o sábado ajudando ${quem}, num conserto em casa.`, `Você ajudou ${quem}, a resolver um problema no banco.`]);
       break;
     case 'brincar':
-      mudar(6 * rend); aplicar(prox, { 'atributos.felicidade': 2 * rend });
+      carinho(6); aplicar(prox, { 'atributos.felicidade': 2 * rend });
       texto = `Você brincou com ${quem}.`;
       break;
     case 'ensinar':
-      mudar(2 * rend);
+      carinho(2);
       pe.inteligencia = Math.round(limitar(pe.inteligencia + 1.5 * rend));
       pe.potencial.inteligencia = Math.round(limitar(pe.potencial.inteligencia + 0.5 * rend));
       texto = `Você ensinou algo novo para ${quem}.`;
       break;
+    case 'encontro':
+      carinho(8); aplicar(prox, { 'atributos.felicidade': 2 * rend });
+      texto = rng.escolher([`Você levou ${Ele} para jantar.`, `Você e ${Ele} foram ao cinema.`, `Você e ${Ele} passaram o domingo juntos.`]);
+      break;
+    case 'chamar_sair': {
+      const c = compatCom(prox, pe);
+      let chance = (pe.afeto - 35) / 50 + (p.atributos.aparencia - pe.aparencia) * 0.004 + c * 0.15;
+      if (pe.parceiroNome) chance *= 0.25;
+      chance = Math.max(0.05, Math.min(0.9, chance));
+      if (rng.proximo() < chance) {
+        const antigo = pe.parceiroNome;
+        pe.papel = 'parceiro';
+        pe.relacao = 'namoro';
+        delete pe.parceiroNome; delete pe.casado; delete pe.longe;
+        mudar(10);
+        aplicar(prox, { 'atributos.felicidade': 8 });
+        const primeiro = !prox.memorias.some((x) => x.id === 'namoro');
+        lembrar(prox, 'namoro', `começou a namorar ${Ele}`, primeiro ? 20 : 10, { pessoa: Ele });
+        texto = antigo
+          ? `${Ele} terminou com ${antigo} para ficar com você. Agora vocês namoram.`
+          : `Você chamou ${Ele} para sair, e da amizade veio o namoro. ${Ele} agora é ${papelTexto(pe)}.`;
+      } else {
+        mudar(-6);
+        aplicar(prox, { 'atributos.felicidade': -3 });
+        texto = pe.parceiroNome
+          ? `Você chamou ${Ele} para sair. ${Ele} lembrou que namora ${pe.parceiroNome}.`
+          : `Você chamou ${Ele} para sair. ${Ele} disse que gosta de você só como amig${o}.`;
+      }
+      break;
+    }
+    case 'apresentar': {
+      pe.apresentado = true;
+      const pais = prox.pessoas.filter((x) => (x.papel === 'mae' || x.papel === 'pai') && x.vivo);
+      const reacoes = pais.map((pai) => {
+        const c = compatibilidade(pai.personalidade, pe.personalidade);
+        if (c >= 0.2) { pai.afeto = Math.round(limitar(pai.afeto + 3)); return `${papelTexto(pai)} adorou`; }
+        if (c <= -0.2) {
+          pai.afeto = Math.round(limitar(pai.afeto - 3));
+          aplicar(prox, { 'atributos.felicidade': -1.5 });
+          return `${papelTexto(pai)} ficou com o pé atrás`;
+        }
+        return `${papelTexto(pai)} achou ${Ele} simpátic${o}`;
+      });
+      mudar(5);
+      lembrar(prox, 'apresentou_familia', `apresentou ${Ele} à família`, 6, { pessoa: Ele });
+      texto = `Você levou ${Ele} para conhecer a família. ${capitalizar(reacoes.join('; '))}.`;
+      break;
+    }
+    case 'morar_junto':
+      pe.moraJunto = true;
+      mudar(6);
+      aplicar(prox, { 'atributos.felicidade': 5 });
+      lembrar(prox, 'morar_junto', `foi morar com ${Ele}`, 12, { pessoa: Ele });
+      texto = `Você e ${Ele} foram morar juntos${p.moradia === 'pais' ? ' e saíram da casa dos pais' : ''}. As contas agora são divididas.`;
+      p.moradia = 'aluguel';
+      break;
+    case 'desculpas': {
+      const magoa = magoaRecente(prox, pe)!;
+      const chance = 0.45 + pe.personalidade.empatia / 200 + compatCom(prox, pe) * 0.2;
+      if (rng.proximo() < chance) {
+        magoa.desculpado = true;
+        mudar(8);
+        texto = `Você pediu desculpas para ${quem}. ${Ele} aceitou, e vocês se abraçaram.`;
+        if (pe.rival && pe.afeto >= 30) { delete pe.rival; texto += ' A rivalidade ficou para trás.'; }
+      } else {
+        texto = `Você pediu desculpas para ${quem}. ${Ele} disse que ainda não está pront${o} para esquecer.`;
+      }
+      break;
+    }
+    case 'provocar':
+      mudar(-8);
+      if (p.personalidade.impulsividade > 20) aplicar(prox, { 'atributos.felicidade': 1 });
+      lembrarPessoa(prox, pe, 'você provocou', -5);
+      texto = rng.escolher([`Você provocou ${quem}, na frente de todo mundo.`, `Você implicou com ${quem}, até ${fem(pe) ? 'ela' : 'ele'} perder a paciência.`]) + virarRival();
+      break;
+    case 'brigar':
+      mudar(-12); aplicar(prox, { 'atributos.felicidade': -2, desgaste: 3 });
+      lembrarPessoa(prox, pe, 'vocês brigaram feio', -8);
+      texto = rng.escolher([`Você brigou feio com ${quem}.`, `Você e ${quem}, discutiram aos gritos.`]) + virarRival();
+      break;
     case 'pedir_dinheiro': {
-      const valorBase = pe.papel === 'parceiro' || pe.papel === 'irmao'
+      const valorBase = ['parceiro', 'irmao', 'amigo', 'tio'].includes(pe.papel)
         ? Math.max(50, pe.renda * 0.15)
         : { baixa: 60, media: 300, alta: 2000 }[p.classe];
       const chance = pe.afeto / 100 - 0.2 * m;
@@ -329,23 +551,36 @@ export function fazerAcaoPessoa(vida: Vida, pessoaId: string, acaoId: string): R
       }
       break;
     }
+    case 'socio': {
+      const n = p.negocio!;
+      n.socio = pe.id;
+      n.saude = Math.round(limitar(n.saude + 10));
+      n.faturamento = Math.round(n.faturamento * 1.15);
+      mudar(5);
+      if (pe.personalidade.moralidade < -30) {
+        prox.ganchos.push({ evento: 'socio_sumiu', idadeMeses: prox.relogio.idadeMeses + rng.inteiro(12, 48), vars: { pessoaId: pe.id } });
+      }
+      texto = `${Ele} topou ser sóci${o} ${n.nome.startsWith('a ') ? 'da' : 'do'} ${n.nome.slice(2)}. Com mais gente cuidando, o negócio melhorou.`;
+      break;
+    }
     case 'casar': {
       if (rng.proximo() < (pe.afeto - 40) / 45) {
         pe.relacao = 'casamento';
+        pe.moraJunto = true;
         mudar(10);
         aplicar(prox, { 'atributos.felicidade': 12 });
-        lembrar(prox, 'casamento', `se casou com ${pe.nome}`, 30, { pessoa: pe.nome });
-        texto = `${pe.nome} disse sim! Vocês se casaram${p.moradia === 'pais' ? ' e foram morar juntos' : ''}.`;
+        lembrar(prox, 'casamento', `se casou com ${Ele}`, 30, { pessoa: Ele });
+        texto = `${Ele} disse sim! Vocês se casaram${p.moradia === 'pais' ? ' e foram morar juntos' : ''}.`;
         p.moradia = 'aluguel';
       } else {
         mudar(-10);
         aplicar(prox, { 'atributos.felicidade': -6 });
-        texto = `Você pediu ${pe.nome} em casamento. A resposta foi "ainda não".`;
+        texto = `Você pediu ${Ele} em casamento. A resposta foi "ainda não".`;
       }
       break;
     }
     case 'filho': {
-      if (prox.ganchos.some((g) => g.evento === '@nascimento')) {
+      if (prox.ganchos.some((x) => x.evento === '@nascimento')) {
         texto = 'Vocês já estão esperando um bebê.';
         break;
       }
@@ -354,19 +589,19 @@ export function fazerAcaoPessoa(vida: Vida, pessoaId: string, acaoId: string): R
       if (rng.proximo() < base) {
         prox.ganchos.push({ evento: '@nascimento', idadeMeses: prox.relogio.idadeMeses + 9, vars: { outro: pe.id } });
         aplicar(prox, { 'atributos.felicidade': 6 });
-        texto = `Teste positivo! Você e ${pe.nome} vão ter um bebê.`;
+        texto = `Teste positivo! Você e ${Ele} vão ter um bebê.`;
       } else {
-        texto = `Você e ${pe.nome} estão tentando ter um filho. Ainda não foi desta vez.`;
+        texto = `Você e ${Ele} estão tentando ter um filho. Ainda não foi desta vez.`;
       }
       break;
     }
     case 'adotar': {
-      if (prox.ganchos.some((g) => g.evento === '@adocao')) {
+      if (prox.ganchos.some((x) => x.evento === '@adocao')) {
         texto = 'O processo de adoção já está andando.';
         break;
       }
       prox.ganchos.push({ evento: '@adocao', idadeMeses: prox.relogio.idadeMeses + rng.inteiro(12, 30), vars: { outro: pe.id } });
-      texto = `Você e ${pe.nome} entraram na fila de adoção. Pode levar um ou dois anos.`;
+      texto = `Você e ${Ele} entraram na fila de adoção. Pode levar um ou dois anos.`;
       break;
     }
     case 'terminar':
@@ -377,17 +612,38 @@ export function fazerAcaoPessoa(vida: Vida, pessoaId: string, acaoId: string): R
         pe.papel = 'parceiro';
         pe.relacao = 'namoro';
         mudar(15);
-        texto = `Você e ${pe.nome} voltaram!`;
+        texto = `Você e ${Ele} voltaram!`;
       } else {
         mudar(-5);
-        texto = `${pe.nome} não quis voltar.`;
+        texto = `${Ele} não quis voltar.`;
+      }
+      break;
+    }
+    case 'cortar':
+      pe.afastado = true;
+      mudar(-10);
+      texto = `Você cortou contato com ${quem}.`;
+      break;
+    case 'reaproximar': {
+      const chance = pe.afeto / 100 + p.atributos.carisma / 300 + 0.1;
+      if (rng.proximo() < chance) {
+        delete pe.afastado;
+        mudar(12);
+        texto = `Você mandou mensagem para ${Ele} depois de muito tempo. Vocês marcaram de se ver.`;
+      } else {
+        mudar(-2);
+        texto = `Você mandou mensagem para ${Ele} depois de muito tempo. Visualizou e não respondeu.`;
       }
       break;
     }
   }
 
   const d = pe.afeto - afetoAntes;
-  const extra = [custo > 0 ? `−${reais(custo)}` : '', d !== 0 ? `Afeto de ${pe.nome} ${d > 0 ? '+' : '−'}${Math.abs(d)}` : ''].filter(Boolean).join(' · ');
+  const extra = [
+    custo > 0 ? `−${reais(custo)}` : '',
+    d !== 0 ? `Afeto de ${Ele} ${d > 0 ? '+' : '−'}${Math.abs(d)}` : '',
+    usouGesto && g.nota && d !== 0 ? `(${g.nota})` : '',
+  ].filter(Boolean).join(' · ');
   const quando = quandoAgora(prox);
   prox.historico.push({ quando, texto: extra ? `${texto} ${extra}` : texto });
   prox.rng = rng.estado();
@@ -399,6 +655,7 @@ export function terminar(vida: Vida, pe: Pessoa): string {
   const casados = pe.relacao === 'casamento';
   pe.papel = 'ex';
   delete pe.relacao;
+  delete pe.moraJunto;
   pe.afeto = Math.round(limitar(pe.afeto - 25));
   aplicar(vida, { 'atributos.felicidade': -8 });
   lembrar(vida, casados ? 'divorcio' : 'termino', casados ? `se divorciou de ${pe.nome}` : `terminou com ${pe.nome}`, -15, { pessoa: pe.nome });
@@ -420,7 +677,7 @@ export function pendentePretendentes(vida: Vida, rng: Rng): Pendente {
   for (let i = 0; i < 3; i++) {
     // Menores só conhecem gente da mesma faixa; adultos, só adultos.
     const [min, max] = idade < 18 ? [Math.max(15, idade - 2), Math.min(17.9, idade + 2)] : [Math.max(18, idade - 8), idade + 8];
-    const c = gerarPessoa(rng, { papel: 'parceiro', sexo: rng.escolher(sexos), idadeMeses: Math.round((min + rng.proximo() * (max - min)) * 12), afeto: [55, 75] });
+    const c = gerarPessoa(rng, { papel: 'parceiro', sexo: rng.escolher(sexos), idadeMeses: Math.round((min + rng.proximo() * (max - min)) * 12), afeto: [55, 75], ano: vida.relogio.ano, usados: nomesEmUso(vida) });
     candidatos.push(c);
   }
   const jeito = (c: Pessoa) => {
@@ -472,6 +729,14 @@ export function resolverPretendente(vida: Vida, pend: Pendente, indice: number, 
 
 /** Ação "Procurar alguém": abre os pretendentes. */
 export function acaoFamilia(vida: Vida, especial: string, rng: Rng): string | null {
+  if (especial === 'conhecer') {
+    const o = origemAtual(vida) ?? 'bairro';
+    const pe = conhecer(vida, rng, o);
+    const c = compatCom(vida, pe);
+    pe.afeto = Math.round(limitar(pe.afeto + 8 + vida.personagem.personalidade.extroversao / 20));
+    const onde = { escola: 'na escola', faculdade: 'na faculdade', trabalho: 'no trabalho', bairro: 'no bairro', atividade: 'por aí', internet: 'na internet' }[o];
+    return `Você puxou papo com ${pe.nome}, ${Math.floor(idadeAnos(pe))} anos, ${onde}. ${capitalizar(rotuloCompat(c))}.`;
+  }
   if (especial !== 'procurar_parceiro') return null;
   if (vida.pendente) return 'Resolva a decisão pendente antes.';
   vida.pendente = pendentePretendentes(vida, rng);
@@ -514,6 +779,28 @@ export function continuarComoFilho(morta: Vida, filhoId: string, novoId: string,
   if (outro) pessoas.push({ ...structuredClone(outro), papel: fem(outro) ? 'mae' : 'pai', afeto: Math.max(50, f.afeto), relacao: undefined });
   for (const irmao of morta.pessoas.filter((x) => x.papel === 'filho' && x.id !== f.id)) {
     pessoas.push({ ...structuredClone(irmao), papel: 'irmao', afeto: rng.inteiro(45, 85) });
+  }
+  // A família de quem morreu vira a família do herdeiro, um degrau acima ou abaixo.
+  const vira: Partial<Record<Papel, Papel>> = { mae: 'avo', pai: 'avo', irmao: 'tio', sobrinho: 'primo' };
+  for (const x of morta.pessoas) {
+    const novo = vira[x.papel];
+    if (novo && x.vivo && !x.afastado) pessoas.push({ ...structuredClone(x), papel: novo, afeto: rng.inteiro(40, 75), lembrancas: [] });
+  }
+  // O parceiro e os filhos que o herdeiro já tinha.
+  let parceiro: Pessoa | undefined;
+  if (f.parceiroNome && idade >= 18) {
+    parceiro = gerarPessoa(rng, {
+      papel: 'parceiro', sexo: rng.proximo() < 0.9 ? (fem(f) ? 'masculino' : 'feminino') : f.sexo,
+      idadeMeses: Math.max(18 * 12, f.idadeMeses + rng.inteiro(-5, 5) * 12), afeto: [60, 85], ano: morta.relogio.ano,
+    });
+    parceiro.nome = f.parceiroNome;
+    parceiro.relacao = f.casado ? 'casamento' : 'namoro';
+    if (f.casado) parceiro.moraJunto = true;
+    pessoas.push(parceiro);
+  }
+  for (const n of morta.pessoas.filter((x) => x.papel === 'neto' && x.vivo)) {
+    const meu = n.genitor === f.id;
+    pessoas.push({ ...structuredClone(n), papel: meu ? 'filho' : 'sobrinho', afeto: meu ? Math.max(70, n.afeto) : rng.inteiro(45, 75), ...(meu && parceiro ? { outroGenitor: parceiro.id } : {}) });
   }
 
   const atributos: Record<Atributo, number> = {
@@ -572,7 +859,7 @@ export function continuarComoFilho(morta: Vida, filhoId: string, novoId: string,
 export function familiaParaSaveAntigo(vida: Vida): Pessoa[] {
   const rng = Rng.daSeed(`${vida.config.seed}/familia`);
   const p = vida.personagem;
-  const pessoas = criarFamilia(rng, p.sobrenome, vida.relogio.idadeMeses, p.classe ?? 'media');
+  const pessoas = criarFamilia(rng, p.sobrenome, vida.relogio.idadeMeses, p.classe ?? 'media', vida.relogio.ano, p.nome);
   for (const pe of pessoas) {
     if (idadeAnos(pe) > 95) {
       pe.vivo = false;

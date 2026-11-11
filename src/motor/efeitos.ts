@@ -43,6 +43,8 @@ export interface Quando {
   anomalia?: number;
   /** Calendário: o ano precisa deixar este resto na divisão (ex.: Copa = [4, 2]). */
   ano?: [number, number];
+  /** Meses do ano em que pode acontecer (só vale no tempo dinâmico). */
+  mes?: number[];
 }
 
 export interface QuandoPessoa {
@@ -51,6 +53,13 @@ export interface QuandoPessoa {
   afeto?: [number, number];
   idade?: [number, number];
   relacao?: 'namoro' | 'casamento';
+  rival?: boolean;
+  /** Pessoas com quem você perdeu o contato (padrão: só as que estão por perto). */
+  afastado?: boolean;
+  /** Sexo da pessoa (para o texto combinar). */
+  sexo?: Sexo;
+  /** Tem namorado(a) ou é casado(a), na vida própria dela. */
+  comParceiro?: boolean;
 }
 
 export function pessoasQueAtendem(vida: Vida, q: QuandoPessoa): Pessoa[] {
@@ -61,6 +70,10 @@ export function pessoasQueAtendem(vida: Vida, q: QuandoPessoa): Pessoa[] {
     const idade = pe.idadeMeses / 12;
     if (q.idade && (idade < q.idade[0] || idade > q.idade[1])) return false;
     if (q.relacao && pe.relacao !== q.relacao) return false;
+    if (q.rival !== undefined && !!pe.rival !== q.rival) return false;
+    if (!!pe.afastado !== (q.afastado ?? false)) return false;
+    if (q.sexo && pe.sexo !== q.sexo) return false;
+    if (q.comParceiro !== undefined && !!pe.parceiroNome !== q.comParceiro) return false;
     return true;
   });
 }
@@ -127,6 +140,7 @@ export function atende(vida: Vida, q: Quando | undefined): boolean {
     if (bio === undefined || (vida.relogio.idadeMeses - bio) / 12 < q.anomalia) return false;
   }
   if (q.ano && vida.relogio.ano % q.ano[0] !== q.ano[1]) return false;
+  if (q.mes && vida.config.turno === 'dinamico' && !q.mes.includes(vida.relogio.mes ?? 1)) return false;
   if (q.ou && !q.ou.some((x) => atende(vida, x))) return false;
   if (q.acao) {
     const habito = vida.habitos.some((h) => h.acao === q.acao && !h.pausado);
@@ -288,9 +302,18 @@ export function sortearVars(rng: Rng, extras?: Record<string, string[]>): Record
  * Troca marcadores: {nome}, {cidade}, {estado}, {amigo}, {amiga}, {pet}, outros de `vars`,
  * e {masculino|feminino} pelo sexo do personagem.
  */
+/** Palavras que mudam de estado para estado. */
+function REGIONAL(uf: string): Record<string, string> {
+  return {
+    gelinho: uf === 'RJ' ? 'sacolé' : uf === 'PE' || uf === 'BA' ? 'dindin' : 'geladinho',
+    biscoito: uf === 'SP' || uf === 'RS' ? 'bolacha' : 'biscoito',
+    mexerica: uf === 'RS' ? 'bergamota' : uf === 'SP' || uf === 'MG' ? 'mexerica' : 'tangerina',
+  };
+}
+
 export function preencher(texto: string, vida: Vida, vars: Record<string, string>): string {
   const p = vida.personagem;
-  const base: Record<string, string> = { nome: p.nome, cidade: p.cidade, estado: p.estado, ...vars };
+  const base: Record<string, string> = { nome: p.nome, cidade: p.cidade, estado: p.estado, ...REGIONAL(p.estado), ...vars };
   return texto.replace(/\{([^{}]+)\}/g, (inteiro, dentro: string) => {
     if (dentro.includes('|')) {
       const [m, f] = dentro.split('|');
