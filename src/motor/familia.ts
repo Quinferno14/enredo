@@ -140,7 +140,8 @@ export function criarFamilia(rng: Rng, sobrenome: string, idadeJogadorMeses: num
   const x = rng.proximo();
   const irmaos = classe === 'baixa' ? (x < 0.35 ? 0 : x < 0.65 ? 1 : x < 0.85 ? 2 : 3) : (x < 0.5 ? 0 : x < 0.85 ? 1 : 2);
   for (let i = 0; i < irmaos; i++) {
-    const maxMais = Math.max(1, idadeMae - 18);
+    const idadePaiAgora = pessoas.find((x) => x.papel === 'pai') ? (pessoas.find((x) => x.papel === 'pai')!.idadeMeses - idadeJogadorMeses) / 12 : idadeMae;
+    const maxMais = Math.max(1, Math.min(idadeMae, idadePaiAgora) - 18);
     pessoas.push(gerarPessoa(rng, {
       papel: 'irmao', sobrenome, idadeMeses: rng.inteiro(1, Math.min(12, maxMais)) * 12 + idadeJogadorMeses,
       pais: [mae.potencial], afeto: [45, 85], ano, usados,
@@ -742,7 +743,14 @@ export function resolverPretendente(vida: Vida, pend: Pendente, indice: number, 
     return `Vocês saíram, riram muito e começaram a namorar. ${c.nome} agora é ${papelTexto(c)}.`;
   }
   aplicar(vida, { 'atributos.felicidade': -3 });
-  return `${c.nome} foi simpátic${fem(c) ? 'a' : 'o'}, mas não quis nada com você.`;
+  const o = fem(c) ? 'a' : 'o';
+  return rng.escolher([
+    `${c.nome} foi simpátic${o}, mas não quis nada com você.`,
+    `Vocês conversaram a noite toda, mas no fim ${c.nome} disse que estava saindo de um namoro.`,
+    `${c.nome} riu das suas piadas, pegou seu número e nunca mandou mensagem.`,
+    `${c.nome} deixou claro que só queria amizade.`,
+    `O papo não engrenou. ${c.nome} olhou o celular três vezes em dez minutos.`,
+  ]);
 }
 
 /** Ação "Procurar alguém": abre os pretendentes. */

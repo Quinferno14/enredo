@@ -102,7 +102,7 @@ export function TelaVida(props: Props) {
         <div>
           <h1>{nomeCompleto(vida)}</h1>
           <p class="sutil">
-            {morte ? `† ${textoIdade(morte.idadeMeses)} · ${morte.ano}` : `${textoIdade(vida.relogio.idadeMeses)} · ${quandoAgora(vida)}`}
+            {morte ? `† ${textoIdade(morte.idadeMeses)} · ${morte.ano}` : `${textoIdade(vida.relogio.idadeMeses, p.sexo)} · ${quandoAgora(vida)}`}
             {' · '}<span class={p.dinheiro < 0 ? 'desce' : ''}>{reais(p.dinheiro)}</span>
           </p>
           {status && !morte && <p class="sutil status">{status}</p>}
@@ -147,7 +147,7 @@ export function TelaVida(props: Props) {
             <span class={`rotina ${rotina.classe}`} title={`Escola e trabalho: ${horasObrigacoes(vida)} h · hábitos: ${horasSemana(vida)} h por semana`}>
               Rotina {rotina.texto}
             </span>
-            {vida.habitos.map((h) => (
+            {vida.habitos.filter((h) => h.pausado !== 'fim' && (acaoPorId(h.acao)?.idade[1] ?? 200) >= vida.relogio.idadeMeses / 12).map((h) => (
               <button key={h.acao} class={h.pausado ? 'chip pausado' : 'chip'} aria-expanded={habitoAberto === h.acao}
                 onClick={() => setHabitoAberto(habitoAberto === h.acao ? null : h.acao)}>
                 ⟳ {acaoPorId(h.acao)?.nome ?? h.acao} {h.porSemana}x{h.pausado ? ' (pausado)' : ''}
@@ -204,7 +204,7 @@ export function TelaVida(props: Props) {
             <div class="escolhas">
               {vida.pendente.escolhas.map((c, i) => (/^Só (a partir|até)/.test(c.motivo ?? '') ? null :
                 <button key={i} class="secundario" disabled={!!c.motivo} onClick={() => onEscolha(i)}>
-                  {c.texto}{c.motivo && <span class="dica"> · {c.motivo}</span>}{c.jeitoTexto && <span class={c.jeito === 'contra' ? 'tag menos jeito' : 'tag jeito'}>{c.jeitoTexto}</span>}
+                  {c.texto}{c.motivo && <span class="dica"> · {c.motivo}</span>}{c.jeitoTexto && <>{' '}<span class={c.jeito === 'contra' ? 'tag menos jeito' : 'tag jeito'}>{c.jeitoTexto}</span></>}
                 </button>
               ))}
             </div>

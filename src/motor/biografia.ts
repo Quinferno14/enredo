@@ -4,7 +4,7 @@ import { cursoPorId, estadoDe, textoClasse } from './carreira';
 import type { Vida } from './tipos';
 
 const juntar = (xs: string[]) => (xs.length <= 1 ? xs.join('') : `${xs.slice(0, -1).join(', ')} e ${xs.at(-1)}`);
-const ano = (v: Vida, idadeMeses: number) => v.relogio.ano - Math.floor((v.relogio.idadeMeses - idadeMeses) / 12);
+const ano = (v: Vida, idadeMeses: number) => Math.floor((v.relogio.ano * 12 + ((v.relogio.mes ?? 1) - 1) - v.relogio.idadeMeses + idadeMeses) / 12);
 
 export function biografia(vida: Vida): string[] {
   const p = vida.personagem;

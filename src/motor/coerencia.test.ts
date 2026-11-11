@@ -8,13 +8,32 @@ import { disparar, eventoPorId } from './eventos';
 import { Rng } from './rng';
 import { MESES } from './tempo';
 import type { Vida } from './tipos';
-import { avancarPeriodo, criarVida } from './vida';
+import { avancarPeriodo, criarVida, textoIdade } from './vida';
+import { biografia } from './biografia';
+import { recontar } from './vozes';
 
 const nova = (seed: string, inicio: 'bebe' | 'adulto' = 'bebe', mes = 3): Vida => criarVida({
   id: seed, seed, ano: 2026, mes, criadaEm: '2026-11-11T00:00:00.000Z', turno: 'dinamico', morte: 'permanente', inicio,
 });
 
 describe('base coerente (Revisão 2, etapa 1)', () => {
+  it('quem nasce em novembro de 2026 nasceu em 2026, e menina é recém-nascida', () => {
+    let v = nova('nov', 'bebe', 11);
+    expect(textoIdade(0, 'feminino')).toBe('recém-nascida');
+    for (let i = 0; i < 6; i++) v = avancarPeriodo(v, true);
+    expect(biografia(v)[0]).toMatch(/nasceu em 2026/);
+  });
+
+  it('no diário, a criança diz "a gente"', () => {
+    const v = nova('diario', 'bebe', 3);
+    v.relogio.idadeMeses = 9 * 12;
+    v.relogio.ano = 2035;
+    v.historico = [{ quando: 'março de 2035', texto: 'Vocês combinam muito.', fato: { tipo: 'evento', id: 'x' } }];
+    const it = recontar(v)[0]!.itens[0]!;
+    expect(it.tipo).toBe('diario');
+    expect('texto' in it && it.texto).toMatch(/gente combina/);
+  });
+
   it('o aniversário cai no mês em que a pessoa nasceu', () => {
     let v = nova('aniv', 'bebe', 8);
     expect(mesDeNascimento(v)).toBe(8);

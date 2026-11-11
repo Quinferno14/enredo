@@ -179,7 +179,7 @@ export function TelaEu({ vida, deus, onInteresse, onEixo, onSairEmprego }: Props
           ? <p class="dica">As escolhas que deixam marca aparecem aqui.</p>
           : (
             <ul class="memorias">
-              {[...vida.memorias].sort((a, b) => Math.abs(b.peso) - Math.abs(a.peso)).slice(0, 8).map((m, i) => (
+              {[...vida.memorias].sort((a, b) => Math.abs(b.peso) - Math.abs(a.peso)).slice(0, 8).sort((a, b) => a.idadeMeses - b.idadeMeses).map((m, i) => (
                 <li key={i}>{m.ano}: {m.texto.charAt(0).toUpperCase() + m.texto.slice(1)}{m.peso > 0 ? ' 🙂' : m.peso < 0 ? ' 😞' : ''}</li>
               ))}
             </ul>

@@ -79,7 +79,11 @@ export function TelaPessoas({ vida, aviso, onAcao, deus, onEditar, onCriar }: Pr
       : subAqui?.abre === 'atividades'
         ? acoesDisponiveis(vida).filter((a) => a.comQuem).map((a) => ({ id: a.id, nome: a.nome, gosta: false }))
         : [];
-    const lembrancas = (p.lembrancas ?? []).slice(-3).reverse();
+    const lembrancas = (p.lembrancas ?? []).slice().reverse().reduce<{ texto: string; idadeMeses: number; desculpado?: boolean; vezes: number }[]>((acc, l) => {
+      const igual = acc.find((x) => x.texto === l.texto);
+      if (igual) igual.vezes++; else acc.push({ ...l, vezes: 1 });
+      return acc;
+    }, []).slice(0, 3);
     const anoDe = (meses: number) => vida.relogio.ano - Math.floor((vida.relogio.idadeMeses - meses) / 12);
 
     return (
@@ -114,7 +118,7 @@ export function TelaPessoas({ vida, aviso, onAcao, deus, onEditar, onCriar }: Pr
               </p>
             )}
             {lembrancas.length > 0 && (
-              <p class="sutil">Lembra: {lembrancas.map((l) => `${l.texto} (${anoDe(l.idadeMeses)})${l.desculpado ? ', já perdoou' : ''}`).join('; ')}.</p>
+              <p class="sutil">Lembra: {lembrancas.map((l) => `${l.texto}${l.vezes > 1 ? ` (${l.vezes} vezes)` : ''} (${anoDe(l.idadeMeses)})${l.desculpado ? ', já perdoou' : ''}`).join('; ')}.</p>
             )}
 
             {subAqui ? (

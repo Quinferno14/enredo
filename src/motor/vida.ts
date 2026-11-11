@@ -211,7 +211,7 @@ function resumoDoAno(vida: Vida, anoQueFechou: number): string[] {
     linhas.push(`${anoQueFechou} fechou com o saldo indo de ${reais(ini.dinheiro)} para ${reais(p.dinheiro)}.`);
   }
   const ativos = vida.habitos.filter((h) => !h.pausado).map((h) => `${acaoPorId(h.acao)?.nome ?? h.acao} ${h.porSemana}x/sem`);
-  if (ativos.length) linhas.push(`Seus hábitos seguiram firmes: ${ativos.join(', ')}.`);
+  if (ativos.length) linhas.push(`Seus hábitos seguiram firmes: ${ativos.slice(0, 3).join(', ')}${ativos.length > 3 ? ` e mais ${ativos.length - 3}` : ''}.`);
   if (ini) linhas.push(...notasDeTendencia(vida, ini.atributos));
   vida.inicioAno = { atributos: { ...p.atributos }, dinheiro: p.dinheiro };
   return linhas;
@@ -274,8 +274,8 @@ const MARCOS_IDADE: { meses: number; texto: (s: Sexo) => string }[] = [
   { meses: 100 * 12, texto: () => 'Você chegou aos 100 anos!' },
 ];
 
-export function textoIdade(meses: number): string {
-  if (meses < 12) return meses === 0 ? 'recém-nascido' : `${meses} meses`;
+export function textoIdade(meses: number, sexo?: Sexo): string {
+  if (meses < 12) return meses === 0 ? (sexo === 'feminino' ? 'recém-nascida' : 'recém-nascido') : meses === 1 ? '1 mês' : `${meses} meses`;
   const anos = Math.floor(meses / 12);
   return anos === 1 ? '1 ano' : `${anos} anos`;
 }

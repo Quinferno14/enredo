@@ -101,6 +101,17 @@ const IRREGULARES: Record<string, string> = {
 const PALAVRAS_EU = new Set(['seu', 'meu', 'teu', 'eu', 'céu', 'chapéu', 'museu', 'europeu', 'judeu', 'ateu', 'pneu', 'troféu', 'véu', 'sou', 'vou', 'estou', 'dou', 'ou']);
 const NAO_VERBO = new Set(['e', 'a', 'o', 'de', 'com', 'que', 'na', 'no', 'da', 'do', 'em', 'um', 'uma', 'mesmo', 'mesma', 'também', 'sozinho', 'sozinha']);
 
+/** Primeira do plural → terceira do singular, para "a gente" ("combinamos" → "combina"). */
+function singular1(v: string): string {
+  const b = v.toLowerCase();
+  const irr: Record<string, string> = { fomos: 'foi', somos: 'é', estamos: 'está', temos: 'tem', vamos: 'vai', fizemos: 'fez', tivemos: 'teve', demos: 'deu', rimos: 'riu', saímos: 'saiu' };
+  if (irr[b]) return irr[b]!;
+  if (/amos$/.test(b)) return v.slice(0, -4) + 'a';
+  if (/emos$/.test(b)) return v.slice(0, -4) + 'e';
+  if (/imos$/.test(b)) return v.slice(0, -4) + 'iu';
+  return v;
+}
+
 /** Terceira do plural → primeira do plural ("passaram" → "passamos", "foram" → "fomos"). */
 export function plural1(v: string): string {
   const b = v.toLowerCase();
@@ -239,7 +250,7 @@ export function letraDeCrianca(texto: string, idadeAnos: number, semente: string
     const s = sorte(`${semente}:${i}`);
     const baixo = p.toLowerCase();
     if (ERROS[baixo] && s < forca + 0.2) return ERROS[baixo]!;
-    if (s < forca * 0.5) return p.replace(/[áàâãéêíóôõúç]/g, (c) => SEM_ACENTO[c] ?? c);
+    if (idadeAnos < 8) return p.replace(/[áàâãéêíóôõúç]/g, (c) => SEM_ACENTO[c] ?? c);
     return p;
   });
   if (idadeAnos < 8) t = minuscula(t);
@@ -353,6 +364,8 @@ function linhaDiario(vida: Vida, h: EntradaHistorico, s: string, idade: number):
   const sr = separarResumo(h.texto); const { corpo } = sr; const tags = etiquetas(sr);
   const esc = partirEscolha(corpo);
   let t = esc ? `Eu decidi ${escolhaEu(esc.escolha)}.${esc.resto ? ` ${paraPrimeira(esc.resto)}` : ''}` : paraPrimeira(corpo);
+  // Criança escreve "a gente", não "nós".
+  t = t.replace(re('‹([Nn])ós ([\\p{L}]+)›'), (_m, n: string, v: string) => `${n === 'N' ? 'A' : 'a'} gente ${singular1(v)}`);
   t = letraDeCrianca(t, idade, s);
   void vida;
   return { tipo: 'diario', texto: t, tags };
@@ -464,7 +477,11 @@ function linhaAdulto(vida: Vida, h: EntradaHistorico, s: string, idadeMeses: num
   // Conversa: com a pessoa envolvida, ou com quem você mais confia.
   const envolvida = h.fato?.pessoa ? vida.pessoas.find((x) => x.id === h.fato!.pessoa) : undefined;
   const para = envolvida && h.fato?.tipo === 'pessoa' ? envolvida : confidente(vida);
-  const texto = esc ? `Decidi: ${escolhaEu(esc.escolha)}.${esc.resto ? ` ${paraPrimeira(esc.resto)}` : ''}` : paraPrimeira(corpo);
+  let texto = esc ? `Decidi: ${escolhaEu(esc.escolha)}.${esc.resto ? ` ${paraPrimeira(esc.resto)}` : ''}` : paraPrimeira(corpo);
+  // Falando com a própria pessoa: ela vira "você" ("Eu passei a tarde com você").
+  if (para && envolvida && para.id === envolvida.id) {
+    texto = texto.replace(new RegExp(`(?<![\\p{L}])(?:(?:meu|minha) [\\p{L}]+ )?${para.nome}(?![\\p{L}])`, 'gu'), 'você').replace(/(^|[.!?]\s+)você/g, (_m, antes: string) => `${antes}Você`);
+  }
   itens.push({ tipo: 'msg', meu: true, texto, tags, ...(para ? { para: para.nome } : {}) });
   const r = respostaDe(para, tom, s, h);
   if (r) itens.push(r);
@@ -530,6 +547,8 @@ export function recontar(vida: Vida, historico: EntradaHistorico[] = vida.histor
       blocos.push(bloco);
     }
     if (h.texto.startsWith('✦')) { bloco.itens.push({ tipo: 'deus', texto: h.texto }); continue; }
+    // A frase de abertura da vida é do narrador, não uma mensagem.
+    if (i === 1 && !h.fato) { bloco.itens.push({ tipo: 'nota', texto: h.texto, tags: [] }); continue; }
     // Perguntas do próprio jogo (vagas, cursos, pretendentes) ficam neutras em qualquer fase.
     if (h.fato?.tipo === 'evento' && h.fato.id?.startsWith('@')) {
       const sr = separarResumo(h.texto);

@@ -254,7 +254,7 @@ export function forcarEvento(vida: Vida, id: string): { vida: Vida; aviso?: stri
   const prox = structuredClone(vida);
   const rng = new Rng(prox.rng);
   const linhas: Linha[] = [];
-  marcar(prox, `Evento forçado: ${id}`);
+  marcar(prox, 'Você fez acontecer:');
   const ok = disparar(prox, { ...e, quando: e.quando?.pessoa ? { pessoa: e.quando.pessoa } : undefined }, {}, rng, linhas);
   if (!ok) return { vida, aviso: 'Esse evento precisa de alguém (ou de uma lembrança) que você não tem.' };
   const quando = quandoAgora(prox);

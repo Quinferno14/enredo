@@ -121,7 +121,7 @@ export function PainelAtividades({ vida, aviso, onFechar, onAcao, onHabito }: Pr
                           const c = custoPara(vida, a, v);
                           return (
                             <button key={v.id} class={vSel?.id === v.id ? 'chip ativo' : 'chip'} onClick={() => setVariante({ ...variante, [a.id]: v.id })}>
-                              {v.nome}{c > 0 ? ` · ${reais(c)}` : v.custo ? ' · os pais pagam' : v.nome.includes('grátis') ? '' : ' · grátis'}
+                              {v.nome}{c > 0 ? ` · ${reais(c)}` : v.custo ? ' · os pais pagam' : v.nome.includes('grátis') || v.nome.includes('R$') ? '' : ' · grátis'}
                             </button>
                           );
                         })}

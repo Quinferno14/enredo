@@ -63,7 +63,7 @@ type SecaoProps = { vida: Vida; onMudar: (v: Vida) => void };
 
 /** Primeira frase do evento, sem marcadores, para o Modo Deus mostrar algo legível. */
 function resumoEvento(t: string): string {
-  const limpo = t.replace(/\{[^{}]*\}/g, 'alguém').replace(/\s+/g, ' ').trim();
+  const limpo = t.replace(/\{[^{}]*\}/g, 'alguém').replace(/(alguém)(\s+alguém)+/g, '$1').replace(/\s+/g, ' ').trim();
   const frase = limpo.split(/(?<=[.!?])\s/)[0] ?? limpo;
   return frase.length > 90 ? `${frase.slice(0, 88)}…` : frase;
 }
