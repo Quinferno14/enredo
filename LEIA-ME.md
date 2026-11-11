@@ -6,7 +6,7 @@ Simulador de vida pessoal, para jogar localmente. Não tem relação com trabalh
   Toda decisão fica lá, não aqui, para sobreviver a uma troca de PC.
 - **Código:** esta pasta e o repositório privado https://github.com/Quinferno14/enredo
 - **Regra:** nada é construído antes de a parte correspondente do escopo estar fechada.
-- **Fase atual:** núcleo jogável completo (marcos 1 a 7) e Revisão 1 em andamento: Revisão 1 completa: R1 (tela Vida e tempo dinâmico), R2 (trabalho livre), R3 (pessoas vivas e pacote vida brasileira) e R4 (personalidade com peso, arcos e painel ✦). O Modo Deus fica no botão ✦, em qualquer tela.
+- **Fase atual:** núcleo jogável completo (marcos 1 a 7) e Revisão 1 em andamento: Revisão 1 completa: R1 (tela Vida e tempo dinâmico), R2 (trabalho livre), R3 (pessoas vivas e pacote vida brasileira) e R4 (personalidade com peso, arcos e painel ✦). O Modo Deus fica no botão ✦, em qualquer tela. A história é recontada por fase da vida (grupo da família, diário, posts, mensagens, áudios); dá para voltar ao feed simples em Mais.
 
 ## Como jogar
 

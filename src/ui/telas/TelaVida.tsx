@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { acaoPorId, companhias, horasAgenda, horasSemana, previaEfeitos, sugestoes, variantesPossiveis, type OpcoesAcao } from '../../motor/acoes';
 import { biografia } from '../../motor/biografia';
 import { horasObrigacoes, textoEstudo, tituloEmprego } from '../../motor/carreira';
@@ -9,6 +9,8 @@ import type { Atributo, EntradaHistorico, Vida } from '../../motor/tipos';
 import { nomeCompleto, quandoAgora, textoIdade } from '../../motor/vida';
 import { NOME_ATRIBUTO } from '../textos';
 import { PainelAtividades } from './PainelAtividades';
+import { FeedFases } from './FeedFases';
+import { recontar } from '../../motor/vozes';
 
 const VISIVEIS: Atributo[] = ['saude', 'felicidade', 'inteligencia', 'aparencia', 'forma', 'carisma'];
 const CURTO: Record<string, string> = {
@@ -86,6 +88,10 @@ export function TelaVida(props: Props) {
   const rotina = rotuloRotina(horas);
   const grupos = agruparPorPeriodo(vida.historico);
   const mostrados = verTudo ? grupos : grupos.slice(-GRUPOS_VISIVEIS);
+  const simples = vida.config.feed === 'simples';
+  // A história recontada por fase da vida (só refaz quando a história ou as pessoas mudam).
+  const blocos = useMemo(() => (simples ? [] : recontar(vida)), [simples, vida.id, vida.historico.length, vida.pessoas.length]);
+  const blocosMostrados = verTudo ? blocos : blocos.slice(-GRUPOS_VISIVEIS);
   const atributos = deus ? [...VISIVEIS, 'sorte' as Atributo] : VISIVEIS;
   const iniciais = `${p.nome[0] ?? ''}${p.sobrenome[0] ?? ''}`;
 
@@ -178,15 +184,15 @@ export function TelaVida(props: Props) {
         <PainelAtividades vida={vida} aviso={aviso} onFechar={() => setPainel(false)} onAcao={onAcao} onHabito={onHabito} />
       ) : (
         <section class="feed" ref={feed} aria-label="Sua história" aria-live="polite">
-          {!verTudo && grupos.length > GRUPOS_VISIVEIS && (
+          {!verTudo && (simples ? grupos.length : blocos.length) > GRUPOS_VISIVEIS && (
             <button class="link" onClick={() => setVerTudo(true)}>Mostrar a história anterior</button>
           )}
-          {mostrados.map((g, i) => (
+          {simples ? mostrados.map((g, i) => (
             <article class="entrada" key={`${g.quando}-${i}`}>
               <span class="quando">{g.quando}</span>
               {g.textos.map((t, j) => <p key={j} class={t.startsWith('✦') ? 'deus-linha' : ''}>{t}</p>)}
             </article>
-          ))}
+          )) : <FeedFases blocos={blocosMostrados} />}
 
         </section>
       )}

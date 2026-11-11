@@ -4018,7 +4018,7 @@
     "texto": [
       "{pessoa} perdeu o emprego. A casa ficou mais apertada.",
       "{pessoa} foi demitid{pa} sem aviso. Vocês sentaram na mesa da cozinha para refazer as contas.",
-      "A empresa d{pdo} {pessoa} fechou as portas. A casa entrou em modo economia."
+      "A empresa {pdo} {pessoa} fechou as portas. A casa entrou em modo economia."
     ],
     "efeitos": {
       "pessoa.renda": "-100%",
@@ -6601,18 +6601,18 @@
           12
         ],
         "texto": [
-          "Almoço de domingo na casa d{pdo} {pessoa}: criança na mesinha separada, refrigerante só no fim de semana.",
-          "Domingo na casa d{pdo} {pessoa}: você brincou no quintal até chamarem três vezes para comer."
+          "Almoço de domingo na casa {pdo} {pessoa}: criança na mesinha separada, refrigerante só no fim de semana.",
+          "Domingo na casa {pdo} {pessoa}: você brincou no quintal até chamarem três vezes para comer."
         ]
       },
       {
         "idade": [
           13,
-          19
+          17
         ],
         "texto": [
-          "Almoço de domingo na casa d{pdo} {pessoa}. Você queria estar em qualquer outro lugar, mas a lasanha estava boa.",
-          "Domingo de família na casa d{pdo} {pessoa}: celular na mão por baixo da mesa e a avó reclamando."
+          "Almoço de domingo na casa {pdo} {pessoa}. Você queria estar em qualquer outro lugar, mas a lasanha estava boa.",
+          "Domingo de família na casa {pdo} {pessoa}: celular na mão por baixo da mesa e a avó reclamando."
         ]
       },
       {
@@ -6653,7 +6653,7 @@
     "texto": [
       "Natal na casa {pdo} {pessoa}: amigo secreto, uva-passa no arroz e a discussão de sempre sobre quem senta onde.",
       "Ceia de Natal com a família toda espremida na sala. {pessoa} contou a mesma história do ano passado.",
-      "Natal na casa d{pdo} {pessoa}: o amigo secreto atrasou duas horas porque alguém esqueceu o presente em casa."
+      "Natal na casa {pdo} {pessoa}: o amigo secreto atrasou duas horas porque alguém esqueceu o presente em casa."
     ],
     "escolhas": [
       {
@@ -6701,16 +6701,16 @@
           10
         ],
         "texto": [
-          "Natal na casa d{pdo} {pessoa}: você ficou acordad{o|a} até meia-noite esperando o Papai Noel, que era o tio de barba de algodão."
+          "Natal na casa {pdo} {pessoa}: você ficou acordad{o|a} até meia-noite esperando o Papai Noel, que era o tio de barba de algodão."
         ]
       },
       {
         "idade": [
           13,
-          19
+          17
         ],
         "texto": [
-          "Natal na casa d{pdo} {pessoa}. Você foi escalad{o|a} para a mesa das crianças de novo, mesmo já sendo adolescente."
+          "Natal na casa {pdo} {pessoa}. Você foi escalad{o|a} para a mesa das crianças de novo, mesmo já sendo adolescente."
         ]
       },
       {
@@ -6719,7 +6719,7 @@
           120
         ],
         "texto": [
-          "Natal na casa d{pdo} {pessoa}, que agora recebe a família toda. Você levou a farofa, como manda a tradição."
+          "Natal na casa {pdo} {pessoa}, que agora recebe a família toda. Você levou a farofa, como manda a tradição."
         ]
       }
     ]
@@ -8450,7 +8450,7 @@
           12
         ],
         "texto": [
-          "Festa de aniversário d{pdo} {pessoa}, com cama elástica e bolo de brigadeiro."
+          "Festa de aniversário {pdo} {pessoa}, com cama elástica e bolo de brigadeiro."
         ]
       },
       {
@@ -8459,7 +8459,7 @@
           18
         ],
         "texto": [
-          "Aniversário d{pdo} {pessoa}: festa na garagem, música alta e os pais fingindo que não estão vendo."
+          "Aniversário {pdo} {pessoa}: festa na garagem, música alta e os pais fingindo que não estão vendo."
         ]
       },
       {
@@ -8468,7 +8468,7 @@
           95
         ],
         "texto": [
-          "Aniversário d{pdo} {pessoa}, mais um ano de amizade. A festa termina às dez, e ninguém reclama."
+          "Aniversário {pdo} {pessoa}, mais um ano de amizade. A festa termina às dez, e ninguém reclama."
         ]
       }
     ]
@@ -10405,7 +10405,7 @@
     "memoria": [
       "discos_vizinho",
       16,
-      "ganhou os discos d{pdo} {pessoa}, o vizinho que tocava em baile"
+      "ganhou os discos {pdo} {pessoa}, o vizinho que tocava em baile"
     ]
   },
   {

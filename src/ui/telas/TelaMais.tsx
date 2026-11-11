@@ -46,6 +46,15 @@ export function TelaMais({ vida, salvas, onNovaVida, onMudar, onTrocar, onImport
       </section>
 
       <section class="cartao">
+        <h2>Formato da história</h2>
+        <p class="dica">Por fase da vida: o grupo da família conta a infância, depois vem o diário, os posts, as mensagens e os áudios da velhice. Os fatos são os mesmos.</p>
+        <div class="chips">
+          <button class={vida.config.feed !== 'simples' ? 'chip ativo' : 'chip'} onClick={() => onMudar({ ...vida, config: { ...vida.config, feed: 'fases' } })}>Por fase da vida</button>
+          <button class={vida.config.feed === 'simples' ? 'chip ativo' : 'chip'} onClick={() => onMudar({ ...vida, config: { ...vida.config, feed: 'simples' } })}>Simples</button>
+        </div>
+      </section>
+
+      <section class="cartao">
         <h2>Backup</h2>
         <p class="dica">O jogo salva sozinho no navegador. Exporte um arquivo para guardar fora dele.</p>
         <div class="linha">

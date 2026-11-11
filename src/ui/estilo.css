@@ -453,3 +453,55 @@ details.cartao summary { cursor: pointer; font-weight: 600; }
 .numero-edit.largo { width: 96px; }
 .eventos-deus li { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; font-size: 0.8125rem; padding: 6px 0; border-bottom: 1px solid var(--borda); }
 .busca { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--borda); background: var(--superficie); color: var(--texto); }
+
+/* Feed por fase da vida */
+.fase-titulo { font-weight: 400; text-transform: none; letter-spacing: 0; }
+.fase-corpo { display: flex; flex-direction: column; gap: 6px; }
+.fase-corpo p { margin: 0; }
+.fase-corpo .tags { margin-top: 3px; }
+.tag.nota { background: transparent; border: 1px dashed var(--borda); color: var(--sutil); font-style: italic; }
+
+/* Conversas: grupo da família, mensagens e áudios */
+.bolha {
+  align-self: flex-start; max-width: 88%;
+  padding: 7px 10px; border-radius: 4px 14px 14px 14px;
+  background: var(--superficie); border: 1px solid var(--borda);
+  font-size: 0.9375rem;
+}
+.bolha.minha { align-self: flex-end; border-radius: 14px 4px 14px 14px; background: var(--acento-fraco); border-color: transparent; }
+.bolha .autor { display: block; font-size: 0.75rem; font-weight: 700; color: var(--acento); margin-bottom: 2px; }
+.bolha .audio { display: block; font-size: 0.8125rem; color: var(--sutil); letter-spacing: 1px; }
+.bolha .transcricao { font-size: 0.75rem; color: var(--sutil); }
+.bolha .foto {
+  display: flex; align-items: center; justify-content: center;
+  height: 72px; margin: 4px 0; border-radius: 10px;
+  background: var(--trilho); color: var(--sutil); font-size: 0.8125rem;
+}
+.bolha.corrente { font-style: italic; }
+
+/* Diário */
+.fase-crianca .fase-corpo {
+  padding: 10px 12px; border-radius: 6px;
+  background: repeating-linear-gradient(var(--superficie), var(--superficie) 23px, var(--borda) 24px);
+  border-left: 3px solid #e57373;
+  font-family: 'Comic Sans MS', 'Segoe Print', 'Bradley Hand', cursive;
+}
+.diario-linha { line-height: 24px; }
+
+/* Posts e stories */
+.post { padding: 9px 11px; border-radius: 12px; border: 1px solid var(--borda); background: var(--superficie); display: flex; flex-direction: column; gap: 4px; }
+.post.luto { border-style: dashed; }
+.post-rotulo { font-size: 0.75rem; color: var(--sutil); }
+.riscado { text-decoration: line-through; opacity: 0.6; }
+.curtidas { font-size: 0.8125rem; color: var(--desce); }
+.comentarios { margin: 0; padding: 0; list-style: none; font-size: 0.8125rem; display: flex; flex-direction: column; gap: 2px; }
+.story { display: flex; align-items: center; gap: 8px; font-size: 0.875rem; color: var(--sutil); flex-wrap: wrap; }
+.story-bolinha { width: 10px; height: 10px; border-radius: 50%; background: linear-gradient(45deg, #f9a825, #e91e63, #7b1fa2); flex: none; }
+
+/* Adulto: e-mail, banco, app */
+.email, .carta { padding: 8px 11px; border-radius: 8px; border: 1px solid var(--borda); background: var(--superficie); display: flex; flex-direction: column; gap: 2px; }
+.email-de { font-size: 0.75rem; color: var(--sutil); }
+.carta { font-family: Georgia, 'Times New Roman', serif; }
+.banco { font-size: 0.875rem; padding: 6px 10px; border-radius: 8px; background: var(--trilho); }
+.app-linha { font-size: 0.875rem; color: var(--sutil); }
+.nota-linha { font-size: 0.875rem; color: var(--sutil); font-style: italic; }

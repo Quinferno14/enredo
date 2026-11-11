@@ -27,6 +27,8 @@ export interface Config {
   turno: Turno;
   morte: ModoMorte;
   inicio: Inicio;
+  /** Formato da história: recontada por fase da vida (padrão) ou o feed simples. */
+  feed?: 'fases' | 'simples';
 }
 
 export interface Relogio {

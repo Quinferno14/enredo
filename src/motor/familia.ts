@@ -412,7 +412,7 @@ export function fazerAcaoPessoa(vida: Vida, pessoaId: string, acaoId: string, op
         texto = `Você elogiou ${quem}, de novo. Soou forçado.`;
       } else {
         carinho(3 + p.atributos.carisma / 40);
-        texto = rng.escolher([`Você elogiou ${quem}. ${Ele} ficou sem graça, mas gostou.`, `Você disse para ${quem}, o quanto gosta da companhia ${fem(pe) ? 'dela' : 'dele'}.`]);
+        texto = rng.escolher([`Você elogiou ${quem}. ${Ele} ficou sem graça, mas gostou.`, `Você disse para ${quem}, o quanto você gosta da companhia ${fem(pe) ? 'dela' : 'dele'}.`]);
       }
       break;
     case 'conselho': {
