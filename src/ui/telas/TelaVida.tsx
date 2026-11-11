@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { acaoPorId, horasAgenda, horasSemana, type OpcoesAcao } from '../../motor/acoes';
+import { acaoPorId, companhias, horasAgenda, horasSemana, previaEfeitos, sugestoes, variantesPossiveis, type OpcoesAcao } from '../../motor/acoes';
 import { biografia } from '../../motor/biografia';
 import { horasObrigacoes, textoEstudo, tituloEmprego } from '../../motor/carreira';
 import { voltarPeriodo } from '../../motor/deus';
@@ -8,7 +8,7 @@ import { filhosQuePodemContinuar } from '../../motor/familia';
 import type { Atributo, EntradaHistorico, Vida } from '../../motor/tipos';
 import { nomeCompleto, quandoAgora, textoIdade } from '../../motor/vida';
 import { NOME_ATRIBUTO } from '../textos';
-import { FolhaAtividades } from './FolhaAtividades';
+import { PainelAtividades } from './PainelAtividades';
 
 const VISIVEIS: Atributo[] = ['saude', 'felicidade', 'inteligencia', 'aparencia', 'forma', 'carisma'];
 const CURTO: Record<string, string> = {
@@ -61,7 +61,7 @@ export function TelaVida(props: Props) {
   const morte = vida.morte;
   const herdeiros = filhosQuePodemContinuar(vida);
   const [habitoAberto, setHabitoAberto] = useState<string | null>(null);
-  const [folha, setFolha] = useState(false);
+  const [painel, setPainel] = useState(false);
   const [verTudo, setVerTudo] = useState(false);
   const feed = useRef<HTMLElement>(null);
 
@@ -169,18 +169,22 @@ export function TelaVida(props: Props) {
         </section>
       )}
 
-      <section class="feed" ref={feed} aria-label="Sua história" aria-live="polite">
-        {!verTudo && grupos.length > GRUPOS_VISIVEIS && (
-          <button class="link" onClick={() => setVerTudo(true)}>Mostrar a história anterior</button>
-        )}
-        {mostrados.map((g, i) => (
-          <article class="entrada" key={`${g.quando}-${i}`}>
-            <span class="quando">{g.quando}</span>
-            {g.textos.map((t, j) => <p key={j} class={t.startsWith('✦') ? 'deus-linha' : ''}>{t}</p>)}
-          </article>
-        ))}
+      {painel && !morte ? (
+        <PainelAtividades vida={vida} aviso={aviso} onFechar={() => setPainel(false)} onAcao={onAcao} onHabito={onHabito} />
+      ) : (
+        <section class="feed" ref={feed} aria-label="Sua história" aria-live="polite">
+          {!verTudo && grupos.length > GRUPOS_VISIVEIS && (
+            <button class="link" onClick={() => setVerTudo(true)}>Mostrar a história anterior</button>
+          )}
+          {mostrados.map((g, i) => (
+            <article class="entrada" key={`${g.quando}-${i}`}>
+              <span class="quando">{g.quando}</span>
+              {g.textos.map((t, j) => <p key={j} class={t.startsWith('✦') ? 'deus-linha' : ''}>{t}</p>)}
+            </article>
+          ))}
 
-      </section>
+        </section>
+      )}
 
       <div class="fixos">
         {vida.pendente && !morte && (
@@ -220,27 +224,34 @@ export function TelaVida(props: Props) {
 
       {!morte && (
         <div class="dock">
-          {aviso && <p class="aviso-acao" role="status">{aviso}</p>}
+          {aviso && !painel && <p class="aviso-acao" role="status">{aviso}</p>}
+          <div class="sugestoes" aria-label="Sugestões">
+            {sugestoes(vida).map((a) => {
+              const ult = vida.ultimas?.[a.id];
+              const v = variantesPossiveis(vida, a).find((x) => x.id === ult?.variante) ?? variantesPossiveis(vida, a)[0];
+              const pessoa = ult?.com && ult.com !== 'turma' ? companhias(vida).find((x) => x.id === ult.com) : undefined;
+              const nome = a.id === 'amigos' && v ? `${v.nome.replace(' · grátis', '')}${pessoa ? ` com ${pessoa.nome}` : ''}` : a.nome;
+              return (
+                <button key={a.id} class="sugestao" onClick={() => onAcao(a.id, { variante: v?.id, com: ult?.com ?? 'turma' })}>
+                  <span class="acao-nome">{nome}</span>
+                  <span class="tags">{previaEfeitos(vida, a, v).slice(0, 2).map((t) => <span key={t} class={t.startsWith('↓') || t.startsWith('−') ? 'tag menos' : 'tag'}>{t}</span>)}</span>
+                </button>
+              );
+            })}
+            <button class={painel ? 'sugestao mais ativo' : 'sugestao mais'} onClick={() => setPainel(!painel)}>
+              <span class="acao-nome">{painel ? 'História' : 'Mais'}</span>
+              <span class="tags"><span class="tag">{painel ? '◂' : '▸'}</span></span>
+            </button>
+          </div>
           <div class="dock-botoes">
-            <button class="secundario" onClick={() => setFolha(true)}>Atividades</button>
             <button class="secundario" onClick={onPessoas}>Pessoas</button>
-            <button class="primario" onClick={() => onAvancar(false)} disabled={!!vida.pendente}>
+            <button class="primario" onClick={() => { setPainel(false); onAvancar(false); }} disabled={!!vida.pendente}>
               {vida.pendente ? 'Decida acima' : 'Avançar ▶'}
             </button>
-            <button class="secundario pular" onClick={() => onAvancar(true)} disabled={!!vida.pendente}
+            <button class="secundario pular" onClick={() => { setPainel(false); onAvancar(true); }} disabled={!!vida.pendente}
               title="Pular o ano: só para nas decisões" aria-label="Pular o ano">⏭</button>
           </div>
         </div>
-      )}
-
-      {folha && !morte && (
-        <FolhaAtividades
-          vida={vida}
-          aviso={aviso}
-          onFechar={() => setFolha(false)}
-          onAcao={onAcao}
-          onHabito={onHabito}
-        />
       )}
     </>
   );

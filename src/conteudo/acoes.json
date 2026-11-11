@@ -103,7 +103,7 @@
   },
   {
     "id": "esporte",
-    "nome": "Jogar bola / praticar esporte",
+    "nome": "Esporte",
     "busca": [
       "esporte",
       "bola",
@@ -274,7 +274,7 @@
   },
   {
     "id": "comer_bem",
-    "nome": "Comer bem / cozinhar",
+    "nome": "Comer bem",
     "busca": [
       "comer",
       "cozinhar",
@@ -340,7 +340,7 @@
     "variantes": [
       {
         "id": "praca",
-        "nome": "Praça ou parque",
+        "nome": "Praça",
         "mult": 0.8,
         "textos": [
           "Você e {com} ficaram de bobeira na praça.",

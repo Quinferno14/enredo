@@ -202,6 +202,7 @@ export function fazerAcao(vida: Vida, id: string, opcoes: OpcoesAcao = {}): Resu
     aplicar(prox, { dinheiro: Math.round(rng.inteiro(a.ganho[0], a.ganho[1]) * mult) });
   }
   prox.periodo[id] = (prox.periodo[id] ?? 0) + 1;
+  prox.ultimas = { ...prox.ultimas, [id]: { ...(v ? { variante: v.id } : {}), ...(opcoes.com ? { com: opcoes.com } : {}) } };
 
   const especial = resolverEspecial(prox, a, rng);
   if (especial) extras.push(especial);
@@ -368,6 +369,60 @@ export function pedirParaSair(vida: Vida, acao: string): Vida {
 
 export function horasSemana(vida: Vida): number {
   return vida.habitos.reduce((s, h) => s + (h.pausado ? 0 : h.porSemana * (acaoPorId(h.acao)?.horas ?? 0)), 0);
+}
+
+const ROTULO_EFEITO: Record<string, string> = {
+  'atributos.saude': 'Saúde', 'atributos.felicidade': 'Felic.', 'atributos.inteligencia': 'Intel.',
+  'atributos.aparencia': 'Aparên.', 'atributos.forma': 'Forma', 'atributos.carisma': 'Carisma',
+  'trabalho.desempenho': 'Desempenho', 'estudo.nota': 'Nota',
+};
+
+/** O que a ação mexe, em etiquetas curtas: "↑Forma", "↓Saúde", "−R$ 8", "+R$", "↓Cansaço". */
+export function previaEfeitos(vida: Vida, a: AcaoDef, v?: VarianteDef): string[] {
+  const tags: { t: string; peso: number }[] = [];
+  const efeitos = { ...a.efeitos } as Record<string, number | string>;
+  for (const [k, x] of Object.entries(v?.extra ?? {})) efeitos[k] = Number(efeitos[k] ?? 0) + Number(x);
+  for (const [k, x] of Object.entries(efeitos)) {
+    const n = Number(x) * (v?.mult ?? 1);
+    const nome = ROTULO_EFEITO[k];
+    if (nome && Math.abs(n) >= 0.3) tags.push({ t: `${n > 0 ? '↑' : '↓'}${nome}`, peso: Math.abs(n) });
+  }
+  tags.sort((x, y) => y.peso - x.peso);
+  const out = tags.slice(0, 2).map((x) => x.t);
+  const custo = custoPara(vida, a, v);
+  if (custo > 0) out.push(`−${reais(custo)}`);
+  if (a.ganho) out.push('+R$');
+  const desg = v?.desgaste ?? a.desgaste;
+  if (desg <= -5) out.push('↓Cansaço');
+  return out;
+}
+
+/**
+ * Até 4 sugestões do momento: primeiro o que a situação pede (nota baixa, sem
+ * emprego, cansaço alto, tristeza, sem ninguém), depois o que você mais faz.
+ */
+export function sugestoes(vida: Vida): AcaoDef[] {
+  const p = vida.personagem;
+  const idade = idadeDe(vida);
+  const lista = acoesDisponiveis(vida);
+  const tem = (id: string) => lista.find((a) => a.id === id);
+  const contexto: (AcaoDef | undefined)[] = [];
+  if ((p.estudo.etapa !== 'nenhuma' && p.estudo.nota < 60) || (p.estudo.etapa === 'medio' && p.estudo.serie === 3)) contexto.push(tem('estudar'));
+  if (idade >= 18 && !p.trabalho.emprego && p.trabalho.aposentadoria === 0) contexto.push(tem('procurar_emprego'));
+  if (p.desgaste >= 60) contexto.push(tem('tirar_folga') ?? tem('meditar'));
+  if (p.atributos.felicidade < 45) contexto.push(tem('amigos'));
+  if (p.atributos.saude < 45) contexto.push(tem('medico_sus'));
+  if (idade >= 16 && !vida.pessoas.some((x) => x.papel === 'parceiro' && x.vivo) && p.atributos.felicidade < 60) contexto.push(tem('procurar_parceiro'));
+  const usadas = [...lista]
+    .filter((a) => !a.semHabito)
+    .sort((x, y) => (vida.totais[y.id] ?? 0) - (vida.totais[x.id] ?? 0));
+  const padrao = ['estudar', 'amigos', 'esporte', 'ler', 'brincar', 'bico', 'trabalhar_duro', 'academia'].map(tem);
+  const out: AcaoDef[] = [];
+  for (const a of [...contexto, ...usadas.filter((x) => (vida.totais[x.id] ?? 0) > 0), ...padrao, ...lista]) {
+    if (a && !out.includes(a)) out.push(a);
+    if (out.length >= 4) break;
+  }
+  return out;
 }
 
 /** Horas por semana de escola, trabalho e hábitos. */

@@ -241,6 +241,8 @@ export interface Vida {
   anterior: Vida | null;
   /** Quantas vezes voltou; muda o sorteio para o período não se repetir igual. */
   voltas: number;
+  /** Último jeito que cada ação foi feita (variante e companhia), para as sugestões repetirem. */
+  ultimas?: Record<string, { variante?: string; com?: string }>;
   /** Modo dinâmico: como a vida estava no começo do ano, para o resumo do ano. */
   inicioAno?: { atributos: Record<Atributo, number>; dinheiro: number };
 }
