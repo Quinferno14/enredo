@@ -6,7 +6,7 @@ Simulador de vida pessoal, para jogar localmente. Não tem relação com trabalh
   Toda decisão fica lá, não aqui, para sobreviver a uma troca de PC.
 - **Código:** esta pasta e o repositório privado https://github.com/Quinferno14/enredo
 - **Regra:** nada é construído antes de a parte correspondente do escopo estar fechada.
-- **Fase atual:** núcleo jogável completo (marcos 1 a 7) e Revisão 1 em andamento: R1 (tela Vida em formato de conversa, tempo dinâmico) pronta. Próximo: R2 (trabalho livre).
+- **Fase atual:** núcleo jogável completo (marcos 1 a 7) e Revisão 1 em andamento: R1 (tela Vida e tempo dinâmico) e R2 (trabalho livre) prontas. Próximo: R3 (pessoas vivas e pacote vida brasileira).
 
 ## Como jogar
 

@@ -8,7 +8,7 @@ import estadosJson from '../conteudo/estados.json';
 import { curva } from './curva';
 import { aplicar, atende, lembrar, preencher, reais, valor, type Quando } from './efeitos';
 import { limitar } from './envelhecer';
-import { anosDaJanela } from './tempo';
+import { anosDaJanela, quandoAgora } from './tempo';
 import type { Rng } from './rng';
 import type { Classe, Emprego, Estudo, Pendente, Vida } from './tipos';
 
@@ -21,6 +21,12 @@ export interface EmpregoDef {
   requer: Quando;
   fit: Record<string, number>;
   chanceBase: number;
+  /** 'meio': trabalho extra (meio período, freela, estágio); 'integral': emprego principal. */
+  jornada: 'integral' | 'meio';
+  /** Estágio e jovem aprendiz aparecem na busca de estágio. */
+  tipo?: 'estagio';
+  /** Só entra por concurso, alistamento ou peneira, nunca pela busca de vagas. */
+  soConcurso?: boolean;
 }
 export interface EstadoDef {
   sigla: string; nome: string; cidades: string[];
@@ -89,6 +95,8 @@ export function horasObrigacoes(vida: Vida): number {
   if (p.estudo.etapa === 'faculdade' || p.estudo.cursinho) h += 20;
   const emp = p.trabalho.emprego;
   if (emp) h += empregoPorId(emp.id)?.horas ?? 40;
+  for (const e of p.trabalho.extras) h += empregoPorId(e.id)?.horas ?? 15;
+  if (p.negocio) h += 20;
   return h;
 }
 
@@ -259,34 +267,51 @@ export function salarioInicial(vida: Vida, def: EmpregoDef): number {
   return Math.round((def.salario * estadoDe(vida).salario) / 10) * 10;
 }
 
+/** Quanto um valor ajuda na vaga: atributos contam a partir de 50, habilidades a partir de 30. */
+function valorFit(vida: Vida, k: string): number {
+  return valor(vida, k) - (k.startsWith('habilidade.') ? 30 : 50);
+}
+
 export function chanceContratar(vida: Vida, def: EmpregoDef): number {
   let p = def.chanceBase;
-  for (const [k, c] of Object.entries(def.fit)) p += c * (valor(vida, k) - 50);
+  for (const [k, c] of Object.entries(def.fit)) p += c * valorFit(vida, k);
   p += vida.memorias.some((m) => m.id === 'estagio') ? 0.1 : 0;
+  const esc = vida.personagem.estudo.escolaridade;
+  p += esc === 'superior' ? 0.1 : esc === 'medio' ? 0.05 : 0;
   p += (vida.personagem.atributos.carisma - 50) * 0.002;
   return Math.max(0.03, Math.min(0.95, p));
 }
 
-export function vagasPossiveis(vida: Vida): EmpregoDef[] {
-  const atual = vida.personagem.trabalho.emprego?.id;
-  return EMPREGOS.filter((e) => e.id !== atual && atende(vida, e.requer));
+export type TipoVaga = 'fixo' | 'extra' | 'estagio';
+
+export function vagasPossiveis(vida: Vida, tipo: TipoVaga = 'fixo'): EmpregoDef[] {
+  const t = vida.personagem.trabalho;
+  const ocupados = new Set([t.emprego?.id, ...t.extras.map((e) => e.id)]);
+  return EMPREGOS.filter((e) => {
+    if (e.soConcurso || ocupados.has(e.id) || !atende(vida, e.requer)) return false;
+    if (tipo === 'fixo') return e.jornada === 'integral';
+    if (tipo === 'estagio') return e.tipo === 'estagio';
+    return e.jornada === 'meio' && e.tipo !== 'estagio';
+  });
 }
 
 function rotuloChance(p: number) {
   return p >= 0.6 ? 'chance alta' : p >= 0.3 ? 'chance média' : 'chance baixa';
 }
 
-export function pendenteVagas(vida: Vida, rng: Rng): Pendente | null {
-  const lista = [...vagasPossiveis(vida)];
+export function pendenteVagas(vida: Vida, rng: Rng, tipo: TipoVaga = 'fixo'): Pendente | null {
+  const lista = [...vagasPossiveis(vida, tipo)];
   if (!lista.length) return null;
   const escolhidas: EmpregoDef[] = [];
-  while (escolhidas.length < 3 && lista.length) {
+  while (escolhidas.length < 4 && lista.length) {
     escolhidas.push(lista.splice(Math.floor(rng.proximo() * lista.length), 1)[0]!);
   }
   escolhidas.sort((a, b) => b.salario - a.salario);
   return {
-    evento: '@vagas', sistema: 'vagas', vars: {},
-    texto: 'Você achou estas vagas abertas. Para qual vai se candidatar?',
+    evento: '@vagas', sistema: 'vagas', vars: {}, tipoVaga: tipo,
+    texto: tipo === 'fixo' ? 'Você achou estas vagas abertas. Para qual vai se candidatar?'
+      : tipo === 'estagio' ? 'Vagas de estágio e jovem aprendiz para o seu perfil:'
+      : 'Trabalhos extras que cabem na sua semana (somam com o que você já faz):',
     dados: [...escolhidas.map((e) => e.id), 'nada'],
     escolhas: [
       ...escolhidas.map((e) => ({
@@ -300,13 +325,15 @@ export function pendenteVagas(vida: Vida, rng: Rng): Pendente | null {
 export function rodarTrabalho(vida: Vida, anos: number, rng: Rng): string[] {
   const linhas: string[] = [];
   const t = vida.personagem.trabalho;
+  linhas.push(...rodarExtras(vida, anos, rng));
+  linhas.push(...rodarAtleta(vida));
   const emp = t.emprego;
   if (!emp) return linhas;
   const def = empregoPorId(emp.id);
   const p = vida.personagem;
 
   let encaixe = 0;
-  for (const [k, c] of Object.entries(def?.fit ?? {})) encaixe += c * 100 * (valor(vida, k) - 50);
+  for (const [k, c] of Object.entries(def?.fit ?? {})) encaixe += c * 100 * valorFit(vida, k);
   const duro = Math.min(25, 4 * curva(intensidade(vida, 'trabalhar_duro', anos)));
   const alvo = limitar(50 + encaixe + duro + p.personalidade.disciplina * 0.1 - Math.max(0, p.desgaste - 40) * 0.3);
   emp.desempenho = Math.round(limitar(emp.desempenho + (alvo - emp.desempenho) * 0.5 * anos + (rng.proximo() * 2 - 1) * 5 * anos));
@@ -316,7 +343,7 @@ export function rodarTrabalho(vida: Vida, anos: number, rng: Rng): string[] {
   if (emp.desempenho >= 70 && rng.proximo() < 0.3 * anos) {
     if (emp.nivel < nTitulos - 1) {
       emp.nivel += 1;
-      emp.salario = Math.round(emp.salario * 1.25);
+      emp.salario = Math.round(emp.salario * (emp.id === 'atleta' ? 2.5 : 1.25));
       const titulo = tituloEmprego(vida, emp);
       t.cargos.push(titulo);
       linhas.push(`Promoção! Agora você é ${titulo}, ganhando ${reais(emp.salario)} por mês.`);
@@ -338,6 +365,43 @@ export function rodarTrabalho(vida: Vida, anos: number, rng: Rng): string[] {
   return linhas;
 }
 
+/** Trabalhos extras: renda à parte, contrato de aprendiz e estágio que acabam, corte de freela. */
+function rodarExtras(vida: Vida, anos: number, rng: Rng): string[] {
+  const linhas: string[] = [];
+  const p = vida.personagem;
+  const idade = vida.relogio.idadeMeses / 12;
+  p.trabalho.extras = p.trabalho.extras.filter((e) => {
+    const titulo = tituloEmprego(vida, e);
+    if (e.id === 'jovem_aprendiz' && idade >= 18) { linhas.push('Seu contrato de jovem aprendiz acabou: você fez 18.'); return false; }
+    if (e.id === 'estagio' && p.estudo.etapa !== 'medio' && p.estudo.etapa !== 'faculdade') { linhas.push('Seu estágio acabou junto com os estudos.'); return false; }
+    if (rng.proximo() < 0.08 * anos) { linhas.push(`O trabalho de ${titulo} acabou: o cliente sumiu.`); return false; }
+    p.trabalho.anosContribuicao += anos * 0.3;
+    return true;
+  });
+  return linhas;
+}
+
+/** Quem passou na peneira vira atleta; perto dos 35 a carreira acaba. */
+function rodarAtleta(vida: Vida): string[] {
+  const p = vida.personagem;
+  const t = p.trabalho;
+  const idade = vida.relogio.idadeMeses / 12;
+  const passou = vida.memorias.some((m) => m.id === 'passou_peneira');
+  if (passou && !t.emprego && idade < 30 && !vida.memorias.some((m) => m.id === 'fim_atleta')) {
+    const def = empregoPorId('atleta')!;
+    t.emprego = { id: 'atleta', salario: salarioInicial(vida, def), desempenho: 55, nivel: 0, desdeMeses: vida.relogio.idadeMeses };
+    t.cargos.push(tituloEmprego(vida, t.emprego));
+    return ['Você assinou seu primeiro contrato como atleta da base!'];
+  }
+  if (t.emprego?.id === 'atleta' && idade >= 35) {
+    const nivel = t.emprego.nivel;
+    t.emprego = null;
+    lembrar(vida, 'fim_atleta', nivel >= 1 ? 'pendurou as chuteiras depois de uma carreira profissional' : 'encerrou a carreira de atleta', nivel >= 1 ? 20 : 5);
+    return ['Aos 35, o corpo pediu: você encerrou a carreira de atleta.'];
+  }
+  return [];
+}
+
 // ---- Dinheiro ----
 
 /** Renda, gastos fixos, dívidas e juros do período. */
@@ -350,6 +414,13 @@ export function rodarDinheiro(vida: Vida, anos: number, resumir = true): string[
 
   const emp = p.trabalho.emprego;
   if (emp) entrou += emp.salario * (13 / 12) * meses; // com 13º
+  for (const e of p.trabalho.extras) entrou += e.salario * meses;
+  if (p.seguidores >= 10000) entrou += p.seguidores * 0.008 * meses; // publis
+  linhas.push(...rodarNegocio(vida, anos, meses, (v) => { if (v >= 0) entrou += v; else saiu += -v; }));
+  // Seguidores esfriam sem postar; a fama segue os seguidores ou cai devagar.
+  p.seguidores = Math.round(p.seguidores * 0.995 ** meses);
+  const famaSeg = p.seguidores > 0 ? Math.max(0, Math.min(100, Math.log10(p.seguidores) * 18 - 40)) : 0;
+  p.fama = Math.max(famaSeg, Math.max(0, p.fama - 1.5 * anos));
   if (p.trabalho.aposentadoria > 0) entrou += p.trabalho.aposentadoria * (13 / 12) * meses;
   if (idade >= 10 && idade < 18) entrou += MESADA[p.classe] * meses;
   if (p.estudo.etapa === 'faculdade' && idade < 26) entrou += { baixa: 0, media: 200, alta: 600 }[p.classe] * meses;
@@ -401,11 +472,36 @@ export function rodarDinheiro(vida: Vida, anos: number, resumir = true): string[
   return linhas;
 }
 
+function rodarNegocio(vida: Vida, anos: number, meses: number, caixa: (v: number) => void): string[] {
+  const p = vida.personagem;
+  const n = p.negocio;
+  if (!n) return [];
+  const lucro = n.faturamento * ((n.saude - 40) / 60) * meses;
+  caixa(Math.round(lucro));
+  n.saude = Math.max(0, Math.min(100, n.saude - 1.5 * meses + (p.personalidade.disciplina + p.personalidade.ambicao) / 400 * meses));
+  if (n.saude > 80) n.faturamento = Math.round(n.faturamento * 1.02 ** meses);
+  if (n.saude <= 0) {
+    p.negocio = null;
+    lembrar(vida, 'negocio_quebrou', `viu ${n.nome} quebrar`, -25);
+    aplicarFelicidade(vida, -12);
+    return [`${n.nome} quebrou. Você fechou as portas com dívidas e aprendizado.`];
+  }
+  return [];
+}
+
+function aplicarFelicidade(vida: Vida, d: number) {
+  const a = vida.personagem.atributos;
+  a.felicidade = Math.max(0, Math.min(100, a.felicidade + d));
+}
+
 /** Renda e gasto mensais de agora, para a tela. */
 export function orcamentoMensal(vida: Vida) {
   const p = vida.personagem;
   const idade = vida.relogio.idadeMeses / 12;
   const renda = (p.trabalho.emprego?.salario ?? 0) + p.trabalho.aposentadoria
+    + p.trabalho.extras.reduce((s, e) => s + e.salario, 0)
+    + (p.seguidores >= 10000 ? Math.round(p.seguidores * 0.008) : 0)
+    + (p.negocio ? Math.max(0, Math.round(p.negocio.faturamento * (p.negocio.saude - 40) / 60)) : 0)
     + (idade >= 10 && idade < 18 ? MESADA[p.classe] : 0)
     + (p.estudo.etapa === 'faculdade' && idade < 26 ? { baixa: 0, media: 200, alta: 600 }[p.classe] : 0);
   let gastos = p.dividas.reduce((s, d) => s + d.parcela, 0);
@@ -419,7 +515,7 @@ export function orcamentoMensal(vida: Vida) {
 // ---- Ações e decisões ----
 
 /** Ações com regra própria (procurar emprego, ENEM, sair de casa...). Devolve uma linha extra. */
-export function acaoCarreira(vida: Vida, especial: string, rng: Rng): string | null {
+export function acaoCarreira(vida: Vida, especial: string, rng: Rng, variante?: string): string | null {
   const p = vida.personagem;
   const t = p.trabalho;
   const e = p.estudo;
@@ -427,8 +523,14 @@ export function acaoCarreira(vida: Vida, especial: string, rng: Rng): string | n
   switch (especial) {
     case 'procurar_emprego': {
       if (vida.pendente) return 'Resolva a decisão pendente antes de procurar vagas.';
-      const pend = pendenteVagas(vida, rng);
-      if (!pend) return 'Não apareceu nenhuma vaga para o seu perfil agora.';
+      const tipo = (variante as TipoVaga | undefined) ?? 'fixo';
+      if (tipo !== 'fixo' && t.extras.length >= 2) return 'Você já tem dois trabalhos extras. Saia de um na aba Eu para pegar outro.';
+      const pend = pendenteVagas(vida, rng, tipo);
+      if (!pend) {
+        return tipo === 'fixo' ? 'Não apareceu nenhuma vaga fixa para o seu perfil agora. Cursos e habilidades abrem mais portas.'
+          : tipo === 'estagio' ? 'Estágio e aprendiz são para quem está estudando (aprendiz de 14 a 17).'
+          : 'Nenhum trabalho extra para o seu perfil agora. Habilidades (inglês, design, programação, culinária) abrem freelas.';
+      }
       vida.pendente = pend;
       return null;
     }
@@ -490,9 +592,131 @@ export function acaoCarreira(vida: Vida, especial: string, rng: Rng): string | n
       lembrar(vida, 'aposentou', 'se aposentou', 15);
       return `Você se aposentou${t.anosContribuicao >= 35 ? ' depois de uma vida de trabalho' : ''}. INSS: ${reais(t.aposentadoria)} por mês. ${sx('Aposentado', 'Aposentada')}, enfim.`;
     }
+    case 'prestar_concurso': return prestarConcurso(vida, rng, variante ?? 'medio');
+    case 'alistar': {
+      if (rng.proximo() < 0.55 + p.atributos.forma / 400) {
+        const def = empregoPorId('militar')!;
+        t.emprego = { id: 'militar', salario: salarioInicial(vida, def), desempenho: 55, nivel: 0, desdeMeses: vida.relogio.idadeMeses };
+        t.cargos.push(tituloEmprego(vida, t.emprego));
+        lembrar(vida, 'militar', 'entrou para as Forças Armadas', 15);
+        return 'Aprovad' + sx('o', 'a') + ' nos exames. Cabelo raspado, farda e alvorada às cinco: você agora é Soldado.';
+      }
+      return 'Você não passou no exame físico desta vez.';
+    }
+    case 'postar': return postar(vida, rng, variante ?? 'humor');
+    case 'show': return show(vida, rng, variante ?? 'musica');
+    case 'abrir_negocio': return abrirNegocio(vida, variante ?? 'foodtruck');
+    case 'vender_negocio': {
+      const n = p.negocio;
+      if (!n) return null;
+      const valorVenda = Math.round(n.investimento * 0.3 + n.faturamento * 12 * Math.max(0, n.saude - 30) / 70);
+      p.dinheiro += valorVenda;
+      p.negocio = null;
+      lembrar(vida, 'vendeu_negocio', `vendeu ${n.nome}`, 10);
+      return `Você vendeu ${n.nome} por ${reais(valorVenda)}.`;
+    }
+    case 'autoescola': {
+      if (rng.proximo() < 0.6 + p.atributos.inteligencia / 400) {
+        lembrar(vida, 'habilitacao', 'tirou a carteira de motorista', 10);
+        return 'Passou na prova de direção! Carteira na mão.';
+      }
+      return 'Reprovou na baliza. Vai ter que pagar e remarcar.';
+    }
     default:
       return null;
   }
+}
+
+const NOMES_NEGOCIO: Record<string, { nome: string; custo: number; fat: number }> = {
+  foodtruck: { nome: 'o food truck', custo: 15000, fat: 5000 },
+  loja: { nome: 'a loja', custo: 40000, fat: 12000 },
+  app: { nome: 'a startup', custo: 30000, fat: 9000 },
+};
+
+function abrirNegocio(vida: Vida, tipo: string): string {
+  const p = vida.personagem;
+  const d = NOMES_NEGOCIO[tipo] ?? NOMES_NEGOCIO.foodtruck!;
+  if (p.negocio) return `Você já tem ${p.negocio.nome}. Venda antes de abrir outro.`;
+  if (p.dinheiro < d.custo) return `Para abrir ${d.nome} você precisa de ${reais(d.custo)}.`;
+  p.dinheiro -= d.custo;
+  const base = 50 + (p.personalidade.disciplina + p.personalidade.ambicao) / 10 + (p.habilidades.vendas ?? 0) / 10;
+  const saude = tipo === 'app' ? base - 20 + (p.habilidades.programacao ?? 0) / 3 : base;
+  p.negocio = { tipo, nome: d.nome, investimento: d.custo, faturamento: d.fat, saude: Math.max(15, Math.min(90, saude)), desdeMeses: vida.relogio.idadeMeses };
+  lembrar(vida, 'abriu_negocio', `abriu ${d.nome}`, 15);
+  return `Você investiu ${reais(d.custo)} e abriu ${d.nome}. Agora é cuidar para dar lucro.`;
+}
+
+function prestarConcurso(vida: Vida, rng: Rng, nivel: string): string {
+  const p = vida.personagem;
+  const t = p.trabalho;
+  const devolve = (motivo: string) => { p.dinheiro += nivel === 'superior' ? 120 : nivel === 'pm' ? 90 : 80; return motivo; };
+  if ((vida.periodo.prestar_concurso ?? 0) > 1) return devolve('Você já prestou concurso este ano.');
+  const esc = p.estudo.escolaridade;
+  if (nivel === 'superior' && esc !== 'superior') return devolve('Esse concurso pede ensino superior completo.');
+  if (nivel !== 'superior' && esc !== 'medio' && esc !== 'superior') return devolve('Esse concurso pede ensino médio completo.');
+  if (nivel === 'pm' && (vida.relogio.idadeMeses / 12 > 35 || p.atributos.forma < 55)) return devolve('A PM pede até 35 anos e bom preparo físico (forma 55 ou mais).');
+  const estudo = (p.habilidades.concurso ?? 0) / 100;
+  const chance = Math.max(0.02, Math.min(0.85, 0.03 + estudo * 0.6 + (p.atributos.inteligencia - 50) / 400 + (nivel === 'pm' ? (p.atributos.forma - 55) / 300 : 0)));
+  if (rng.proximo() < chance) {
+    const id = nivel === 'superior' ? 'servidor' : nivel === 'pm' ? 'policial' : 'servidor_medio';
+    const def = empregoPorId(id)!;
+    t.emprego = { id, salario: salarioInicial(vida, def), desempenho: 60, nivel: 0, desdeMeses: vida.relogio.idadeMeses };
+    t.cargos.push(tituloEmprego(vida, t.emprego));
+    lembrar(vida, 'concurso', `passou no concurso para ${tituloEmprego(vida, t.emprego)}`, 25);
+    aplicarFelicidade(vida, 12);
+    return `APROVAD${p.sexo === 'feminino' ? 'A' : 'O'}! Seu nome saiu no Diário Oficial: ${tituloEmprego(vida, t.emprego)}, ${reais(t.emprego.salario)} por mês.`;
+  }
+  return chance < 0.15
+    ? 'Você não passou. Sem estudar para concurso, a concorrência atropela.'
+    : 'Você não passou por poucas questões. Ano que vem tem mais.';
+}
+
+function postar(vida: Vida, rng: Rng, estilo: string): string {
+  const p = vida.personagem;
+  const a = p.atributos;
+  const mult = { humor: 1.2, danca: 0.8 + a.aparencia / 100, opiniao: 1.5, rotina: 0.7 + a.aparencia / 150, live: 0.9 }[estilo] ?? 1;
+  let ganho = (6 + p.seguidores * 0.012) * (0.4 + a.carisma / 100) * mult * (0.4 + rng.proximo() * 1.2);
+  let extra = '';
+  if (rng.proximo() < 0.015 + a.sorte / 3000) {
+    ganho *= 30;
+    p.fama = Math.min(100, p.fama + 6);
+    extra = ' VIRALIZOU! Seu celular não parou de vibrar.';
+    if (!vida.memorias.some((m) => m.id === 'viralizou')) lembrar(vida, 'viralizou', 'viralizou na internet', 20);
+  }
+  if (estilo === 'opiniao' && rng.proximo() < 0.12 * (1 + Math.max(0, p.personalidade.impulsividade) / 100)) {
+    const perdeu = Math.round(p.seguidores * 0.2);
+    p.seguidores -= perdeu;
+    aplicarFelicidade(vida, -8);
+    if (!vida.memorias.some((m) => m.id === 'cancelado')) lembrar(vida, 'cancelado', 'foi cancelad' + (p.sexo === 'feminino' ? 'a' : 'o') + ' na internet', -18);
+    return `A opinião pegou mal: você foi cancelad${p.sexo === 'feminino' ? 'a' : 'o'} e perdeu ${perdeu.toLocaleString('pt-BR')} seguidores.`;
+  }
+  const g = Math.max(1, Math.round(ganho));
+  p.seguidores += g;
+  const publi = p.seguidores >= 10000 && p.seguidores - g < 10000 ? ' Chegou a primeira proposta de publi!' : '';
+  return `+${g.toLocaleString('pt-BR')} seguidores (agora ${p.seguidores.toLocaleString('pt-BR')}).${extra}${publi}`;
+}
+
+function show(vida: Vida, rng: Rng, tipo: string): string {
+  const p = vida.personagem;
+  const nivel = p.tracos.find((x) => x.id === (tipo === 'arte' ? 'arte' : 'musica'))?.nivel ?? 0;
+  if (nivel === 0) return tipo === 'arte' ? 'Você ainda não desenha bem o bastante para vender.' : 'Você ainda não toca bem o bastante para um show.';
+  const cache = Math.round((60 + rng.proximo() * 140) * nivel * (1 + p.fama / 25));
+  p.dinheiro += cache;
+  p.fama = Math.min(100, p.fama + 0.6 * nivel);
+  return tipo === 'arte' ? `Você vendeu peças e faturou ${reais(cache)}.` : `O bar encheu e o cachê foi de ${reais(cache)}.`;
+}
+
+/** Sai de um trabalho (principal ou extra). */
+export function sairDoEmprego(vida: Vida, id: string): Vida {
+  const prox = structuredClone(vida);
+  const t = prox.personagem.trabalho;
+  const e = t.emprego?.id === id ? t.emprego : t.extras.find((x) => x.id === id);
+  if (!e) return vida;
+  const titulo = tituloEmprego(prox, e);
+  if (t.emprego?.id === id) t.emprego = null;
+  else t.extras = t.extras.filter((x) => x.id !== id);
+  prox.historico.push({ quando: quandoAgora(prox), texto: `Você saiu do trabalho de ${titulo}.` });
+  return prox;
 }
 
 /** Resolve as decisões do próprio jogo (vaga ou curso). Altera `vida` e devolve o texto. */
@@ -503,6 +727,15 @@ export function resolverSistema(vida: Vida, pend: Pendente, indice: number, rng:
     if (id === 'nada') return 'Você deixou as vagas passarem.';
     const def = empregoPorId(id);
     if (!def) return '';
+    if (def.jornada === 'meio' && p.trabalho.extras.length >= 2) return 'Você já tem dois trabalhos extras. Saia de um na aba Eu.';
+    if (rng.proximo() < chanceContratar(vida, def) && def.jornada === 'meio') {
+      const novo = { id, salario: salarioInicial(vida, def), desempenho: 55, nivel: 0, desdeMeses: vida.relogio.idadeMeses };
+      p.trabalho.extras.push(novo);
+      p.trabalho.cargos.push(tituloEmprego(vida, novo));
+      aplicarFelicidade(vida, 3);
+      return `Fechado! Agora você também é ${tituloEmprego(vida, novo)}: mais ${reais(novo.salario)} por mês.`;
+    }
+    if (def.jornada === 'meio') return 'Não rolou desta vez: escolheram outra pessoa.';
     if (rng.proximo() < chanceContratar(vida, def)) {
       const saiuDe = p.trabalho.emprego ? ` Você saiu do emprego de ${tituloEmprego(vida, p.trabalho.emprego)}.` : '';
       p.trabalho.emprego = { id, salario: salarioInicial(vida, def), desempenho: 55, nivel: 0, desdeMeses: vida.relogio.idadeMeses };

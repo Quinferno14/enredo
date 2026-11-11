@@ -127,7 +127,7 @@ export function migrar(dados: unknown): Vida | null {
   // Versão 2 → 3: escola, trabalho e dinheiro. Vidas antigas viram classe média, rede pública.
   p2.classe ??= 'media';
   p2.estudo ??= estudoInicial('media', null, vida.relogio.idadeMeses / 12);
-  p2.trabalho ??= { emprego: null, anosContribuicao: 0, aposentadoria: 0, cargos: [] };
+  p2.trabalho ??= { emprego: null, anosContribuicao: 0, aposentadoria: 0, cargos: [], extras: [] };
   p2.dividas ??= [];
   p2.moradia ??= 'pais';
   // Versão 3 → 4: família.
@@ -141,6 +141,12 @@ export function migrar(dados: unknown): Vida | null {
   // Versão 5 → 6: tempo dinâmico para todas as vidas jogadas na tela.
   if (versao < 6) vida.config.turno = 'dinamico';
   vida.relogio.mes ??= 1;
+  // Versão 6 → 7: trabalho livre.
+  p2.trabalho.extras ??= [];
+  p2.habilidades ??= {};
+  p2.fama ??= 0;
+  p2.seguidores ??= 0;
+  p2.negocio ??= null;
   vida.versao = VERSAO_SAVE;
   return vida;
 }

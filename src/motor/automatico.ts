@@ -77,6 +77,12 @@ export function jogarPeriodo(vida: Vida, o: OpcoesAuto = {}): Vida {
       }
     }
     if (idade >= 65 && p.trabalho.aposentadoria === 0 && !p.trabalho.emprego) v = fazerAcao(v, 'aposentar').vida;
+    // Às vezes busca um trabalho extra e escolhe o melhor.
+    if (idade >= 16 && idade < 60 && v.personagem.trabalho.extras.length < 1 && !v.pendente && sorteio() < 0.15) {
+      v = fazerAcao(v, 'procurar_emprego', { variante: 'extra' }).vida;
+      if (v.pendente?.sistema === 'vagas') v = escolher(v, 0);
+    }
+    if (idade >= 12 && sorteio() < 0.3) v = fazerAcao(v, 'curso', { variante: sortear(['ingles', 'informatica', 'programacao', 'design', 'culinaria', 'vendas']) }).vida;
   }
   if (o.familia && !v.morte) {
     const idade = v.relogio.idadeMeses / 12;

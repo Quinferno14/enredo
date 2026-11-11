@@ -3,7 +3,7 @@
 
 import acoesJson from '../conteudo/acoes.json';
 import {
-  aplicar, atende, diferenca, foto, lembrar, mudarTraco, nivelTraco, reais, resumo, type Efeitos, type Quando,
+  aplicar, atende, diferenca, foto, lembrar, NOME_HABILIDADE, mudarTraco, nivelTraco, reais, resumo, type Efeitos, type Quando,
 } from './efeitos';
 import { acaoCarreira, horasObrigacoes } from './carreira';
 import { acaoFamilia } from './familia';
@@ -48,7 +48,7 @@ export interface AcaoDef {
   variantes?: VarianteDef[];
 }
 
-export type Categoria = 'social' | 'corpo' | 'mente' | 'lazer' | 'saude' | 'estudo' | 'trabalho' | 'dinheiro' | 'casa' | 'risco';
+export type Categoria = 'social' | 'corpo' | 'mente' | 'lazer' | 'saude' | 'estudo' | 'trabalho' | 'carreira' | 'dinheiro' | 'casa' | 'risco';
 
 export const CATEGORIAS: { id: Categoria; nome: string }[] = [
   { id: 'social', nome: 'Social' },
@@ -58,6 +58,7 @@ export const CATEGORIAS: { id: Categoria; nome: string }[] = [
   { id: 'saude', nome: 'Saúde' },
   { id: 'estudo', nome: 'Estudo' },
   { id: 'trabalho', nome: 'Trabalho' },
+  { id: 'carreira', nome: 'Carreira' },
   { id: 'dinheiro', nome: 'Dinheiro' },
   { id: 'casa', nome: 'Casa' },
   { id: 'risco', nome: 'Risco' },
@@ -79,6 +80,8 @@ export interface VarianteDef {
   vicio?: { id: string; chance: number };
   /** {com} vira o nome de quem foi junto. */
   textos?: string[];
+  /** O retorno que cai conta separado (ex.: cada curso é um curso). */
+  separado?: boolean;
 }
 
 export interface OpcoesAcao {
@@ -182,7 +185,8 @@ export function fazerAcao(vida: Vida, id: string, opcoes: OpcoesAcao = {}): Resu
   const extras: string[] = [];
   const extrasAfeto: string[] = [];
 
-  const r = rendimentoProximo(prox, id);
+  const chaveR = v?.separado ? `${id}:${v.id}` : id;
+  const r = rendimentoProximo(prox, chaveR);
   aplicar(prox, a.efeitos, r * (v?.mult ?? 1));
   aplicar(prox, v?.extra, r);
   aplicar(prox, { desgaste: a.desgaste, dinheiro: -custo });
@@ -202,9 +206,10 @@ export function fazerAcao(vida: Vida, id: string, opcoes: OpcoesAcao = {}): Resu
     aplicar(prox, { dinheiro: Math.round(rng.inteiro(a.ganho[0], a.ganho[1]) * mult) });
   }
   prox.periodo[id] = (prox.periodo[id] ?? 0) + 1;
+  if (chaveR !== id) prox.periodo[chaveR] = (prox.periodo[chaveR] ?? 0) + 1;
   prox.ultimas = { ...prox.ultimas, [id]: { ...(v ? { variante: v.id } : {}), ...(opcoes.com ? { com: opcoes.com } : {}) } };
 
-  const especial = resolverEspecial(prox, a, rng);
+  const especial = resolverEspecial(prox, a, rng, v?.id);
   if (especial) extras.push(especial);
   extras.push(...sessoesFeitas(prox, a, 1, rng));
   if (a.risco && prox.personagem.desgaste >= a.risco.acima && rng.proximo() < a.risco.chance) {
@@ -243,7 +248,7 @@ function linhaAcao(a: AcaoDef, vezes: number, delta: Record<string, number>, tex
 }
 
 /** Bet, bicho, SUS e furto têm um sorteio próprio. Devolve uma linha extra ou null. */
-function resolverEspecial(vida: Vida, a: AcaoDef, rng: Rng): string | null {
+function resolverEspecial(vida: Vida, a: AcaoDef, rng: Rng, variante?: string): string | null {
   const p = vida.personagem;
   const sorte = p.atributos.sorte / 100;
   switch (a.especial) {
@@ -285,7 +290,7 @@ function resolverEspecial(vida: Vida, a: AcaoDef, rng: Rng): string | null {
     }
     default:
       if (!a.especial) return null;
-      return a.especial === 'procurar_parceiro' ? acaoFamilia(vida, a.especial, rng) : acaoCarreira(vida, a.especial, rng);
+      return a.especial === 'procurar_parceiro' ? acaoFamilia(vida, a.especial, rng) : acaoCarreira(vida, a.especial, rng, variante);
   }
 }
 
@@ -330,7 +335,7 @@ const capitalizar = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 // ---- Hábitos ----
 
 /** Cria, muda a frequência ou (porSemana 0) para um hábito. */
-export function definirHabito(vida: Vida, acao: string, porSemana: number): Vida {
+export function definirHabito(vida: Vida, acao: string, porSemana: number, variante?: string): Vida {
   const a = acaoPorId(acao);
   if (!a || a.semHabito) return vida;
   const prox = structuredClone(vida);
@@ -341,10 +346,11 @@ export function definirHabito(vida: Vida, acao: string, porSemana: number): Vida
     if (atual) prox.historico.push({ quando, texto: `Você parou o hábito: ${a.nome}.` });
   } else if (atual) {
     atual.porSemana = porSemana;
+    if (variante) atual.variante = variante;
     delete atual.pausado;
     delete atual.imposto;
   } else {
-    prox.habitos.push({ acao, porSemana });
+    prox.habitos.push({ acao, porSemana, ...(variante ? { variante } : {}) });
     prox.historico.push({ quando, texto: `Hábito novo: ${a.nome}, ${porSemana}x por semana.` });
   }
   return prox;
@@ -384,7 +390,7 @@ export function previaEfeitos(vida: Vida, a: AcaoDef, v?: VarianteDef): string[]
   for (const [k, x] of Object.entries(v?.extra ?? {})) efeitos[k] = Number(efeitos[k] ?? 0) + Number(x);
   for (const [k, x] of Object.entries(efeitos)) {
     const n = Number(x) * (v?.mult ?? 1);
-    const nome = ROTULO_EFEITO[k];
+    const nome = ROTULO_EFEITO[k] ?? (k.startsWith('habilidade.') ? NOME_HABILIDADE[k.slice(11)] : undefined);
     if (nome && Math.abs(n) >= 0.3) tags.push({ t: `${n > 0 ? '↑' : '↓'}${nome}`, peso: Math.abs(n) });
   }
   tags.sort((x, y) => y.peso - x.peso);
@@ -461,7 +467,8 @@ export function rodarHabitos(vida: Vida, anos: number, rng: Rng, resumir = true)
       };
     }
     const sessoes = Math.round(h.porSemana * 52 * anos);
-    const custo = custoPara(vida, a, a.variantes?.[0]) * sessoes;
+    const vh = a.variantes?.find((x) => x.id === h.variante) ?? a.variantes?.[0];
+    const custo = custoPara(vida, a, vh) * sessoes;
     if (custo > 0 && custo > vida.personagem.dinheiro) {
       if (h.pausado !== 'dinheiro') linhas.push(`${a.nome}: pausado por falta de dinheiro (custa ${reais(custo)} no período).`);
       h.pausado = 'dinheiro';
@@ -475,7 +482,8 @@ export function rodarHabitos(vida: Vida, anos: number, rng: Rng, resumir = true)
     // As sessões à mão já foram calculadas em cima do hábito (rendimentoProximo),
     // então o hábito rende a curva cheia dele e a soma fica certa.
     const ganho = anos * curva(h.porSemana * 52);
-    aplicar(vida, a.efeitos, ganho);
+    aplicar(vida, a.efeitos, ganho * (vh?.mult ?? 1));
+    aplicar(vida, vh?.extra, ganho);
     aplicar(vida, { dinheiro: -custo });
     if (a.ganho) {
       const mult = idade >= 18 ? 1.5 : 1;

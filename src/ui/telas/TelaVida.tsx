@@ -29,7 +29,7 @@ interface Props {
   onEditar: (a: Atributo | 'desgaste', valor: number) => void;
   onMudar: (v: Vida) => void;
   onAcao: (id: string, opcoes: OpcoesAcao) => void;
-  onHabito: (id: string, porSemana: number) => void;
+  onHabito: (id: string, porSemana: number, variante?: string) => void;
   onSairHabito: (id: string) => void;
   onEscolha: (indice: number) => void;
 }
@@ -76,6 +76,10 @@ export function TelaVida(props: Props) {
     textoEstudo(vida),
     emp ? `${tituloEmprego(vida, emp)} · ${reais(emp.salario)}/mês` : null,
     p.trabalho.aposentadoria > 0 ? `Aposentad${p.sexo === 'feminino' ? 'a' : 'o'} · ${reais(p.trabalho.aposentadoria)}/mês` : null,
+    p.trabalho.extras.length ? `+${p.trabalho.extras.length} trabalho${p.trabalho.extras.length > 1 ? 's' : ''} extra` : null,
+    p.negocio ? `Dono${p.sexo === 'feminino' ? 'a' : ''} d${p.negocio.nome.slice(0, 1) === 'a' ? 'a' : 'o'} ${p.negocio.nome.slice(2)}` : null,
+    p.seguidores >= 1000 ? `${p.seguidores.toLocaleString('pt-BR')} seguidores` : null,
+    p.fama >= 10 ? `fama ${Math.round(p.fama)}` : null,
   ].filter(Boolean).join(' · ');
   const desgaste = Math.round(p.desgaste);
   const horas = horasAgenda(vida);

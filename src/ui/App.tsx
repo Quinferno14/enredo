@@ -2,6 +2,7 @@ import { useState } from 'preact/hooks';
 import type { Vida } from '../motor/tipos';
 import { definirHabito, fazerAcao, pedirParaSair } from '../motor/acoes';
 import { editarAtributo, editarEixo, editarPessoa } from '../motor/deus';
+import { sairDoEmprego } from '../motor/carreira';
 import { escolher } from '../motor/eventos';
 import { continuarComoFilho, fazerAcaoPessoa } from '../motor/familia';
 import { avancarPeriodo } from '../motor/vida';
@@ -82,7 +83,7 @@ export function App() {
               setAviso(r.aviso ?? '');
               if (r.ok) usarVida(r.vida);
             }}
-            onHabito={(id, n) => usarVida(definirHabito(vida, id, n))}
+            onHabito={(id, n, variante) => usarVida(definirHabito(vida, id, n, variante))}
             onSairHabito={(id) => usarVida(pedirParaSair(vida, id))}
             onEscolha={(i) => usarVida(escolher(vida, i))}
           />
@@ -103,7 +104,7 @@ export function App() {
             }}
           />
         )}
-        {aba === 'eu' && <TelaEu vida={vida} deus={deus} onEixo={(e, valor) => usarVida(editarEixo(vida, e, valor))} onInteresse={(i) => usarVida({ ...vida, personagem: { ...vida.personagem, interesse: i } })} />}
+        {aba === 'eu' && <TelaEu vida={vida} deus={deus} onSairEmprego={(id) => usarVida(sairDoEmprego(vida, id))} onEixo={(e, valor) => usarVida(editarEixo(vida, e, valor))} onInteresse={(i) => usarVida({ ...vida, personagem: { ...vida.personagem, interesse: i } })} />}
         {aba === 'mais' && (
           <TelaMais
             vida={vida}

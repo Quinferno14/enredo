@@ -11,7 +11,7 @@ interface Props {
   aviso: string;
   onFechar: () => void;
   onAcao: (id: string, opcoes: OpcoesAcao) => void;
-  onHabito: (id: string, porSemana: number) => void;
+  onHabito: (id: string, porSemana: number, variante?: string) => void;
 }
 
 const normalizar = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
@@ -93,7 +93,7 @@ export function PainelAtividades({ vida, aviso, onFechar, onAcao, onHabito }: Pr
               {habito === a.id && (
                 <div class="frequencias">
                   {FREQUENCIAS.map((f) => (
-                    <button key={f} class={h?.porSemana === f ? 'chip ativo' : 'chip'} onClick={() => { onHabito(a.id, f); setHabito(null); }}>{f}x/sem</button>
+                    <button key={f} class={h?.porSemana === f ? 'chip ativo' : 'chip'} onClick={() => { onHabito(a.id, f, vSel?.id); setHabito(null); }}>{f}x/sem{vSel && vs.length > 1 ? ` · ${vSel.nome.split(' (')[0]}` : ''}</button>
                   ))}
                   {h && !h.imposto && <button class="chip" onClick={() => { onHabito(a.id, 0); setHabito(null); }}>Parar</button>}
                 </div>

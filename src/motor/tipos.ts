@@ -3,7 +3,7 @@
 
 import type { EstadoRng } from './rng';
 
-export const VERSAO_SAVE = 6;
+export const VERSAO_SAVE = 7;
 
 export const ATRIBUTOS = [
   'saude', 'felicidade', 'inteligencia', 'aparencia', 'forma', 'carisma', 'sorte',
@@ -71,6 +71,12 @@ export interface Personagem {
   moradia: 'pais' | 'aluguel';
   /** Modo Deus: com a idade pausada, o corpo fica nesta idade (meses) enquanto os anos passam. */
   idadeBiologicaMeses?: number;
+  /** Habilidades (0 a 100): inglês, programação, vendas... Sobem com curso e prática. */
+  habilidades: Record<string, number>;
+  /** Fama (0 a 100): vem de seguidores, shows, esporte. */
+  fama: number;
+  seguidores: number;
+  negocio: Negocio | null;
   /** Por quem tem interesse romântico. Escolha do jogador. */
   interesse: 'homens' | 'mulheres' | 'todos';
 }
@@ -146,6 +152,19 @@ export interface Trabalho {
   aposentadoria: number;
   /** Cargos que já ocupou, em ordem (para a biografia). */
   cargos: string[];
+  /** Trabalhos além do principal: meio período, estágio, aprendiz, freela (até 2). */
+  extras: Emprego[];
+}
+
+export interface Negocio {
+  tipo: string;
+  nome: string;
+  investimento: number;
+  /** Faturamento mensal quando o negócio está saudável. */
+  faturamento: number;
+  /** 0 a 100: abaixo de 40 dá prejuízo, em 0 quebra. */
+  saude: number;
+  desdeMeses: number;
 }
 
 export interface Divida {
@@ -165,6 +184,8 @@ export interface Traco {
 export interface Habito {
   acao: string;
   porSemana: number;
+  /** Jeito escolhido (ex.: curso de inglês, treino ao ar livre). */
+  variante?: string;
   imposto?: boolean;
   /** Motivo, quando o hábito ficou impossível (ex.: sem dinheiro). */
   pausado?: string;
@@ -192,6 +213,8 @@ export interface Pendente {
   evento: string;
   /** Decisões do próprio jogo (vagas de emprego, escolha de curso), fora dos eventos. */
   sistema?: 'vagas' | 'curso' | 'pretendentes' | 'habito18';
+  /** Vagas: que tipo de trabalho a busca procurou. */
+  tipoVaga?: 'fixo' | 'extra' | 'estagio';
   /** Candidatos de "Procurar alguém". */
   candidatos?: Pessoa[];
   /** Ids alinhados com as escolhas (empregos ou cursos). */

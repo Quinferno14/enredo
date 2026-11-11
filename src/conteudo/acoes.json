@@ -180,6 +180,17 @@
           "Você andou de skate.",
           "Você tentou uma manobra nova no skate."
         ]
+      },
+      {
+        "id": "clube",
+        "nome": "Treino no clube",
+        "custo": 30,
+        "paisPagam": true,
+        "mult": 1.3,
+        "textos": [
+          "Você treinou no clube.",
+          "O técnico do clube te elogiou no treino."
+        ]
       }
     ],
     "comQuem": true
@@ -293,7 +304,8 @@
     "efeitos": {
       "atributos.saude": 0.8,
       "atributos.forma": 0.4,
-      "atributos.aparencia": 0.2
+      "atributos.aparencia": 0.2,
+      "habilidade.culinaria": 0.8
     },
     "textos": [
       "Você cozinhou algo saudável.",
@@ -465,6 +477,17 @@
         "textos": [
           "Você cantou até a vizinhança reclamar.",
           "Você treinou a voz."
+        ]
+      },
+      {
+        "id": "aula",
+        "nome": "Aula de música",
+        "custo": 50,
+        "paisPagam": true,
+        "mult": 1.6,
+        "textos": [
+          "Você teve aula de música.",
+          "Seu professor de música finalmente sorriu."
         ]
       }
     ]
@@ -722,7 +745,8 @@
       160
     ],
     "efeitos": {
-      "personalidade.disciplina": 0.1
+      "personalidade.disciplina": 0.1,
+      "habilidade.vendas": 0.4
     },
     "textos": [
       "Você fez um bico.",
@@ -882,7 +906,7 @@
       "currículo"
     ],
     "idade": [
-      16,
+      14,
       75
     ],
     "requer": {
@@ -896,7 +920,21 @@
     "textos": [
       "Você mandou currículos e olhou as vagas."
     ],
-    "categoria": "trabalho"
+    "categoria": "trabalho",
+    "variantes": [
+      {
+        "id": "fixo",
+        "nome": "Emprego fixo"
+      },
+      {
+        "id": "extra",
+        "nome": "Meio período ou freela"
+      },
+      {
+        "id": "estagio",
+        "nome": "Estágio ou aprendiz"
+      }
+    ]
   },
   {
     "id": "pedir_aumento",
@@ -1177,6 +1215,594 @@
     "textos": [
       "Você tirou uns dias de folga.",
       "Você emendou o feriado e descansou de verdade."
+    ]
+  },
+  {
+    "id": "curso",
+    "nome": "Fazer um curso",
+    "categoria": "estudo",
+    "busca": [
+      "curso",
+      "aula",
+      "ingles",
+      "inglês",
+      "informatica",
+      "programacao",
+      "design",
+      "culinaria",
+      "mecanica",
+      "tecnico",
+      "enfermagem",
+      "vendas",
+      "escrita"
+    ],
+    "idade": [
+      10,
+      100
+    ],
+    "horas": 3,
+    "desgaste": 3,
+    "efeitos": {
+      "atributos.inteligencia": 0.3
+    },
+    "textos": [
+      "Você foi à aula do curso."
+    ],
+    "variantes": [
+      {
+        "id": "ingles",
+        "nome": "Inglês",
+        "custo": 60,
+        "paisPagam": true,
+        "separado": true,
+        "extra": {
+          "habilidade.ingles": 3
+        },
+        "textos": [
+          "Você teve aula de inglês.",
+          "Você praticou conversação em inglês."
+        ]
+      },
+      {
+        "id": "informatica",
+        "nome": "Informática",
+        "custo": 40,
+        "paisPagam": true,
+        "separado": true,
+        "extra": {
+          "habilidade.informatica": 3.5
+        },
+        "textos": [
+          "Você teve aula de informática.",
+          "Você aprendeu atalhos de planilha que ninguém do escritório sabe."
+        ]
+      },
+      {
+        "id": "programacao",
+        "nome": "Programação",
+        "custo": 80,
+        "paisPagam": true,
+        "idadeMin": 12,
+        "separado": true,
+        "extra": {
+          "habilidade.programacao": 3
+        },
+        "textos": [
+          "Você teve aula de programação.",
+          "Seu código rodou de primeira. Desconfie."
+        ]
+      },
+      {
+        "id": "design",
+        "nome": "Design",
+        "custo": 60,
+        "paisPagam": true,
+        "idadeMin": 13,
+        "separado": true,
+        "extra": {
+          "habilidade.design": 3
+        },
+        "textos": [
+          "Você teve aula de design.",
+          "Você montou um portfólio novo."
+        ]
+      },
+      {
+        "id": "escrita",
+        "nome": "Escrita",
+        "custo": 40,
+        "paisPagam": true,
+        "idadeMin": 12,
+        "separado": true,
+        "extra": {
+          "habilidade.escrita": 3
+        },
+        "textos": [
+          "Você teve oficina de escrita.",
+          "Você reescreveu o mesmo parágrafo dez vezes."
+        ]
+      },
+      {
+        "id": "vendas",
+        "nome": "Vendas",
+        "custo": 50,
+        "idadeMin": 16,
+        "separado": true,
+        "extra": {
+          "habilidade.vendas": 3.5
+        },
+        "textos": [
+          "Você fez um curso de vendas.",
+          "Você aprendeu a vender gelo para pinguim."
+        ]
+      },
+      {
+        "id": "culinaria",
+        "nome": "Culinária",
+        "custo": 50,
+        "paisPagam": true,
+        "separado": true,
+        "extra": {
+          "habilidade.culinaria": 3.5
+        },
+        "textos": [
+          "Você fez aula de culinária.",
+          "Seu bolo não solou desta vez."
+        ]
+      },
+      {
+        "id": "mecanica",
+        "nome": "Mecânica",
+        "custo": 60,
+        "idadeMin": 15,
+        "separado": true,
+        "extra": {
+          "habilidade.mecanica": 3.5
+        },
+        "textos": [
+          "Você fez aula de mecânica.",
+          "Você desmontou um motor e sobrou só uma peça."
+        ]
+      },
+      {
+        "id": "enfermagem",
+        "nome": "Técnico em enfermagem",
+        "custo": 120,
+        "idadeMin": 17,
+        "separado": true,
+        "extra": {
+          "habilidade.enfermagem": 3
+        },
+        "textos": [
+          "Você teve aula no curso técnico de enfermagem.",
+          "Você treinou aplicar injeção numa laranja."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "estudar_sozinho",
+    "nome": "Aprender sozinho (internet)",
+    "categoria": "estudo",
+    "busca": [
+      "sozinho",
+      "youtube",
+      "internet",
+      "aprender",
+      "tutorial",
+      "programar",
+      "ingles"
+    ],
+    "idade": [
+      10,
+      110
+    ],
+    "horas": 2,
+    "desgaste": 2,
+    "efeitos": {
+      "personalidade.disciplina": 0.05
+    },
+    "textos": [
+      "Você estudou sozinho pela internet."
+    ],
+    "variantes": [
+      {
+        "id": "programacao",
+        "nome": "Programação",
+        "separado": true,
+        "idadeMin": 12,
+        "extra": {
+          "habilidade.programacao": 1.6
+        },
+        "textos": [
+          "Você seguiu um tutorial de programação até de madrugada."
+        ]
+      },
+      {
+        "id": "ingles",
+        "nome": "Inglês (séries e vídeos)",
+        "separado": true,
+        "extra": {
+          "habilidade.ingles": 1.6
+        },
+        "textos": [
+          "Você viu série sem legenda e entendeu metade."
+        ]
+      },
+      {
+        "id": "escrita",
+        "nome": "Escrever",
+        "separado": true,
+        "extra": {
+          "habilidade.escrita": 1.8
+        },
+        "textos": [
+          "Você escreveu um conto.",
+          "Você escreveu no blog que só sua mãe lê."
+        ]
+      },
+      {
+        "id": "design",
+        "nome": "Design",
+        "separado": true,
+        "idadeMin": 12,
+        "extra": {
+          "habilidade.design": 1.6
+        },
+        "textos": [
+          "Você brincou com um programa de edição de imagem."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "estudar_concurso",
+    "nome": "Estudar para concurso",
+    "categoria": "carreira",
+    "busca": [
+      "concurso",
+      "apostila",
+      "estudar",
+      "servidor",
+      "publico"
+    ],
+    "idade": [
+      16,
+      65
+    ],
+    "horas": 3,
+    "desgaste": 4,
+    "efeitos": {
+      "habilidade.concurso": 2.5,
+      "personalidade.disciplina": 0.1
+    },
+    "textos": [
+      "Você resolveu questões de prova antiga.",
+      "Você estudou a apostila do concurso."
+    ]
+  },
+  {
+    "id": "prestar_concurso",
+    "nome": "Prestar concurso",
+    "categoria": "carreira",
+    "busca": [
+      "concurso",
+      "prova",
+      "servidor",
+      "pm",
+      "policia",
+      "publico"
+    ],
+    "idade": [
+      18,
+      65
+    ],
+    "horas": 0,
+    "desgaste": 8,
+    "especial": "prestar_concurso",
+    "semHabito": true,
+    "efeitos": {},
+    "textos": [
+      "Você fez a prova do concurso."
+    ],
+    "variantes": [
+      {
+        "id": "medio",
+        "nome": "Nível médio (técnico)",
+        "custo": 80
+      },
+      {
+        "id": "superior",
+        "nome": "Nível superior (analista)",
+        "custo": 120
+      },
+      {
+        "id": "pm",
+        "nome": "Polícia Militar",
+        "custo": 90
+      }
+    ]
+  },
+  {
+    "id": "alistar",
+    "nome": "Alistar-se nas Forças Armadas",
+    "categoria": "carreira",
+    "busca": [
+      "exercito",
+      "exército",
+      "militar",
+      "marinha",
+      "aeronautica",
+      "alistar",
+      "quartel"
+    ],
+    "idade": [
+      18,
+      24
+    ],
+    "requer": {
+      "empregado": false
+    },
+    "horas": 0,
+    "desgaste": 5,
+    "especial": "alistar",
+    "semHabito": true,
+    "efeitos": {},
+    "textos": [
+      "Você se apresentou no quartel."
+    ]
+  },
+  {
+    "id": "postar",
+    "nome": "Postar conteúdo",
+    "categoria": "carreira",
+    "busca": [
+      "postar",
+      "video",
+      "vídeo",
+      "influencer",
+      "seguidores",
+      "tiktok",
+      "instagram",
+      "youtube",
+      "live",
+      "stream"
+    ],
+    "idade": [
+      13,
+      110
+    ],
+    "horas": 2,
+    "desgaste": 2,
+    "especial": "postar",
+    "efeitos": {
+      "atributos.felicidade": 0.3
+    },
+    "textos": [
+      "Você postou um vídeo."
+    ],
+    "variantes": [
+      {
+        "id": "humor",
+        "nome": "Humor",
+        "textos": [
+          "Você postou um vídeo de humor."
+        ]
+      },
+      {
+        "id": "danca",
+        "nome": "Dança",
+        "textos": [
+          "Você postou uma dança da moda."
+        ]
+      },
+      {
+        "id": "opiniao",
+        "nome": "Opinião polêmica",
+        "textos": [
+          "Você postou uma opinião forte sobre um assunto do momento."
+        ]
+      },
+      {
+        "id": "rotina",
+        "nome": "Rotina e lifestyle",
+        "textos": [
+          "Você postou um dia na sua vida."
+        ]
+      },
+      {
+        "id": "live",
+        "nome": "Live jogando",
+        "textos": [
+          "Você fez uma live jogando."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "show",
+    "nome": "Fazer show ou exposição",
+    "categoria": "carreira",
+    "busca": [
+      "show",
+      "tocar",
+      "bar",
+      "cache",
+      "cachê",
+      "exposicao",
+      "vender arte",
+      "musica",
+      "arte"
+    ],
+    "idade": [
+      14,
+      110
+    ],
+    "requer": {
+      "ou": [
+        {
+          "traco": {
+            "musica": 1
+          }
+        },
+        {
+          "traco": {
+            "arte": 1
+          }
+        }
+      ]
+    },
+    "horas": 4,
+    "desgaste": 6,
+    "especial": "show",
+    "efeitos": {
+      "atributos.felicidade": 1
+    },
+    "textos": [
+      "Você se apresentou."
+    ],
+    "variantes": [
+      {
+        "id": "musica",
+        "nome": "Tocar num bar",
+        "textos": [
+          "Você tocou num bar."
+        ]
+      },
+      {
+        "id": "arte",
+        "nome": "Expor e vender arte",
+        "textos": [
+          "Você montou uma banca com seus desenhos."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "abrir_negocio",
+    "nome": "Abrir um negócio",
+    "categoria": "carreira",
+    "busca": [
+      "negocio",
+      "negócio",
+      "empreender",
+      "loja",
+      "food truck",
+      "startup",
+      "app",
+      "empresa"
+    ],
+    "idade": [
+      18,
+      80
+    ],
+    "horas": 0,
+    "desgaste": 10,
+    "especial": "abrir_negocio",
+    "semHabito": true,
+    "efeitos": {},
+    "textos": [
+      "Você abriu as portas."
+    ],
+    "variantes": [
+      {
+        "id": "foodtruck",
+        "nome": "Food truck (R$ 15 mil)"
+      },
+      {
+        "id": "loja",
+        "nome": "Loja de bairro (R$ 40 mil)"
+      },
+      {
+        "id": "app",
+        "nome": "Startup de app (R$ 30 mil)"
+      }
+    ]
+  },
+  {
+    "id": "cuidar_negocio",
+    "nome": "Cuidar do negócio",
+    "categoria": "carreira",
+    "busca": [
+      "negocio",
+      "negócio",
+      "empresa",
+      "loja"
+    ],
+    "idade": [
+      18,
+      100
+    ],
+    "requer": {
+      "min": {
+        "negocio.saude": 1
+      }
+    },
+    "horas": 6,
+    "desgaste": 6,
+    "efeitos": {
+      "negocio.saude": 6,
+      "habilidade.vendas": 0.5
+    },
+    "textos": [
+      "Você passou o dia resolvendo problemas do negócio.",
+      "Você fechou um fornecedor melhor.",
+      "Você atendeu cliente até tarde."
+    ]
+  },
+  {
+    "id": "vender_negocio",
+    "nome": "Vender o negócio",
+    "categoria": "carreira",
+    "busca": [
+      "vender",
+      "negocio",
+      "negócio"
+    ],
+    "idade": [
+      18,
+      110
+    ],
+    "requer": {
+      "min": {
+        "negocio.saude": 1
+      }
+    },
+    "horas": 0,
+    "desgaste": 0,
+    "especial": "vender_negocio",
+    "semHabito": true,
+    "efeitos": {},
+    "textos": [
+      "Você colocou o negócio à venda."
+    ]
+  },
+  {
+    "id": "autoescola",
+    "nome": "Tirar carteira (autoescola)",
+    "categoria": "estudo",
+    "busca": [
+      "carteira",
+      "autoescola",
+      "cnh",
+      "dirigir",
+      "habilitacao"
+    ],
+    "idade": [
+      18,
+      90
+    ],
+    "requer": {
+      "semMemoria": "habilitacao"
+    },
+    "custo": 2500,
+    "horas": 0,
+    "desgaste": 6,
+    "especial": "autoescola",
+    "semHabito": true,
+    "efeitos": {},
+    "textos": [
+      "Você fez as aulas da autoescola e marcou a prova."
     ]
   }
 ]

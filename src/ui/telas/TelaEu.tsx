@@ -1,8 +1,9 @@
 import { EIXOS, type Eixo, type Vida } from '../../motor/tipos';
 import { CURSOS, estadoDe, orcamentoMensal, textoClasse, textoEstudo, tituloEmprego } from '../../motor/carreira';
-import { reais } from '../../motor/efeitos';
+import { NOME_HABILIDADE, reais } from '../../motor/efeitos';
 import { biografia } from '../../motor/biografia';
 import { POLOS_EIXO } from '../textos';
+
 
 const NOME_ESCOLARIDADE = { nenhuma: 'Nenhuma ainda', fundamental: 'Fundamental completo', medio: 'Médio completo', superior: 'Superior completo' };
 
@@ -21,9 +22,10 @@ interface Props {
   deus: boolean;
   onInteresse: (i: Vida['personagem']['interesse']) => void;
   onEixo: (e: Eixo, valor: number) => void;
+  onSairEmprego: (id: string) => void;
 }
 
-export function TelaEu({ vida, deus, onInteresse, onEixo }: Props) {
+export function TelaEu({ vida, deus, onInteresse, onEixo, onSairEmprego }: Props) {
   const c = vida.config;
   return (
     <>
@@ -86,17 +88,57 @@ export function TelaEu({ vida, deus, onInteresse, onEixo }: Props) {
 
       <section class="cartao">
         <h2>Trabalho</h2>
-        <dl class="dados">
-          {vida.personagem.trabalho.emprego ? (
+        {(() => {
+          const t = vida.personagem.trabalho;
+          const todos = [...(t.emprego ? [{ e: t.emprego, principal: true }] : []), ...t.extras.map((e) => ({ e, principal: false }))];
+          return (
             <>
-              <dt>Cargo</dt><dd>{tituloEmprego(vida, vida.personagem.trabalho.emprego)}</dd>
-              <dt>Salário</dt><dd>{reais(vida.personagem.trabalho.emprego.salario)}/mês</dd>
-              <dt>Desempenho</dt><dd>{vida.personagem.trabalho.emprego.desempenho}/100</dd>
+              {todos.length === 0 && <p class="dica">{t.aposentadoria > 0 ? `Aposentado(a), ${reais(t.aposentadoria)} por mês.` : 'Sem trabalho agora. Procure em Atividades → Trabalho: dá para buscar emprego fixo, meio período, freela ou estágio.'}</p>}
+              <ul class="lista">
+                {todos.map(({ e, principal }) => (
+                  <li key={e.id} class="trabalho-item">
+                    <div>
+                      <strong>{tituloEmprego(vida, e)}</strong>
+                      <span class="sutil"> · {principal ? 'principal' : 'extra'} · {reais(e.salario)}/mês{principal ? ` · desempenho ${e.desempenho}` : ''}</span>
+                    </div>
+                    {!vida.morte && <button class="chip" onClick={() => onSairEmprego(e.id)}>Sair</button>}
+                  </li>
+                ))}
+              </ul>
+              <p class="dica">{Math.floor(t.anosContribuicao)} anos de contribuição ao INSS.</p>
             </>
-          ) : <><dt>Agora</dt><dd>{vida.personagem.trabalho.aposentadoria > 0 ? 'Aposentado(a)' : 'Sem emprego'}</dd></>}
-          <dt>Contribuição</dt><dd>{Math.floor(vida.personagem.trabalho.anosContribuicao)} anos de INSS</dd>
-        </dl>
+          );
+        })()}
       </section>
+
+      <section class="cartao">
+        <h2>Habilidades</h2>
+        {Object.keys(vida.personagem.habilidades).filter((k) => vida.personagem.habilidades[k]! >= 1).length === 0
+          ? <p class="dica">Nenhuma ainda. Cursos, estudar sozinho e prática (cozinhar, bicos) desenvolvem habilidades que abrem vagas e freelas.</p>
+          : Object.entries(vida.personagem.habilidades).filter(([, v]) => v >= 1).sort((a, b) => b[1] - a[1]).map(([k, v]) => (
+            <div class="atributo" key={k}>
+              <div class="atributo-linha"><span>{NOME_HABILIDADE[k] ?? k}</span><span class="numero">{Math.round(v)}</span></div>
+              <div class="barra"><div style={{ width: `${v}%` }} /></div>
+            </div>
+          ))}
+      </section>
+
+      {(vida.personagem.seguidores > 0 || vida.personagem.fama >= 1 || vida.personagem.negocio) && (
+        <section class="cartao">
+          <h2>Carreira própria</h2>
+          <dl class="dados">
+            {vida.personagem.seguidores > 0 && <><dt>Seguidores</dt><dd>{vida.personagem.seguidores.toLocaleString('pt-BR')}{vida.personagem.seguidores >= 10000 ? ` · publis: ${reais(vida.personagem.seguidores * 0.008)}/mês` : ' · publis a partir de 10 mil'}</dd></>}
+            {vida.personagem.fama >= 1 && <><dt>Fama</dt><dd>{Math.round(vida.personagem.fama)}/100</dd></>}
+            {vida.personagem.negocio && (
+              <>
+                <dt>Negócio</dt><dd>{vida.personagem.negocio.nome.replace(/^(o|a) /, '')}</dd>
+                <dt>Saúde dele</dt><dd>{Math.round(vida.personagem.negocio.saude)}/100{vida.personagem.negocio.saude < 40 ? ' · dando prejuízo' : ''}</dd>
+                <dt>Faturamento</dt><dd>{reais(vida.personagem.negocio.faturamento)}/mês quando vai bem</dd>
+              </>
+            )}
+          </dl>
+        </section>
+      )}
 
       <section class="cartao">
         <h2>Dinheiro</h2>

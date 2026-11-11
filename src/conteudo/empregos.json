@@ -1,36 +1,906 @@
 [
-  { "id": "atendente", "titulos": ["Atendente de lanchonete", "Atendente líder", "Gerente da loja"], "salario": 1630, "horas": 40,
-    "requer": { "idade": [16, 70] }, "fit": { "atributos.carisma": 0.003 }, "chanceBase": 0.6 },
-  { "id": "caixa", "titulos": ["Operador{|a} de caixa", "Fiscal de caixa", "Encarregad{o|a} de loja"], "salario": 1700, "horas": 44,
-    "requer": { "idade": [16, 70] }, "fit": { "atributos.inteligencia": 0.002 }, "chanceBase": 0.55 },
-  { "id": "entregador", "titulos": ["Entregador{|a} de app"], "salario": 2200, "horas": 30,
-    "requer": { "idade": [18, 65], "min": { "atributos.forma": 30 } }, "fit": { "atributos.forma": 0.003 }, "chanceBase": 0.8 },
-  { "id": "obra", "titulos": ["Ajudante de obra", "Pedreir{o|a}", "Mestre de obras"], "salario": 2000, "horas": 44,
-    "requer": { "idade": [18, 60], "min": { "atributos.forma": 40 } }, "fit": { "atributos.forma": 0.004 }, "chanceBase": 0.5 },
-  { "id": "vendedor", "titulos": ["Vendedor{|a}", "Vendedor{|a} sênior", "Gerente de vendas"], "salario": 2300, "horas": 44,
-    "requer": { "idade": [18, 70], "escolaridadeMin": "medio" }, "fit": { "atributos.carisma": 0.005, "atributos.aparencia": 0.002 }, "chanceBase": 0.4 },
-  { "id": "administrativo", "titulos": ["Auxiliar administrativ{o|a}", "Assistente administrativ{o|a}", "Coordenador{|a} administrativ{o|a}"], "salario": 2300, "horas": 40,
-    "requer": { "idade": [18, 65], "escolaridadeMin": "medio" }, "fit": { "atributos.inteligencia": 0.003, "personalidade.disciplina": 0.002 }, "chanceBase": 0.35 },
-  { "id": "motorista_app", "titulos": ["Motorista de app"], "salario": 3200, "horas": 44,
-    "requer": { "idade": [18, 75], "memoria": "habilitacao" }, "fit": {}, "chanceBase": 0.9 },
-  { "id": "tec_enfermagem", "titulos": ["Técnic{o|a} de enfermagem", "Técnic{o|a} de enfermagem sênior", "Supervisor{|a} técnic{o|a}"], "salario": 3100, "horas": 36,
-    "requer": { "idade": [18, 65], "escolaridadeMin": "medio", "min": { "atributos.inteligencia": 45 } }, "fit": { "personalidade.empatia": 0.003 }, "chanceBase": 0.3 },
-  { "id": "policial", "titulos": ["Soldado da PM", "Sargento da PM", "Tenente da PM"], "salario": 5000, "horas": 40,
-    "requer": { "idade": [18, 35], "escolaridadeMin": "medio", "min": { "atributos.forma": 55 } }, "fit": { "atributos.forma": 0.003, "personalidade.disciplina": 0.003 }, "chanceBase": 0.15 },
-  { "id": "professor", "titulos": ["Professor{|a}", "Coordenador{|a} pedagógic{o|a}", "Diretor{|a} de escola"], "salario": 4200, "horas": 40,
-    "requer": { "idade": [21, 70], "formacao": ["pedagogia", "letras", "educacao_fisica"] }, "fit": { "atributos.carisma": 0.003, "atributos.inteligencia": 0.002 }, "chanceBase": 0.5 },
-  { "id": "enfermeiro", "titulos": ["Enfermeir{o|a}", "Enfermeir{o|a} chefe", "Gerente de enfermagem"], "salario": 5500, "horas": 36,
-    "requer": { "idade": [21, 70], "formacao": ["enfermagem"] }, "fit": { "personalidade.empatia": 0.003 }, "chanceBase": 0.55 },
-  { "id": "engenheiro", "titulos": ["Engenheir{o|a} júnior", "Engenheir{o|a} pleno", "Engenheir{o|a} sênior"], "salario": 9000, "horas": 44,
-    "requer": { "idade": [21, 70], "formacao": ["engenharia"] }, "fit": { "atributos.inteligencia": 0.004 }, "chanceBase": 0.35 },
-  { "id": "programador", "titulos": ["Dev júnior", "Dev pleno", "Dev sênior"], "salario": 7500, "horas": 40,
-    "requer": { "idade": [20, 70], "formacao": ["computacao"] }, "fit": { "atributos.inteligencia": 0.004 }, "chanceBase": 0.4 },
-  { "id": "advogado", "titulos": ["Advogad{o|a} júnior", "Advogad{o|a}", "Sóci{o|a} do escritório"], "salario": 7000, "horas": 44,
-    "requer": { "idade": [22, 75], "formacao": ["direito"] }, "fit": { "atributos.carisma": 0.003, "atributos.inteligencia": 0.002 }, "chanceBase": 0.3 },
-  { "id": "medico", "titulos": ["Médic{o|a} residente", "Médic{o|a}", "Chefe de clínica"], "salario": 16000, "horas": 50,
-    "requer": { "idade": [23, 75], "formacao": ["medicina"] }, "fit": { "atributos.inteligencia": 0.002 }, "chanceBase": 0.7 },
-  { "id": "contador", "titulos": ["Analista contábil", "Contador{|a}", "Controller"], "salario": 6000, "horas": 40,
-    "requer": { "idade": [21, 70], "formacao": ["contabeis", "administracao"] }, "fit": { "personalidade.disciplina": 0.003 }, "chanceBase": 0.45 },
-  { "id": "servidor", "titulos": ["Analista (servidor{|a} públic{o|a})", "Analista sênior (servidor{|a} públic{o|a})", "Coordenador{|a} (servidor{|a} públic{o|a})"], "salario": 7000, "horas": 40,
-    "requer": { "idade": [18, 60], "escolaridadeMin": "superior" }, "fit": { "atributos.inteligencia": 0.004 }, "chanceBase": 0.05 }
+  {
+    "id": "atendente",
+    "titulos": [
+      "Atendente de lanchonete",
+      "Atendente líder",
+      "Gerente da loja"
+    ],
+    "salario": 1630,
+    "horas": 40,
+    "requer": {
+      "idade": [
+        16,
+        70
+      ]
+    },
+    "fit": {
+      "atributos.carisma": 0.003
+    },
+    "chanceBase": 0.6,
+    "jornada": "integral"
+  },
+  {
+    "id": "caixa",
+    "titulos": [
+      "Operador{|a} de caixa",
+      "Fiscal de caixa",
+      "Encarregad{o|a} de loja"
+    ],
+    "salario": 1700,
+    "horas": 44,
+    "requer": {
+      "idade": [
+        16,
+        70
+      ]
+    },
+    "fit": {
+      "atributos.inteligencia": 0.002
+    },
+    "chanceBase": 0.55,
+    "jornada": "integral"
+  },
+  {
+    "id": "entregador",
+    "titulos": [
+      "Entregador{|a} de app"
+    ],
+    "salario": 2200,
+    "horas": 30,
+    "requer": {
+      "idade": [
+        18,
+        65
+      ],
+      "min": {
+        "atributos.forma": 30
+      }
+    },
+    "fit": {
+      "atributos.forma": 0.003
+    },
+    "chanceBase": 0.8,
+    "jornada": "integral"
+  },
+  {
+    "id": "obra",
+    "titulos": [
+      "Ajudante de obra",
+      "Pedreir{o|a}",
+      "Mestre de obras"
+    ],
+    "salario": 2000,
+    "horas": 44,
+    "requer": {
+      "idade": [
+        18,
+        60
+      ],
+      "min": {
+        "atributos.forma": 40
+      }
+    },
+    "fit": {
+      "atributos.forma": 0.004
+    },
+    "chanceBase": 0.5,
+    "jornada": "integral"
+  },
+  {
+    "id": "vendedor",
+    "titulos": [
+      "Vendedor{|a}",
+      "Vendedor{|a} sênior",
+      "Gerente de vendas"
+    ],
+    "salario": 2300,
+    "horas": 44,
+    "requer": {
+      "idade": [
+        18,
+        70
+      ]
+    },
+    "fit": {
+      "habilidade.vendas": 0.006,
+      "atributos.carisma": 0.004,
+      "atributos.aparencia": 0.002
+    },
+    "chanceBase": 0.4,
+    "jornada": "integral"
+  },
+  {
+    "id": "administrativo",
+    "titulos": [
+      "Auxiliar administrativ{o|a}",
+      "Assistente administrativ{o|a}",
+      "Coordenador{|a} administrativ{o|a}"
+    ],
+    "salario": 2300,
+    "horas": 40,
+    "requer": {
+      "idade": [
+        18,
+        65
+      ],
+      "ou": [
+        {
+          "escolaridadeMin": "medio"
+        },
+        {
+          "min": {
+            "habilidade.informatica": 40
+          }
+        }
+      ]
+    },
+    "fit": {
+      "habilidade.informatica": 0.004,
+      "atributos.inteligencia": 0.002,
+      "personalidade.disciplina": 0.002
+    },
+    "chanceBase": 0.35,
+    "jornada": "integral"
+  },
+  {
+    "id": "motorista_app",
+    "titulos": [
+      "Motorista de app"
+    ],
+    "salario": 3200,
+    "horas": 44,
+    "requer": {
+      "idade": [
+        18,
+        75
+      ],
+      "memoria": "habilitacao"
+    },
+    "fit": {},
+    "chanceBase": 0.9,
+    "jornada": "integral"
+  },
+  {
+    "id": "tec_enfermagem",
+    "titulos": [
+      "Técnic{o|a} de enfermagem",
+      "Técnic{o|a} de enfermagem sênior",
+      "Supervisor{|a} técnic{o|a}"
+    ],
+    "salario": 3100,
+    "horas": 36,
+    "requer": {
+      "idade": [
+        18,
+        65
+      ],
+      "min": {
+        "habilidade.enfermagem": 50
+      }
+    },
+    "fit": {
+      "personalidade.empatia": 0.003
+    },
+    "chanceBase": 0.3,
+    "jornada": "integral"
+  },
+  {
+    "id": "policial",
+    "titulos": [
+      "Soldado da PM",
+      "Sargento da PM",
+      "Tenente da PM"
+    ],
+    "salario": 5000,
+    "horas": 40,
+    "requer": {
+      "idade": [
+        18,
+        35
+      ],
+      "escolaridadeMin": "medio",
+      "min": {
+        "atributos.forma": 55
+      }
+    },
+    "fit": {
+      "atributos.forma": 0.003,
+      "personalidade.disciplina": 0.003
+    },
+    "chanceBase": 0.15,
+    "soConcurso": true,
+    "jornada": "integral"
+  },
+  {
+    "id": "professor",
+    "titulos": [
+      "Professor{|a}",
+      "Coordenador{|a} pedagógic{o|a}",
+      "Diretor{|a} de escola"
+    ],
+    "salario": 4200,
+    "horas": 40,
+    "requer": {
+      "idade": [
+        21,
+        70
+      ],
+      "formacao": [
+        "pedagogia",
+        "letras",
+        "educacao_fisica"
+      ]
+    },
+    "fit": {
+      "atributos.carisma": 0.003,
+      "atributos.inteligencia": 0.002
+    },
+    "chanceBase": 0.5,
+    "jornada": "integral"
+  },
+  {
+    "id": "enfermeiro",
+    "titulos": [
+      "Enfermeir{o|a}",
+      "Enfermeir{o|a} chefe",
+      "Gerente de enfermagem"
+    ],
+    "salario": 5500,
+    "horas": 36,
+    "requer": {
+      "idade": [
+        21,
+        70
+      ],
+      "formacao": [
+        "enfermagem"
+      ]
+    },
+    "fit": {
+      "personalidade.empatia": 0.003
+    },
+    "chanceBase": 0.55,
+    "jornada": "integral"
+  },
+  {
+    "id": "engenheiro",
+    "titulos": [
+      "Engenheir{o|a} júnior",
+      "Engenheir{o|a} pleno",
+      "Engenheir{o|a} sênior"
+    ],
+    "salario": 9000,
+    "horas": 44,
+    "requer": {
+      "idade": [
+        21,
+        70
+      ],
+      "formacao": [
+        "engenharia"
+      ]
+    },
+    "fit": {
+      "atributos.inteligencia": 0.004
+    },
+    "chanceBase": 0.35,
+    "jornada": "integral"
+  },
+  {
+    "id": "programador",
+    "titulos": [
+      "Dev júnior",
+      "Dev pleno",
+      "Dev sênior"
+    ],
+    "salario": 7500,
+    "horas": 40,
+    "requer": {
+      "idade": [
+        16,
+        70
+      ],
+      "ou": [
+        {
+          "formacao": [
+            "computacao"
+          ]
+        },
+        {
+          "min": {
+            "habilidade.programacao": 55
+          }
+        }
+      ]
+    },
+    "fit": {
+      "habilidade.programacao": 0.006,
+      "atributos.inteligencia": 0.002,
+      "habilidade.ingles": 0.002
+    },
+    "chanceBase": 0.4,
+    "jornada": "integral"
+  },
+  {
+    "id": "advogado",
+    "titulos": [
+      "Advogad{o|a} júnior",
+      "Advogad{o|a}",
+      "Sóci{o|a} do escritório"
+    ],
+    "salario": 7000,
+    "horas": 44,
+    "requer": {
+      "idade": [
+        22,
+        75
+      ],
+      "formacao": [
+        "direito"
+      ]
+    },
+    "fit": {
+      "atributos.carisma": 0.003,
+      "atributos.inteligencia": 0.002
+    },
+    "chanceBase": 0.3,
+    "jornada": "integral"
+  },
+  {
+    "id": "medico",
+    "titulos": [
+      "Médic{o|a} residente",
+      "Médic{o|a}",
+      "Chefe de clínica"
+    ],
+    "salario": 16000,
+    "horas": 50,
+    "requer": {
+      "idade": [
+        23,
+        75
+      ],
+      "formacao": [
+        "medicina"
+      ]
+    },
+    "fit": {
+      "atributos.inteligencia": 0.002
+    },
+    "chanceBase": 0.7,
+    "jornada": "integral"
+  },
+  {
+    "id": "contador",
+    "titulos": [
+      "Analista contábil",
+      "Contador{|a}",
+      "Controller"
+    ],
+    "salario": 6000,
+    "horas": 40,
+    "requer": {
+      "idade": [
+        21,
+        70
+      ],
+      "formacao": [
+        "contabeis",
+        "administracao"
+      ]
+    },
+    "fit": {
+      "personalidade.disciplina": 0.003
+    },
+    "chanceBase": 0.45,
+    "jornada": "integral"
+  },
+  {
+    "id": "servidor",
+    "titulos": [
+      "Analista (servidor{|a} públic{o|a})",
+      "Analista sênior (servidor{|a} públic{o|a})",
+      "Coordenador{|a} (servidor{|a} públic{o|a})"
+    ],
+    "salario": 7000,
+    "horas": 40,
+    "requer": {
+      "idade": [
+        18,
+        60
+      ],
+      "escolaridadeMin": "superior"
+    },
+    "fit": {
+      "atributos.inteligencia": 0.004
+    },
+    "chanceBase": 0.05,
+    "soConcurso": true,
+    "jornada": "integral"
+  },
+  {
+    "id": "servidor_medio",
+    "titulos": [
+      "Técnic{o|a} (servidor{|a} públic{o|a})",
+      "Técnic{o|a} sênior (servidor{|a} públic{o|a})",
+      "Chefe de seção"
+    ],
+    "salario": 4500,
+    "horas": 40,
+    "requer": {
+      "idade": [
+        18,
+        65
+      ],
+      "escolaridadeMin": "medio"
+    },
+    "fit": {
+      "atributos.inteligencia": 0.003
+    },
+    "chanceBase": 0.0,
+    "jornada": "integral",
+    "soConcurso": true
+  },
+  {
+    "id": "militar",
+    "titulos": [
+      "Soldado",
+      "Cabo",
+      "Sargento",
+      "Tenente"
+    ],
+    "salario": 2600,
+    "horas": 44,
+    "requer": {
+      "idade": [
+        18,
+        45
+      ]
+    },
+    "fit": {
+      "atributos.forma": 0.004,
+      "personalidade.disciplina": 0.004
+    },
+    "chanceBase": 0.0,
+    "jornada": "integral",
+    "soConcurso": true
+  },
+  {
+    "id": "atleta",
+    "titulos": [
+      "Atleta da base",
+      "Atleta profissional",
+      "Atleta de seleção"
+    ],
+    "salario": 2500,
+    "horas": 40,
+    "requer": {
+      "idade": [
+        15,
+        36
+      ],
+      "memoria": "passou_peneira"
+    },
+    "fit": {
+      "atributos.forma": 0.006
+    },
+    "chanceBase": 0.0,
+    "jornada": "integral",
+    "soConcurso": true
+  },
+  {
+    "id": "designer",
+    "titulos": [
+      "Designer júnior",
+      "Designer",
+      "Diretor{|a} de arte"
+    ],
+    "salario": 4000,
+    "horas": 40,
+    "requer": {
+      "idade": [
+        17,
+        70
+      ],
+      "min": {
+        "habilidade.design": 50
+      }
+    },
+    "fit": {
+      "habilidade.design": 0.006,
+      "personalidade.curiosidade": 0.002
+    },
+    "chanceBase": 0.4,
+    "jornada": "integral"
+  },
+  {
+    "id": "redator",
+    "titulos": [
+      "Redator{|a}",
+      "Redator{|a} sênior",
+      "Editor{|a}"
+    ],
+    "salario": 3500,
+    "horas": 40,
+    "requer": {
+      "idade": [
+        18,
+        75
+      ],
+      "min": {
+        "habilidade.escrita": 50
+      }
+    },
+    "fit": {
+      "habilidade.escrita": 0.006
+    },
+    "chanceBase": 0.4,
+    "jornada": "integral"
+  },
+  {
+    "id": "cozinheiro",
+    "titulos": [
+      "Cozinheir{o|a}",
+      "Sous chef",
+      "Chef de cozinha"
+    ],
+    "salario": 2400,
+    "horas": 44,
+    "requer": {
+      "idade": [
+        16,
+        70
+      ],
+      "min": {
+        "habilidade.culinaria": 40
+      }
+    },
+    "fit": {
+      "habilidade.culinaria": 0.006
+    },
+    "chanceBase": 0.5,
+    "jornada": "integral"
+  },
+  {
+    "id": "mecanico",
+    "titulos": [
+      "Ajudante de mecânico",
+      "Mecânic{o|a}",
+      "Chefe de oficina"
+    ],
+    "salario": 2800,
+    "horas": 44,
+    "requer": {
+      "idade": [
+        16,
+        70
+      ],
+      "min": {
+        "habilidade.mecanica": 40
+      }
+    },
+    "fit": {
+      "habilidade.mecanica": 0.006
+    },
+    "chanceBase": 0.5,
+    "jornada": "integral"
+  },
+  {
+    "id": "recepcionista",
+    "titulos": [
+      "Recepcionista bilíngue",
+      "Supervisor{|a} de recepção",
+      "Gerente de hotel"
+    ],
+    "salario": 2600,
+    "horas": 44,
+    "requer": {
+      "idade": [
+        18,
+        65
+      ],
+      "min": {
+        "habilidade.ingles": 50
+      }
+    },
+    "fit": {
+      "habilidade.ingles": 0.004,
+      "atributos.carisma": 0.003
+    },
+    "chanceBase": 0.5,
+    "jornada": "integral"
+  },
+  {
+    "id": "suporte_ti",
+    "titulos": [
+      "Suporte de TI",
+      "Analista de TI",
+      "Coordenador{|a} de TI"
+    ],
+    "salario": 2800,
+    "horas": 40,
+    "requer": {
+      "idade": [
+        17,
+        65
+      ],
+      "min": {
+        "habilidade.informatica": 50
+      }
+    },
+    "fit": {
+      "habilidade.informatica": 0.005
+    },
+    "chanceBase": 0.5,
+    "jornada": "integral"
+  },
+  {
+    "id": "jovem_aprendiz",
+    "titulos": [
+      "Jovem aprendiz"
+    ],
+    "salario": 900,
+    "horas": 20,
+    "requer": {
+      "idade": [
+        14,
+        17.9
+      ],
+      "etapa": [
+        "fundamental",
+        "medio"
+      ]
+    },
+    "fit": {
+      "atributos.inteligencia": 0.002
+    },
+    "chanceBase": 0.55,
+    "jornada": "meio",
+    "tipo": "estagio"
+  },
+  {
+    "id": "estagio",
+    "titulos": [
+      "Estagiári{o|a}"
+    ],
+    "salario": 1200,
+    "horas": 25,
+    "requer": {
+      "idade": [
+        16,
+        30
+      ],
+      "etapa": [
+        "medio",
+        "faculdade"
+      ]
+    },
+    "fit": {
+      "atributos.inteligencia": 0.003,
+      "habilidade.informatica": 0.002
+    },
+    "chanceBase": 0.45,
+    "jornada": "meio",
+    "tipo": "estagio"
+  },
+  {
+    "id": "garcom",
+    "titulos": [
+      "{Garçom|Garçonete} de fim de semana"
+    ],
+    "salario": 1000,
+    "horas": 16,
+    "requer": {
+      "idade": [
+        16,
+        70
+      ]
+    },
+    "fit": {
+      "atributos.carisma": 0.003
+    },
+    "chanceBase": 0.7,
+    "jornada": "meio"
+  },
+  {
+    "id": "aulas_particulares",
+    "titulos": [
+      "Professor{|a} particular"
+    ],
+    "salario": 800,
+    "horas": 8,
+    "requer": {
+      "idade": [
+        15,
+        90
+      ],
+      "ou": [
+        {
+          "escolaridadeMin": "medio"
+        },
+        {
+          "min": {
+            "atributos.inteligencia": 65
+          }
+        }
+      ]
+    },
+    "fit": {
+      "atributos.inteligencia": 0.004,
+      "atributos.carisma": 0.002
+    },
+    "chanceBase": 0.6,
+    "jornada": "meio"
+  },
+  {
+    "id": "freela_design",
+    "titulos": [
+      "Designer freela"
+    ],
+    "salario": 1500,
+    "horas": 12,
+    "requer": {
+      "idade": [
+        15,
+        90
+      ],
+      "min": {
+        "habilidade.design": 40
+      }
+    },
+    "fit": {
+      "habilidade.design": 0.006
+    },
+    "chanceBase": 0.6,
+    "jornada": "meio"
+  },
+  {
+    "id": "freela_programacao",
+    "titulos": [
+      "Programador{|a} freela"
+    ],
+    "salario": 3000,
+    "horas": 15,
+    "requer": {
+      "idade": [
+        15,
+        90
+      ],
+      "min": {
+        "habilidade.programacao": 50
+      }
+    },
+    "fit": {
+      "habilidade.programacao": 0.006
+    },
+    "chanceBase": 0.6,
+    "jornada": "meio"
+  },
+  {
+    "id": "traducao",
+    "titulos": [
+      "Tradutor{|a} freela"
+    ],
+    "salario": 1800,
+    "horas": 10,
+    "requer": {
+      "idade": [
+        16,
+        90
+      ],
+      "min": {
+        "habilidade.ingles": 60
+      }
+    },
+    "fit": {
+      "habilidade.ingles": 0.006
+    },
+    "chanceBase": 0.6,
+    "jornada": "meio"
+  },
+  {
+    "id": "freela_texto",
+    "titulos": [
+      "Redator{|a} freela"
+    ],
+    "salario": 1200,
+    "horas": 10,
+    "requer": {
+      "idade": [
+        15,
+        90
+      ],
+      "min": {
+        "habilidade.escrita": 45
+      }
+    },
+    "fit": {
+      "habilidade.escrita": 0.006
+    },
+    "chanceBase": 0.6,
+    "jornada": "meio"
+  },
+  {
+    "id": "entregador_meio",
+    "titulos": [
+      "Entregador{|a} de app (meio período)"
+    ],
+    "salario": 1200,
+    "horas": 15,
+    "requer": {
+      "idade": [
+        18,
+        65
+      ],
+      "min": {
+        "atributos.forma": 30
+      }
+    },
+    "fit": {
+      "atributos.forma": 0.003
+    },
+    "chanceBase": 0.85,
+    "jornada": "meio"
+  },
+  {
+    "id": "motorista_meio",
+    "titulos": [
+      "Motorista de app (meio período)"
+    ],
+    "salario": 1800,
+    "horas": 20,
+    "requer": {
+      "idade": [
+        18,
+        75
+      ],
+      "memoria": "habilitacao"
+    },
+    "fit": {},
+    "chanceBase": 0.9,
+    "jornada": "meio"
+  },
+  {
+    "id": "vendedor_meio",
+    "titulos": [
+      "Vendedor{|a} de shopping (meio período)"
+    ],
+    "salario": 1100,
+    "horas": 20,
+    "requer": {
+      "idade": [
+        16,
+        70
+      ]
+    },
+    "fit": {
+      "habilidade.vendas": 0.005,
+      "atributos.carisma": 0.003
+    },
+    "chanceBase": 0.6,
+    "jornada": "meio"
+  },
+  {
+    "id": "confeitaria",
+    "titulos": [
+      "Faz doces para fora"
+    ],
+    "salario": 900,
+    "horas": 12,
+    "requer": {
+      "idade": [
+        14,
+        90
+      ],
+      "min": {
+        "habilidade.culinaria": 30
+      }
+    },
+    "fit": {
+      "habilidade.culinaria": 0.006
+    },
+    "chanceBase": 0.8,
+    "jornada": "meio"
+  }
 ]

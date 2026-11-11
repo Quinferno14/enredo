@@ -6,7 +6,7 @@ import { jogarPeriodo } from './automatico';
 import type { Vida } from './tipos';
 import { criarVida } from './vida';
 
-interface Foto { aos40?: { renda: number; dinheiro: number; empregado: boolean } }
+interface Foto { aos40?: { renda: number; dinheiro: number; empregado: boolean; extras: number } }
 
 function jogar(seed: string): { v: Vida; f: Foto } {
   let v = criarVida({
@@ -18,7 +18,7 @@ function jogar(seed: string): { v: Vida; f: Foto } {
     v = jogarPeriodo(v, { acoes: 2, carreira: true });
     if (!f.aos40 && v.relogio.idadeMeses >= 40 * 12) {
       const e = v.personagem.trabalho.emprego;
-      f.aos40 = { renda: e?.salario ?? 0, dinheiro: v.personagem.dinheiro, empregado: !!e };
+      f.aos40 = { renda: e?.salario ?? 0, dinheiro: v.personagem.dinheiro, empregado: !!e, extras: v.personagem.trabalho.extras.length };
     }
   }
   return { v, f };
@@ -35,12 +35,14 @@ describe('economia (marco 4)', () => {
   const mediana = rendas[Math.floor(rendas.length / 2)] ?? 0;
   const endividados = adultas.filter((x) => x.f.aos40!.dinheiro < 0).length;
   const aposentados = vidas.filter((x) => x.v.personagem.trabalho.aposentadoria > 0).length;
+  const comExtra = adultas.filter((x) => x.f.aos40!.extras > 0).length;
+  const especiais = vidas.filter((x) => x.v.memorias.some((m) => ['concurso', 'militar', 'abriu_negocio', 'viralizou', 'passou_peneira'].includes(m.id))).length;
   const classes = { baixa: 0, media: 0, alta: 0 };
   for (const x of vidas) classes[x.v.personagem.classe]++;
   console.log('Economia:', JSON.stringify({
     comEnsinoMedio: pct(medio, vidas.length), comSuperior: pct(superior, vidas.length),
     empregadosAos40: pct(empregados40, adultas.length), rendaMedianaAos40: mediana,
-    noVermelhoAos40: pct(endividados, adultas.length), aposentados: pct(aposentados, vidas.length), classes,
+    noVermelhoAos40: pct(endividados, adultas.length), comTrabalhoExtraAos40: pct(comExtra, adultas.length), carreiraEspecial: pct(especiais, vidas.length), aposentados: pct(aposentados, vidas.length), classes,
   }));
 
   it('a maioria termina o ensino médio, e uma parte faz faculdade', () => {

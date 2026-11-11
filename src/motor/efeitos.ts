@@ -37,6 +37,8 @@ export interface Quando {
   /** Precisa existir alguém assim; o evento usa essa pessoa como personagem. */
   pessoa?: QuandoPessoa;
   semParceiro?: boolean;
+  /** Basta uma destas valer (ex.: faculdade OU habilidade). */
+  ou?: Quando[];
   /** Anos de diferença, no mínimo, entre a idade real e a do corpo (idade pausada). */
   anomalia?: number;
   /** Calendário: o ano precisa deixar este resto na divisão (ex.: Copa = [4, 2]). */
@@ -85,6 +87,10 @@ export function valor(vida: Vida, caminho: string): number {
     case 'desgaste': return p.desgaste;
     case 'idade': return vida.relogio.idadeMeses / 12;
     case 'estudo': return chave === 'enem' ? p.estudo.enem ?? 0 : p.estudo.nota;
+    case 'habilidade': return p.habilidades?.[chave ?? ''] ?? 0;
+    case 'fama': return p.fama ?? 0;
+    case 'seguidores': return p.seguidores ?? 0;
+    case 'negocio': return p.negocio?.saude ?? 0;
     case 'trabalho':
       if (!p.trabalho.emprego) return 0;
       return chave === 'salario' ? p.trabalho.emprego.salario : p.trabalho.emprego.desempenho;
@@ -121,6 +127,7 @@ export function atende(vida: Vida, q: Quando | undefined): boolean {
     if (bio === undefined || (vida.relogio.idadeMeses - bio) / 12 < q.anomalia) return false;
   }
   if (q.ano && vida.relogio.ano % q.ano[0] !== q.ano[1]) return false;
+  if (q.ou && !q.ou.some((x) => atende(vida, x))) return false;
   if (q.acao) {
     const habito = vida.habitos.some((h) => h.acao === q.acao && !h.pausado);
     if (!habito && !(vida.periodo[q.acao] ?? 0)) return false;
@@ -176,6 +183,12 @@ export function aplicar(vida: Vida, efeitos: Efeitos | undefined, fator = 1): vo
       p.desgaste = limitar(p.desgaste + d);
     } else if (raiz === 'traco' && chave) {
       mudarTraco(vida, chave, Math.round(d));
+    } else if (raiz === 'habilidade' && chave) {
+      p.habilidades[chave] = limitar((p.habilidades[chave] ?? 0) + d);
+    } else if (raiz === 'fama') {
+      p.fama = limitar(p.fama + d);
+    } else if (raiz === 'negocio' && p.negocio) {
+      p.negocio.saude = limitar(p.negocio.saude + d);
     } else if (raiz === 'estudo') {
       p.estudo.nota = limitar(p.estudo.nota + d);
     } else if (raiz === 'trabalho' && p.trabalho.emprego) {
@@ -211,6 +224,8 @@ export function foto(vida: Vida): Foto {
   const p = vida.personagem;
   const f: Foto = { dinheiro: p.dinheiro, desgaste: p.desgaste };
   for (const a of ATRIBUTOS) if (a !== 'sorte') f[a] = p.atributos[a];
+  for (const [k, v] of Object.entries(p.habilidades ?? {})) f[`hab.${k}`] = v;
+  if (p.negocio) f['negocio'] = p.negocio.saude;
   return f;
 }
 
@@ -225,7 +240,12 @@ export function diferenca(antes: Foto, depois: Foto): Record<string, number> {
 
 const ROTULO: Record<string, string> = {
   saude: 'Saúde', felicidade: 'Felicidade', inteligencia: 'Inteligência', aparencia: 'Aparência',
-  forma: 'Forma', carisma: 'Carisma', desgaste: 'Cansaço', dinheiro: 'Dinheiro',
+  forma: 'Forma', carisma: 'Carisma', desgaste: 'Cansaço', dinheiro: 'Dinheiro', negocio: 'Saúde do negócio',
+};
+
+export const NOME_HABILIDADE: Record<string, string> = {
+  ingles: 'Inglês', informatica: 'Informática', programacao: 'Programação', design: 'Design', escrita: 'Escrita',
+  vendas: 'Vendas', culinaria: 'Culinária', mecanica: 'Mecânica', enfermagem: 'Enfermagem (técnico)', concurso: 'Preparo para concurso',
 };
 
 /** "Forma +2 · Cansaço +4 · Dinheiro −R$ 80". Valores abaixo de 0,5 viram "+0" só se nada mais mudou. */
@@ -238,7 +258,8 @@ export function resumo(delta: Record<string, number>): string {
     }
     const r = Math.round(v);
     if (r === 0) continue;
-    partes.push(`${ROTULO[k] ?? k} ${r > 0 ? '+' : '−'}${Math.abs(r)}`);
+    const nome = k.startsWith('hab.') ? NOME_HABILIDADE[k.slice(4)] ?? k.slice(4) : ROTULO[k] ?? k;
+    partes.push(`${nome} ${r > 0 ? '+' : '−'}${Math.abs(r)}`);
   }
   return partes.join(' · ');
 }

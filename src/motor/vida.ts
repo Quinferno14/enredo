@@ -87,8 +87,9 @@ export function criarVida(o: OpcoesNovaVida): Vida {
     personagem: {
       nome, sobrenome, sexo, estado: estado.sigla, cidade, atributos, personalidade, potencial,
       dinheiro: 0, desgaste: 0, tracos: [],
-      classe, estudo, trabalho: { emprego: null, anosContribuicao: 0, aposentadoria: 0, cargos: [] }, dividas: [], moradia: 'pais',
+      classe, estudo, trabalho: { emprego: null, anosContribuicao: 0, aposentadoria: 0, cargos: [], extras: [] }, dividas: [], moradia: 'pais',
       interesse: 'todos',
+      habilidades: {}, fama: 0, seguidores: 0, negocio: null,
     },
     atributosAnteriores: { ...atributos },
     historico: [{ quando: rotuloPeriodo(relogio, o.turno), texto: abertura }],

@@ -404,3 +404,5 @@ details.cartao summary { cursor: pointer; font-weight: 600; }
   padding: 12px 10px; border-radius: 12px; border: 1px solid var(--borda); background: var(--fundo); cursor: pointer; text-align: left;
 }
 .bloco span { font-size: 0.75rem; }
+
+.trabalho-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--borda); border-radius: 10px; }
