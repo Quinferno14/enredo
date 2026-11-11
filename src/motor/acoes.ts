@@ -8,6 +8,7 @@ import {
 import { acaoCarreira, horasObrigacoes } from './carreira';
 import { acaoFamilia } from './familia';
 import { talvezConhecer } from './social';
+import { pesoDoJeito } from './jeito';
 import { curva } from './curva';
 import { limitar } from './envelhecer';
 import { anosDaJanela, quandoAgora } from './tempo';
@@ -189,7 +190,9 @@ export function fazerAcao(vida: Vida, id: string, opcoes: OpcoesAcao = {}): Resu
   const extrasAfeto: string[] = [];
 
   const chaveR = v?.separado ? `${id}:${v.id}` : id;
-  const r = rendimentoProximo(prox, chaveR);
+  // O jeito de quem faz muda quanto rende (o extrovertido rende mais com gente...).
+  const jeito = pesoDoJeito(prox, a, !!opcoes.com);
+  const r = rendimentoProximo(prox, chaveR) * jeito.mult;
   aplicar(prox, a.efeitos, r * (v?.mult ?? 1));
   aplicar(prox, v?.extra, r);
   aplicar(prox, { desgaste: a.desgaste, dinheiro: -custo });
@@ -248,9 +251,10 @@ export function fazerAcao(vida: Vida, id: string, opcoes: OpcoesAcao = {}): Resu
     for (const [k, v] of Object.entries(delta)) ultima.delta = { ...ultima.delta, [k]: (ultima.delta?.[k] ?? 0) + v };
     ultima.texto = trocar(linhaAcao(a, ultima.vezes, ultima.delta ?? {}, a.textos[0]!));
   } else {
-    const base = trocar(linhaAcao(a, 1, delta, rng.escolher(a.textos)));
+    const base0 = trocar(linhaAcao(a, 1, delta, rng.escolher(a.textos)));
+    const base = jeito.nota && Object.keys(delta).length ? `${base0} (${jeito.nota})` : base0;
     const entrada: EntradaHistorico = {
-      quando, acao: chave, vezes: 1, delta,
+      quando, acao: chave, vezes: 1, delta, fato: { tipo: 'acao', id, ...(pessoa ? { pessoa: pessoa.id } : {}) },
       texto: extrasAfeto.length ? `${base}${/[0-9]$/.test(base) ? ' · ' : ' '}${extrasAfeto.join(' · ')}` : base,
     };
     prox.historico.push(entrada);

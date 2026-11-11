@@ -194,7 +194,7 @@ export function TelaEu({ vida, deus, onInteresse, onEixo, onSairEmprego }: Props
           <dt>Morte</dt><dd>{c.morte === 'permanente' ? 'Permanente' : 'Pode voltar um período'}</dd>
           <dt>Começo</dt><dd>{c.inicio === 'bebe' ? 'Bebê' : 'Adulto'}</dd>
           <dt>Geração</dt><dd>{vida.linhagem.geracao}ª{vida.linhagem.anteriores.length ? ` · antes: ${vida.linhagem.anteriores.join(', ')}` : ''}</dd>
-          <dt>Sorte</dt><dd>{deus ? `${Math.round(vida.personagem.atributos.sorte)}/100` : 'Oculta (ligue o ✎ na tela Vida para ver)'}</dd>
+          <dt>Sorte</dt><dd>{deus ? `${Math.round(vida.personagem.atributos.sorte)}/100` : 'Oculta (aparece no painel ✦)'}</dd>
         </dl>
       </section>
 

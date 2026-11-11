@@ -11,7 +11,8 @@ import { resolverSistema } from './carreira';
 import { capitalizar, papelTexto, resolverPretendente, terminar } from './familia';
 import { quandoAgora } from './tempo';
 import { Rng } from './rng';
-import type { Pendente, Vida } from './tipos';
+import { afinidade, bonusChance, perfilEscolha, rotuloJeito, type Perfil } from './jeito';
+import type { Linha, Pendente, Vida } from './tipos';
 
 export interface ResultadoDef {
   resposta?: string | string[];
@@ -24,6 +25,8 @@ export interface ResultadoDef {
 
 export interface EscolhaDef extends ResultadoDef {
   texto: string;
+  /** Jeito da escolha (para que lado da personalidade puxa). Sem isto, sai dos efeitos. */
+  perfil?: Perfil;
   requer?: Quando;
   /** Chance de sucesso: base + soma de coef × valor. Sem isto, não há sorteio. */
   chance?: { base: number; x?: Record<string, number> };
@@ -48,6 +51,10 @@ export interface EventoDef extends ResultadoDef {
   calendario?: number;
   vars?: Record<string, string[]>;
   texto: string[];
+  /** Textos por fase da vida: o primeiro que bate com a idade substitui `texto`. */
+  textos?: { idade: [number, number]; texto: string[] }[];
+  /** Arco de que o evento faz parte (história em partes ao longo de anos). */
+  arco?: string;
   escolhas?: EscolhaDef[];
 }
 
@@ -55,7 +62,7 @@ export const EVENTOS: readonly EventoDef[] = eventosJson as EventoDef[];
 export const eventoPorId = (id: string) => EVENTOS.find((e) => e.id === id);
 
 /** Anos em que um evento visto continua com peso baixo. */
-const ANOS_RECENTE = 6;
+const ANOS_RECENTE = 10;
 
 export function pesoEvento(vida: Vida, e: EventoDef): number {
   if (e.soGancho || e.calendario) return 0;
@@ -64,6 +71,10 @@ export function pesoEvento(vida: Vida, e: EventoDef): number {
   let p = (e.peso?.base ?? 1) * multiplicador(vida, e.peso?.x);
   const visto = vida.vistos[e.id];
   if (visto !== undefined && !e.recorrente && vida.relogio.idadeMeses - visto < ANOS_RECENTE * 12) p *= 0.04;
+  // O que se repete (pelada, grupo da família) também cansa: menos peso nos dois anos seguintes.
+  if (visto !== undefined && e.recorrente && vida.relogio.idadeMeses - visto < 24) p *= 0.4;
+  // Tudo o que já aconteceu fica um pouco mais raro a cada vez.
+  p /= 1 + 0.4 * (vida.vezes?.[e.id] ?? 0);
   return p;
 }
 
@@ -71,8 +82,8 @@ export function pesoEvento(vida: Vida, e: EventoDef): number {
  * Roda os eventos do período: primeiro os ganchos que venceram, depois o sorteio.
  * Altera `vida` no lugar e devolve as linhas para o feed.
  */
-export function rodarEventos(vida: Vida, anos: number, rng: Rng): string[] {
-  const linhas: string[] = [];
+export function rodarEventos(vida: Vida, anos: number, rng: Rng): Linha[] {
+  const linhas: Linha[] = [];
   const agora = vida.relogio.idadeMeses;
 
   const vencidos = vida.ganchos.filter((g) => g.idadeMeses <= agora);
@@ -95,7 +106,9 @@ export function rodarEventos(vida: Vida, anos: number, rng: Rng): string[] {
     const visto = vida.vistos[e.id];
     if (visto !== undefined && agora - visto < 10) return false;
     if (!atende(vida, e.quando)) return false;
-    return rng.proximo() < Math.min(1, e.calendario * (dinamico ? 1 : anos * 2));
+    // Cada vez que a data já aconteceu, a próxima fica um pouco menos provável.
+    const cansa = 1 + 0.25 * (vida.vezes?.[e.id] ?? 0);
+    return rng.proximo() < Math.min(1, (e.calendario * (dinamico ? 1 : anos)) / cansa);
   });
   if (datas.length) disparar(vida, rng.escolher(datas), {}, rng, linhas);
 
@@ -120,7 +133,7 @@ export function rodarEventos(vida: Vida, anos: number, rng: Rng): string[] {
 }
 
 /** Faz um evento acontecer. Devolve false se não deu (ex.: não há memória para lembrar). */
-export function disparar(vida: Vida, e: EventoDef, varsGancho: Record<string, string>, rng: Rng, linhas: string[]): boolean {
+export function disparar(vida: Vida, e: EventoDef, varsGancho: Record<string, string>, rng: Rng, linhas: Linha[]): boolean {
   const vars: Record<string, string> = { ...sortearVars(rng, e.vars), ...varsDaMemoria(vida, e.quando), ...varsGancho };
   // Evento com uma pessoa: a do gancho, se ainda serve, ou uma sorteada entre as que servem.
   if (e.quando?.pessoa) {
@@ -133,7 +146,13 @@ export function disparar(vida: Vida, e: EventoDef, varsGancho: Record<string, st
       pa: f ? 'a' : 'o', pele: f ? 'ela' : 'ele', pdo: f ? 'da' : 'do', pparceiro: pe.parceiroNome ?? '',
     });
   }
-  let texto = rng.escolher(e.texto);
+  // Texto da fase da vida, sem repetir o da última vez.
+  const idadeJ = vida.relogio.idadeMeses / 12;
+  const lista = e.textos?.find((t) => idadeJ >= t.idade[0] && idadeJ <= t.idade[1])?.texto ?? e.texto;
+  const ultimo = vida.ultimosTextos?.[e.id];
+  const opcoes = lista.length > 1 ? lista.filter((t) => t !== ultimo) : lista;
+  let texto = rng.escolher(opcoes);
+  vida.ultimosTextos = { ...vida.ultimosTextos, [e.id]: texto };
   let efeitoExtra: Efeitos | undefined;
 
   if (texto.includes('{lembranca}')) {
@@ -145,6 +164,7 @@ export function disparar(vida: Vida, e: EventoDef, varsGancho: Record<string, st
   }
 
   vida.vistos[e.id] = vida.relogio.idadeMeses;
+  vida.vezes = { ...vida.vezes, [e.id]: (vida.vezes?.[e.id] ?? 0) + 1 };
   texto = preencher(texto, vida, vars);
 
   if (e.escolhas) {
@@ -154,7 +174,11 @@ export function disparar(vida: Vida, e: EventoDef, varsGancho: Record<string, st
       vars,
       escolhas: e.escolhas.map((c) => {
         const m = motivo(vida, c.requer);
-        return { texto: preencher(c.texto, vida, vars), ...(m ? { motivo: m } : {}) };
+        const j = rotuloJeito(vida, afinidade(vida, perfilEscolha(c)));
+        return {
+          texto: preencher(c.texto, vida, vars), ...(m ? { motivo: m } : {}),
+          ...(j && !m ? { jeito: j.jeito, jeitoTexto: j.texto } : {}),
+        };
       }),
     };
     return true;
@@ -164,7 +188,7 @@ export function disparar(vida: Vida, e: EventoDef, varsGancho: Record<string, st
   aplicar(vida, efeitoExtra);
   const extra = aplicarResultado(vida, e, vars, rng);
   const r = resumo(diferenca(antes, foto(vida)));
-  linhas.push([texto, extra, r].filter(Boolean).join(' '));
+  linhas.push({ texto: [texto, extra, r].filter(Boolean).join(' '), fato: { tipo: 'evento', id: e.id, ...(vars.pessoaId ? { pessoa: vars.pessoaId } : {}) } });
   return true;
 }
 
@@ -225,6 +249,8 @@ export function chanceEscolha(vida: Vida, c: EscolhaDef): number | null {
   if (!c.chance) return null;
   let p = c.chance.base;
   for (const [k, coef] of Object.entries(c.chance.x ?? {})) p += coef * valor(vida, k);
+  // O jeito pesa: o que combina com você dá mais certo.
+  p += bonusChance(afinidade(vida, perfilEscolha(c)));
   return Math.max(0.03, Math.min(0.97, p));
 }
 
@@ -254,8 +280,8 @@ export function escolher(vida: Vida, indice: number): Vida {
       : pend.sistema === 'habito18' ? resolverHabito18(prox, pend, indice)
       : resolverSistema(prox, pend, indice, rng);
     const r = resumo(diferenca(antes, foto(prox)));
-    prox.historico.push({ quando, texto: pend.texto });
-    prox.historico.push({ quando, texto: [`→ ${pend.escolhas[indice]?.texto ?? ''}.`, texto, r].filter(Boolean).join(' ') });
+    prox.historico.push({ quando, texto: pend.texto, fato: { tipo: 'evento', id: pend.evento } });
+    prox.historico.push({ quando, texto: [`→ ${pend.escolhas[indice]?.texto ?? ''}.`, texto, r].filter(Boolean).join(' '), fato: { tipo: 'escolha', id: pend.evento } });
     prox.pendente = null;
     prox.rng = rng.estado();
     return prox;
@@ -270,15 +296,25 @@ export function escolher(vida: Vida, indice: number): Vida {
   const antes = foto(prox);
   const partes: string[] = [];
 
+  // O jeito é medido antes da escolha mexer na personalidade.
+  const af = afinidade(vida, perfilEscolha(c));
+  const jeito = rotuloJeito(vida, af);
   partes.push(aplicarResultado(prox, c, pend.vars, rng));
-  const p = chanceEscolha(prox, c);
+  const p = chanceEscolha(vida, c);
   if (p !== null) partes.push(aplicarResultado(prox, rng.proximo() < p ? c.sucesso : c.falha, pend.vars, rng));
+  if (jeito) {
+    if (jeito.jeito === 'contra') aplicar(prox, { desgaste: 4, 'atributos.felicidade': -1.5 });
+    else if (p === null) aplicar(prox, { 'atributos.felicidade': 1 });
+    partes.push(jeito.jeito === 'contra' ? `(Foi ${jeito.texto}.)` : `(Bem o ${jeito.texto}${p !== null ? ', e isso ajudou' : ''}.)`);
+  }
 
   const r = resumo(diferenca(antes, foto(prox)));
-  prox.historico.push({ quando, texto: pend.texto });
+  const pessoa = pend.vars.pessoaId;
+  prox.historico.push({ quando, texto: pend.texto, fato: { tipo: 'evento', id: e.id, ...(pessoa ? { pessoa } : {}) } });
   prox.historico.push({
     quando,
     texto: [`→ ${preencher(c.texto, prox, pend.vars)}.`, ...partes, r].filter(Boolean).join(' '),
+    fato: { tipo: 'escolha', id: e.id, ...(pessoa ? { pessoa } : {}) },
   });
   prox.pendente = null;
   prox.rng = rng.estado();

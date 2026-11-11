@@ -645,7 +645,7 @@ export function fazerAcaoPessoa(vida: Vida, pessoaId: string, acaoId: string, op
     usouGesto && g.nota && d !== 0 ? `(${g.nota})` : '',
   ].filter(Boolean).join(' · ');
   const quando = quandoAgora(prox);
-  prox.historico.push({ quando, texto: extra ? `${texto} ${extra}` : texto });
+  prox.historico.push({ quando, texto: extra ? `${texto} ${extra}` : texto, fato: { tipo: 'pessoa', id: acaoId, pessoa: pessoaId } });
   prox.rng = rng.estado();
   return { vida: prox, ok: true };
 }

@@ -4,6 +4,7 @@
 
 import nomes from '../conteudo/nomes.json';
 import { limitar } from './envelhecer';
+import { adjetivo } from './jeito';
 import type { Rng } from './rng';
 import {
   ATRIBUTOS, EIXOS, ORDEM_ESCOLARIDADE,
@@ -154,6 +155,17 @@ export function motivo(vida: Vida, q: Quando | undefined): string | undefined {
   if (!q || atende(vida, q)) return undefined;
   const din = q.min?.dinheiro;
   if (din !== undefined && vida.personagem.dinheiro < din) return `Precisa de ${reais(din)}`;
+  const idade = vida.relogio.idadeMeses / 12;
+  if (q.idade && idade < q.idade[0]) return `Só a partir dos ${q.idade[0]} anos`;
+  if (q.idade && idade > q.idade[1]) return `Só até os ${q.idade[1]} anos`;
+  // Opções que só quem tem o traço faria.
+  for (const [c, v] of Object.entries(q.min ?? {})) {
+    if (c.startsWith('personalidade.') && valor(vida, c) < v) return `Só quem é mais ${adjetivo(vida, c.slice(14) as Eixo, true)} faria isso`;
+  }
+  for (const [c, v] of Object.entries(q.max ?? {})) {
+    if (c.startsWith('personalidade.') && valor(vida, c) > v) return `Só quem é mais ${adjetivo(vida, c.slice(14) as Eixo, false)} faria isso`;
+  }
+  if (q.empregado && !vida.personagem.trabalho.emprego) return 'Precisa estar empregad' + (vida.personagem.sexo === 'feminino' ? 'a' : 'o');
   return 'Não dá agora';
 }
 

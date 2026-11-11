@@ -58,7 +58,6 @@ function vidaPropria(p: Pessoa): string {
 export function TelaPessoas({ vida, aviso, onAcao, deus, onEditar, onCriar }: Props) {
   const [aberta, setAberta] = useState<string | null>(null);
   const [sub, setSub] = useState<{ pessoa: string; acao: AcaoPessoaDef } | null>(null);
-  const [nova, setNova] = useState<{ papel: Papel; sexo: Sexo; idade: number; nome: string }>({ papel: 'amigo', sexo: 'feminino', idade: 20, nome: '' });
 
   const vivos = vida.pessoas.filter((p) => p.vivo && !p.afastado);
   const afastados = vida.pessoas.filter((p) => p.vivo && p.afastado);
@@ -158,22 +157,7 @@ export function TelaPessoas({ vida, aviso, onAcao, deus, onEditar, onCriar }: Pr
       {deus && (
         <section class="cartao deus">
           <h2>✦ Criar pessoa</h2>
-          <div class="deus-form">
-            <label>Nome <input value={nova.nome} placeholder="sorteado" onInput={(e) => setNova({ ...nova, nome: e.currentTarget.value })} /></label>
-            <label>Quem é
-              <select value={nova.papel} onChange={(e) => setNova({ ...nova, papel: e.currentTarget.value as Papel })}>
-                {PAPEIS_DEUS.map((x) => <option key={x} value={x}>{NOME_PAPEL_DEUS[x]}</option>)}
-              </select>
-            </label>
-            <label>Sexo
-              <select value={nova.sexo} onChange={(e) => setNova({ ...nova, sexo: e.currentTarget.value as Sexo })}>
-                <option value="feminino">Feminino</option>
-                <option value="masculino">Masculino</option>
-              </select>
-            </label>
-            <label>Idade <input class="numero-edit" type="number" min={0} max={120} value={nova.idade} onInput={(e) => setNova({ ...nova, idade: Number(e.currentTarget.value) })} /></label>
-            <button class="secundario" onClick={() => { onCriar(nova.papel, nova.sexo, nova.idade, nova.nome); setNova({ ...nova, nome: '' }); }}>Criar</button>
-          </div>
+          <FormCriarPessoa onCriar={onCriar} />
         </section>
       )}
 
@@ -205,7 +189,7 @@ export function TelaPessoas({ vida, aviso, onAcao, deus, onEditar, onCriar }: Pr
   );
 }
 
-function EditorPessoa({ p, onEditar }: { p: Pessoa; onEditar: Props['onEditar'] }) {
+export function EditorPessoa({ p, onEditar }: { p: Pessoa; onEditar: Props['onEditar'] }) {
   return (
     <div class="deus-pessoa">
       <p class="grupo-rotulo">✦ Modo Deus</p>
@@ -238,6 +222,28 @@ function EditorPessoa({ p, onEditar }: { p: Pessoa; onEditar: Props['onEditar'] 
           </div>
         );
       })}
+    </div>
+  );
+}
+
+export function FormCriarPessoa({ onCriar }: { onCriar: Props['onCriar'] }) {
+  const [nova, setNova] = useState<{ papel: Papel; sexo: Sexo; idade: number; nome: string }>({ papel: 'amigo', sexo: 'feminino', idade: 20, nome: '' });
+  return (
+    <div class="deus-form">
+      <label>Nome <input value={nova.nome} placeholder="sorteado" onInput={(e) => setNova({ ...nova, nome: e.currentTarget.value })} /></label>
+      <label>Quem é
+        <select value={nova.papel} onChange={(e) => setNova({ ...nova, papel: e.currentTarget.value as Papel })}>
+          {PAPEIS_DEUS.map((x) => <option key={x} value={x}>{NOME_PAPEL_DEUS[x]}</option>)}
+        </select>
+      </label>
+      <label>Sexo
+        <select value={nova.sexo} onChange={(e) => setNova({ ...nova, sexo: e.currentTarget.value as Sexo })}>
+          <option value="feminino">Feminino</option>
+          <option value="masculino">Masculino</option>
+        </select>
+      </label>
+      <label>Idade <input class="numero-edit" type="number" min={0} max={120} value={nova.idade} onInput={(e) => setNova({ ...nova, idade: Number(e.currentTarget.value) })} /></label>
+      <button class="secundario" onClick={() => { onCriar(nova.papel, nova.sexo, nova.idade, nova.nome); setNova({ ...nova, nome: '' }); }}>Criar</button>
     </div>
   );
 }

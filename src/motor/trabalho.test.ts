@@ -16,6 +16,7 @@ const adulto = (seed: string): Vida => {
 describe('trabalho livre', () => {
   it('curso sobe a habilidade, e cada curso conta separado', () => {
     let v = adulto('t1');
+    v.personagem.personalidade.curiosidade = 0; // o jeito tem teste próprio
     for (let i = 0; i < 5; i++) v = fazerAcao(v, 'curso', { variante: 'ingles' }).vida;
     const ingles = v.personagem.habilidades.ingles!;
     v = fazerAcao(v, 'curso', { variante: 'programacao' }).vida;

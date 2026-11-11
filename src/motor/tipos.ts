@@ -262,7 +262,7 @@ export interface Pendente {
   dados?: string[];
   texto: string;
   vars: Record<string, string>;
-  escolhas: { texto: string; motivo?: string }[];
+  escolhas: { texto: string; motivo?: string; jeito?: 'a favor' | 'contra'; jeitoTexto?: string }[];
 }
 
 export interface EntradaHistorico {
@@ -272,6 +272,19 @@ export interface EntradaHistorico {
   acao?: string;
   vezes?: number;
   delta?: Record<string, number>;
+  /** O fato por trás do texto (para medir repetição e recontar em outra voz). */
+  fato?: Fato;
+}
+
+/** Linha que o motor devolve: só o texto, ou o texto com o fato. */
+export type Linha = string | { texto: string; fato: Fato };
+
+export interface Fato {
+  tipo: 'evento' | 'escolha' | 'acao' | 'pessoa' | 'deus';
+  /** Id do evento ou da ação. */
+  id?: string;
+  /** Id da pessoa envolvida. */
+  pessoa?: string;
 }
 
 export interface Vida {
@@ -309,4 +322,8 @@ export interface Vida {
   ultimas?: Record<string, { variante?: string; com?: string }>;
   /** Modo dinâmico: como a vida estava no começo do ano, para o resumo do ano. */
   inicioAno?: { atributos: Record<Atributo, number>; dinheiro: number };
+  /** Último texto sorteado de cada evento, para não sair o mesmo duas vezes seguidas. */
+  ultimosTextos?: Record<string, string>;
+  /** Quantas vezes cada evento já aconteceu (o que se repete vai perdendo peso). */
+  vezes?: Record<string, number>;
 }

@@ -2,14 +2,14 @@
 // e voltar um período. Toda edição fica marcada com ✦ na história.
 
 import { empregoPorId, ESTADOS_DEF, salarioInicial, tituloEmprego } from './carreira';
-import { reais } from './efeitos';
+import { NOME_HABILIDADE, reais } from './efeitos';
 import { alvoAparencia, alvoForma, alvoInteligencia, alvoSaude, limitar } from './envelhecer';
 import { disparar, eventoPorId } from './eventos';
 import { capitalizar, gerarPessoa, nomesEmUso, papelTexto } from './familia';
 import { SOCIAIS, ocupar } from './social';
 import { quandoAgora } from './tempo';
 import { Rng, estadoDaSeed } from './rng';
-import type { Atributo, Eixo, Papel, Sexo, Vida } from './tipos';
+import type { Atributo, Eixo, Linha, Papel, Sexo, Vida } from './tipos';
 import { textoIdade } from './vida';
 
 const NOMES: Record<string, string> = {
@@ -20,7 +20,7 @@ const NOMES: Record<string, string> = {
 };
 
 function marcar(vida: Vida, texto: string) {
-  vida.historico.push({ quando: quandoAgora(vida), texto: `✦ ${texto}` });
+  vida.historico.push({ quando: quandoAgora(vida), texto: `✦ ${texto}`, fato: { tipo: 'deus' } });
 }
 
 export function editarAtributo(vida: Vida, a: Atributo | 'desgaste', valor: number): Vida {
@@ -220,6 +220,18 @@ export function criarPessoaDeus(vida: Vida, papel: Papel, sexo: Sexo, idadeAnos:
   return prox;
 }
 
+/** Muda o nível de uma habilidade (0 a 100). */
+export function editarHabilidade(vida: Vida, id: string, valor: number): Vida {
+  if (!Number.isFinite(valor) || !(id in NOME_HABILIDADE)) return vida;
+  const prox = structuredClone(vida);
+  const antes = Math.round(prox.personagem.habilidades[id] ?? 0);
+  const v = Math.round(limitar(valor));
+  if (antes === v) return vida;
+  prox.personagem.habilidades[id] = v;
+  marcar(prox, `${NOME_HABILIDADE[id]} ${antes} → ${v}`);
+  return prox;
+}
+
 /** Pausa ou retoma o envelhecimento do corpo. Os anos continuam passando. */
 export function pausarIdade(vida: Vida, pausar: boolean): Vida {
   const prox = structuredClone(vida);
@@ -241,12 +253,12 @@ export function forcarEvento(vida: Vida, id: string): { vida: Vida; aviso?: stri
   if (vida.pendente) return { vida, aviso: 'Resolva a decisão pendente antes.' };
   const prox = structuredClone(vida);
   const rng = new Rng(prox.rng);
-  const linhas: string[] = [];
+  const linhas: Linha[] = [];
   marcar(prox, `Evento forçado: ${id}`);
   const ok = disparar(prox, { ...e, quando: e.quando?.pessoa ? { pessoa: e.quando.pessoa } : undefined }, {}, rng, linhas);
   if (!ok) return { vida, aviso: 'Esse evento precisa de alguém (ou de uma lembrança) que você não tem.' };
   const quando = quandoAgora(prox);
-  for (const t of linhas) prox.historico.push({ quando, texto: t });
+  for (const t of linhas) prox.historico.push(typeof t === 'string' ? { quando, texto: t } : { quando, ...t });
   prox.rng = rng.estado();
   return { vida: prox };
 }

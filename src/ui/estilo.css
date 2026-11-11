@@ -425,3 +425,31 @@ details.cartao summary { cursor: pointer; font-weight: 600; }
   padding: 4px 6px; border-radius: 6px; border: 1px solid var(--acento);
   background: var(--fundo); color: var(--texto); max-width: 160px;
 }
+
+/* R4 · jeito */
+.tag.jeito { display: inline-block; margin-left: 8px; vertical-align: middle; }
+
+/* R4 · painel ✦ */
+.botao-deus.fixo { position: fixed; top: 12px; right: max(12px, calc(50% - 240px + 12px)); z-index: 5; }
+.painel-deus-fundo {
+  position: fixed; inset: 0; z-index: 20;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex; justify-content: center; align-items: flex-end;
+}
+.painel-deus {
+  width: 100%; max-width: 480px; max-height: 88vh;
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 14px 16px 16px;
+  border-radius: 16px 16px 0 0;
+  background: var(--fundo); border: 1px solid var(--acento); border-bottom: 0;
+}
+.painel-deus-topo { display: flex; justify-content: space-between; align-items: center; }
+.painel-deus-topo h2 { margin: 0; }
+.painel-deus-corpo { overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-bottom: 8px; }
+.painel-deus-corpo h3 { margin: 10px 0 2px; font-size: 0.875rem; }
+.painel-secoes { margin-top: 2px; }
+.deus-grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px 12px; }
+.deus-grade label { display: flex; justify-content: space-between; align-items: center; gap: 6px; font-size: 0.8125rem; color: var(--sutil); }
+.numero-edit.largo { width: 96px; }
+.eventos-deus li { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; font-size: 0.8125rem; padding: 6px 0; border-bottom: 1px solid var(--borda); }
+.busca { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--borda); background: var(--superficie); color: var(--texto); }

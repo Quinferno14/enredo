@@ -12,6 +12,7 @@ import { TelaEu } from './telas/TelaEu';
 import { TelaMais } from './telas/TelaMais';
 import { TelaPessoas } from './telas/TelaPessoas';
 import { TelaVida } from './telas/TelaVida';
+import { PainelDeus } from './telas/PainelDeus';
 import { novoId } from './textos';
 
 type Aba = 'vida' | 'pessoas' | 'eu' | 'mais';
@@ -29,6 +30,7 @@ export function App() {
   const [semSave, setSemSave] = useState(false);
   const [aviso, setAviso] = useState('');
   const [deus, setDeus] = useState(false);
+  const [painel, setPainel] = useState(false);
 
   const vida = armazem.vidas.find((v) => v.id === armazem.atual) ?? null;
 
@@ -74,7 +76,7 @@ export function App() {
             onPessoas={() => setAba('pessoas')}
             onNovaVida={() => setCriando(true)}
             deus={deus}
-            onDeus={() => setDeus(!deus)}
+            onDeus={() => setPainel(true)}
             onEditar={(a, valor) => usarVida(editarAtributo(vida, a, valor))}
             onMudar={usarVida}
             onContinuarComo={(filhoId) => usarVida(continuarComoFilho(vida, filhoId, novoId(), new Date().toISOString()))}
@@ -127,6 +129,12 @@ export function App() {
           />
         )}
       </main>
+      {aba !== 'vida' && (
+        <button class={deus ? 'botao-deus fixo ativo' : 'botao-deus fixo'} title="Modo Deus" aria-label="Abrir o Modo Deus" onClick={() => setPainel(true)}>✦</button>
+      )}
+      {painel && (
+        <PainelDeus vida={vida} onMudar={usarVida} noLugar={deus} onNoLugar={setDeus} onFechar={() => setPainel(false)} />
+      )}
       <nav class="abas" aria-label="Abas">
         {ABAS.map((a) => (
           <button

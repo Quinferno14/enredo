@@ -14,7 +14,7 @@ import { Rng } from './rng';
 import { anosDoPasso, proximoRelogio, quandoAgora, rotuloPeriodo } from './tempo';
 import {
   EIXOS, VERSAO_SAVE,
-  type Atributo, type Eixo, type EntradaHistorico, type Inicio, type ModoMorte,
+  type Atributo, type Eixo, type EntradaHistorico, type Linha, type Inicio, type ModoMorte,
   type Potencial, type Relogio, type Sexo, type Turno, type Vida,
 } from './tipos';
 
@@ -126,7 +126,7 @@ export { proximoRelogio, quandoAgora, rotuloPeriodo } from './tempo';
 
 interface ResultadoPasso {
   /** Coisas que valem parar o tempo: eventos, marcos, mudanças de escola e emprego, mortes. */
-  importantes: string[];
+  importantes: Linha[];
   /** Resumos de rotina (hábitos, dinheiro), que não param o tempo. */
   rotina: string[];
 }
@@ -159,7 +159,7 @@ function passo(prox: Vida, anos: number, rng: Rng, resumir: boolean): ResultadoP
   const idadeCorpo = p.idadeBiologicaMeses !== undefined ? p.idadeBiologicaMeses / 12 : idade;
   envelhecer(p, idadeCorpo, anos, rng);
 
-  const importantes: string[] = [];
+  const importantes: Linha[] = [];
   for (const m of MARCOS_IDADE) {
     if (mesesAntes < m.meses && r.idadeMeses >= m.meses) importantes.push(m.texto(p.sexo));
   }
@@ -237,7 +237,7 @@ export function avancarPeriodo(vida: Vida, pularAno = false): Vida {
     const quando = quandoAgora(prox);
     const extras = dinamico && prox.relogio.ano !== anoAntes ? resumoDoAno(prox, anoAntes) : [];
     if (!dinamico) extras.push(...notasDeTendencia(prox, prox.atributosAnteriores));
-    for (const texto of [...rotina, ...importantes, ...extras]) prox.historico.push({ quando, texto });
+    for (const l of [...rotina, ...importantes, ...extras]) prox.historico.push(typeof l === 'string' ? { quando, texto: l } : { quando, ...l });
     if (importantes.length) houveNovidade = true;
 
     if (prox.morte || prox.pendente || !dinamico) break;

@@ -3,7 +3,6 @@ import type { Vida } from '../../motor/tipos';
 import { nomeCompleto, rotuloPeriodo, textoIdade } from '../../motor/vida';
 import { exportarTexto, importarTexto } from '../../save/save';
 import { baixarArquivo } from '../textos';
-import { CartaoDeus } from './CartaoDeus';
 
 interface Props {
   vida: Vida;
@@ -75,7 +74,10 @@ export function TelaMais({ vida, salvas, onNovaVida, onMudar, onTrocar, onImport
         </section>
       )}
 
-      <CartaoDeus vida={vida} onMudar={onMudar} />
+      <section class="cartao">
+        <h2>✦ Modo Deus</h2>
+        <p class="dica">Fica no botão ✦, no canto de cima de qualquer tela: atributos, personalidade, pessoas, lugar, emprego e eventos, num painel só.</p>
+      </section>
     </>
   );
 }

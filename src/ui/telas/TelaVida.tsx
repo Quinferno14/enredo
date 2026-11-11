@@ -104,7 +104,8 @@ export function TelaVida(props: Props) {
         <button
           class={deus ? 'botao-deus ativo' : 'botao-deus'}
           aria-pressed={deus}
-          title={deus ? 'Sair do Modo Deus' : 'Modo Deus: editar os números'}
+          title="Modo Deus"
+          aria-label="Abrir o Modo Deus"
           onClick={onDeus}
         >✎</button>
       </header>
@@ -197,7 +198,7 @@ export function TelaVida(props: Props) {
             <div class="escolhas">
               {vida.pendente.escolhas.map((c, i) => (
                 <button key={i} class="secundario" disabled={!!c.motivo} onClick={() => onEscolha(i)}>
-                  {c.texto}{c.motivo && <span class="dica"> · {c.motivo}</span>}
+                  {c.texto}{c.motivo && <span class="dica"> · {c.motivo}</span>}{c.jeitoTexto && <span class={c.jeito === 'contra' ? 'tag menos jeito' : 'tag jeito'}>{c.jeitoTexto}</span>}
                 </button>
               ))}
             </div>

@@ -56,13 +56,36 @@ describe('variedade (metas do doc)', () => {
   const repetidas = 1 - seqs.size / vidas.length;
   // Quem pausou a idade quase não morre: fica fora da média.
   const idadeMorte = media(vidas.filter((m) => m.vida.morte && m.vida.personagem.idadeBiologicaMeses === undefined).map((m) => m.vida.morte!.idadeMeses / 12));
+  // Linhas de evento repetidas: o começo do texto (sem os números do resumo) já saiu antes na mesma vida.
+  const repetidasPorVida = vidas.map((m) => {
+    const linhas = m.vida.historico.filter((h) => h.fato?.tipo === 'evento' && !h.fato.id?.startsWith('@')).map((h) => h.texto.slice(0, 70));
+    return linhas.length ? (linhas.length - new Set(linhas).size) / linhas.length : 0;
+  });
+  const linhasRepetidas = media(repetidasPorVida);
+  // Arcos que chegaram ao fim (a última parte de cada arco).
+  const FINS = ['banda_radio', 'banda_acabou', 'mochilao_foto', 'reforma_fim', 'varzea_foto', 'alzheimer_fim', 'vizinho_heranca', 'intercambio_volta'];
+  const arcosPorVida = media(vidas.map((m) => FINS.filter((f) => m.vida.vistos[f] !== undefined).length));
+  const arcosComecados = media(vidas.map((m) => EVENTOS.filter((e) => e.arco && !e.soGancho && m.vida.vistos[e.id] !== undefined).length));
   console.log('Variedade:', JSON.stringify({
+    linhasDeEventoRepetidas: `${(linhasRepetidas * 100).toFixed(1)}%`,
+    arcosComecadosPorVida: arcosComecados.toFixed(2),
+    arcosTerminadosPorVida: arcosPorVida.toFixed(2),
     eventosDistintosPorVida: distintos.toFixed(1),
     ganchosQueVoltaram: ganchos.toFixed(2),
     periodosVaziosDepoisDos60: `${(vazios * 100).toFixed(0)}%`,
     sequenciasRepetidas: `${(repetidas * 100).toFixed(1)}%`,
     idadeMediaMorte: idadeMorte.toFixed(1),
   }));
+
+  it('uma vida longa quase não repete as mesmas linhas', () => {
+    // As datas do ano (Natal, festa junina) voltam por natureza; o resto quase não repete.
+    expect(linhasRepetidas).toBeLessThan(0.25);
+  });
+
+  it('os arcos começam e chegam ao fim', () => {
+    expect(arcosComecados).toBeGreaterThan(1);
+    expect(arcosPorVida).toBeGreaterThan(0.5);
+  });
 
   it('cada vida vê 60 ou mais eventos diferentes', () => {
     expect(distintos).toBeGreaterThanOrEqual(60);

@@ -465,6 +465,10 @@
           "efeitos": {
             "atributos.felicidade": -3
           }
+        },
+        "perfil": {
+          "disciplina": 1,
+          "ambicao": 1
         }
       },
       {
@@ -606,6 +610,10 @@
             -20,
             "levou um fora de {crush}"
           ]
+        },
+        "perfil": {
+          "extroversao": 1,
+          "impulsividade": 1
         }
       },
       {
@@ -626,6 +634,10 @@
             12,
             30
           ]
+        },
+        "perfil": {
+          "extroversao": -1,
+          "impulsividade": -1
         }
       }
     ]
@@ -694,6 +706,10 @@
             -5,
             "foi pego voltando escondido de uma festa"
           ]
+        },
+        "perfil": {
+          "impulsividade": 1,
+          "moralidade": -1
         }
       },
       {
@@ -794,12 +810,20 @@
             1,
             4
           ]
+        },
+        "perfil": {
+          "extroversao": 1,
+          "curiosidade": 1
         }
       },
       {
         "texto": "Recusar",
         "efeitos": {
           "atributos.felicidade": -1
+        },
+        "perfil": {
+          "extroversao": -1,
+          "curiosidade": -1
         }
       }
     ]
@@ -832,6 +856,10 @@
         "efeitos": {
           "traco.cigarro": 1,
           "atributos.carisma": 1
+        },
+        "perfil": {
+          "impulsividade": 1,
+          "disciplina": -1
         }
       },
       {
@@ -940,10 +968,17 @@
             5,
             "reprovou na baliza antes de tirar a carteira"
           ]
+        },
+        "perfil": {
+          "disciplina": 1,
+          "ambicao": 1
         }
       },
       {
-        "texto": "Deixar para depois"
+        "texto": "Deixar para depois",
+        "perfil": {
+          "ambicao": -1
+        }
       }
     ]
   },
@@ -1077,7 +1112,9 @@
     },
     "texto": [
       "Chuva forte em {cidade}: a água invadiu a rua e entrou em casa.",
-      "O rio transbordou em {cidade} e a casa ficou com lama até o joelho."
+      "O rio transbordou em {cidade} e a casa ficou com lama até o joelho.",
+      "A chuva não parou por três dias, e a rua virou rio. A água chegou na porta.",
+      "Enchente em {cidade}: os móveis da sala foram para cima dos tijolos."
     ],
     "efeitos": {
       "atributos.felicidade": -6,
@@ -1148,7 +1185,10 @@
       }
     },
     "texto": [
-      "Onda de calor de 40 graus em {cidade}. Dormir virou missão impossível."
+      "Onda de calor de 40 graus em {cidade}. Dormir virou missão impossível.",
+      "Calor de rachar em {cidade}: o ventilador só espalhava ar quente.",
+      "Semana de 39 graus. Você dormiu no chão da sala, que era o lugar mais fresco da casa.",
+      "Onda de calor: filas na sorveteria e banho frio três vezes por dia."
     ],
     "efeitos": {
       "desgaste": 8,
@@ -1175,7 +1215,9 @@
     },
     "texto": [
       "Carnaval chegou e {amiga} te chama para o bloco.",
-      "Os blocos de {cidade} estão na rua e o celular não para de apitar com convite."
+      "Os blocos de {cidade} estão na rua e o celular não para de apitar com convite.",
+      "Carnaval: o bloco do bairro saiu com marchinha antiga e fantasia improvisada.",
+      "Os quatro dias de Carnaval chegaram, e a cidade só fala de bloco."
     ],
     "escolhas": [
       {
@@ -1196,12 +1238,19 @@
           "efeitos": {
             "atributos.felicidade": -6
           }
+        },
+        "perfil": {
+          "extroversao": 1,
+          "impulsividade": 1
         }
       },
       {
         "texto": "Descansar no feriado",
         "efeitos": {
           "desgaste": -15
+        },
+        "perfil": {
+          "extroversao": -1
         }
       }
     ],
@@ -1215,18 +1264,42 @@
         100
       ],
       "mes": [
-        6,
-        7
+        6
       ]
     },
     "texto": [
       "Festa junina: quadrilha, quentão e pamonha.",
-      "Você dançou quadrilha com chapéu de palha e bigode pintado."
+      "Você dançou quadrilha com chapéu de palha e bigode pintado.",
+      "Arraiá no bairro: fogueira, correio elegante e a pescaria que nunca dá prêmio bom.",
+      "Festa junina com quentão, canjica e uma quadrilha em que ninguém acertou o passo.",
+      "Noite de São João: milho na fogueira, bandeirinha de papel e forró até tarde.",
+      "Festa junina da rua: alguém trouxe uma sanfona e a quadrilha virou bagunça boa.",
+      "Festa junina na escola do bairro: barraca de cachorro-quente, prenda e casamento caipira."
     ],
     "efeitos": {
       "atributos.felicidade": 4
     },
-    "calendario": 0.45
+    "calendario": 0.25,
+    "textos": [
+      {
+        "idade": [
+          3,
+          10
+        ],
+        "texto": [
+          "Festa junina da escola: você dançou quadrilha com chapéu de palha e bigode pintado de lápis de olho."
+        ]
+      },
+      {
+        "idade": [
+          60,
+          120
+        ],
+        "texto": [
+          "Festa junina na paróquia: você ganhou na pescaria e comeu pé de moleque até enjoar."
+        ]
+      }
+    ]
   },
   {
     "id": "sao_joao",
@@ -1286,7 +1359,11 @@
           "caiu_golpe",
           -15,
           "caiu num golpe do Pix"
-        ]
+        ],
+        "perfil": {
+          "impulsividade": 1,
+          "curiosidade": -1
+        }
       },
       {
         "texto": "Ligar para o número antigo antes",
@@ -1321,6 +1398,10 @@
         "efeitos": {
           "desgaste": -40,
           "atributos.felicidade": 3
+        },
+        "perfil": {
+          "ambicao": -1,
+          "estabilidade": 1
         }
       },
       {
@@ -1370,7 +1451,10 @@
       }
     },
     "texto": [
-      "Uma fase de insônia: você encara o teto às 3 da manhã quase toda noite."
+      "Uma fase de insônia: você encara o teto às 3 da manhã quase toda noite.",
+      "Você passou semanas dormindo mal, acordando às 4 da manhã com a cabeça a mil.",
+      "Insônia de novo. O celular às 3 da manhã não ajudou nada.",
+      "Uma fase de noites mal dormidas. Você contou carneiros, ovelhas e boletos."
     ],
     "efeitos": {
       "desgaste": 10,
@@ -1393,7 +1477,10 @@
     },
     "texto": [
       "Você ganhou a rifa da igreja do bairro: R$ 300!",
-      "Seu número saiu na rifa da quermesse: R$ 300 para você."
+      "Seu número saiu na rifa da quermesse: R$ 300 para você.",
+      "O bilhete da rifa da escola, comprado só para ajudar, saiu premiado: R$ 300!",
+      "Você ganhou o sorteio do bingo da paróquia: R$ 300 e um aplauso do salão inteiro.",
+      "O número que você escolheu de brincadeira na rifa do trabalho saiu: R$ 300!"
     ],
     "efeitos": {
       "dinheiro": 300,
@@ -1412,7 +1499,10 @@
       "base": 1
     },
     "texto": [
-      "Você achou R$ 50 no bolso de uma calça velha."
+      "Você achou R$ 50 no bolso de uma calça velha.",
+      "Você achou uma nota de R$ 50 dobrada dentro de um livro velho.",
+      "No bolso do casaco do inverno passado: R$ 50 esquecidos. Dia ganho.",
+      "Na máquina de lavar, uma nota de R$ 50 sobreviveu molhada no bolso da calça."
     ],
     "efeitos": {
       "dinheiro": 50,
@@ -1463,6 +1553,10 @@
             "dinheiro": -300,
             "atributos.felicidade": -6
           }
+        },
+        "perfil": {
+          "impulsividade": 1,
+          "disciplina": -1
         }
       },
       {
@@ -1489,6 +1583,10 @@
           "efeitos": {
             "atributos.felicidade": -2
           }
+        },
+        "perfil": {
+          "disciplina": 1,
+          "impulsividade": -1
         }
       }
     ]
@@ -1534,6 +1632,10 @@
             -10,
             "apagou de tanto beber"
           ]
+        },
+        "perfil": {
+          "impulsividade": 1,
+          "disciplina": -1
         }
       },
       {
@@ -1561,6 +1663,10 @@
           "efeitos": {
             "atributos.saude": -2
           }
+        },
+        "perfil": {
+          "disciplina": 1,
+          "impulsividade": -1
         }
       }
     ]
@@ -1589,12 +1695,19 @@
           "traco.alcool": -1,
           "atributos.felicidade": -2,
           "atributos.saude": 2
+        },
+        "perfil": {
+          "disciplina": 1
         }
       },
       {
         "texto": "Ignorar",
         "efeitos": {
           "atributos.saude": -6
+        },
+        "perfil": {
+          "disciplina": -1,
+          "impulsividade": 1
         }
       }
     ]
@@ -1639,12 +1752,18 @@
           "efeitos": {
             "atributos.felicidade": -3
           }
+        },
+        "perfil": {
+          "disciplina": 1
         }
       },
       {
         "texto": "Deixar como está",
         "efeitos": {
           "atributos.saude": -2
+        },
+        "perfil": {
+          "disciplina": -1
         }
       }
     ]
@@ -1680,6 +1799,10 @@
         "texto": "Fingir que não viu",
         "efeitos": {
           "atributos.felicidade": -1
+        },
+        "perfil": {
+          "impulsividade": -1,
+          "extroversao": -1
         }
       },
       {
@@ -1698,6 +1821,9 @@
           "efeitos": {
             "atributos.felicidade": -4
           }
+        },
+        "perfil": {
+          "impulsividade": 1
         }
       }
     ]
@@ -1727,6 +1853,9 @@
             1.5,
             3
           ]
+        },
+        "perfil": {
+          "empatia": 1
         }
       },
       {
@@ -1738,6 +1867,9 @@
             0.5,
             1.5
           ]
+        },
+        "perfil": {
+          "empatia": -1
         }
       }
     ]
@@ -1800,6 +1932,10 @@
             -10,
             "esqueceu a letra num show em {cidade}"
           ]
+        },
+        "perfil": {
+          "extroversao": 1,
+          "impulsividade": 1
         }
       },
       {
@@ -1807,6 +1943,10 @@
         "resposta": "A banda tocou sem você e não te chamou mais.",
         "efeitos": {
           "atributos.felicidade": -4
+        },
+        "perfil": {
+          "extroversao": -1,
+          "estabilidade": -1
         }
       }
     ]
@@ -1836,7 +1976,10 @@
           "vendeu_arte",
           15,
           "vendeu o primeiro quadro"
-        ]
+        ],
+        "perfil": {
+          "ambicao": 1
+        }
       },
       {
         "texto": "Não vender, mas postar online",
@@ -1863,6 +2006,10 @@
           "efeitos": {
             "atributos.felicidade": -1
           }
+        },
+        "perfil": {
+          "curiosidade": 1,
+          "ambicao": -1
         }
       }
     ]
@@ -1919,12 +2066,19 @@
             -8,
             "não passou numa peneira"
           ]
+        },
+        "perfil": {
+          "ambicao": 1,
+          "extroversao": 1
         }
       },
       {
         "texto": "Não ir",
         "efeitos": {
           "atributos.felicidade": -2
+        },
+        "perfil": {
+          "ambicao": -1
         }
       }
     ]
@@ -1973,10 +2127,18 @@
           "viagem",
           15,
           "viajou de última hora para {destino}"
-        ]
+        ],
+        "perfil": {
+          "impulsividade": 1,
+          "curiosidade": 1
+        }
       },
       {
-        "texto": "Ficar"
+        "texto": "Ficar",
+        "perfil": {
+          "impulsividade": -1,
+          "disciplina": 1
+        }
       }
     ]
   },
@@ -2021,6 +2183,10 @@
             "atributos.felicidade": -3,
             "pessoa.afeto": -8
           }
+        },
+        "perfil": {
+          "estabilidade": 1,
+          "extroversao": 1
         }
       },
       {
@@ -2115,10 +2281,17 @@
             "atributos.felicidade": -2,
             "atributos.saude": -2
           }
+        },
+        "perfil": {
+          "disciplina": 1,
+          "ambicao": 1
         }
       },
       {
-        "texto": "Só assistir"
+        "texto": "Só assistir",
+        "perfil": {
+          "disciplina": -1
+        }
       }
     ]
   },
@@ -2155,6 +2328,10 @@
         "efeitos": {
           "desgaste": 8,
           "atributos.saude": -2
+        },
+        "perfil": {
+          "disciplina": 1,
+          "impulsividade": -1
         }
       }
     ]
@@ -2198,6 +2375,9 @@
         "texto": "Tomar o remédio e seguir a vida",
         "efeitos": {
           "atributos.saude": 1
+        },
+        "perfil": {
+          "disciplina": 1
         }
       },
       {
@@ -2212,6 +2392,10 @@
             1,
             5
           ]
+        },
+        "perfil": {
+          "disciplina": -1,
+          "impulsividade": 1
         }
       }
     ]
@@ -2266,6 +2450,10 @@
         "texto": "Fazer do seu jeito",
         "efeitos": {
           "traco.diabetes": 2
+        },
+        "perfil": {
+          "disciplina": -1,
+          "impulsividade": 1
         }
       }
     ]
@@ -2328,10 +2516,17 @@
             1,
             4
           ]
+        },
+        "perfil": {
+          "extroversao": 1,
+          "curiosidade": 1
         }
       },
       {
-        "texto": "Não é pra mim"
+        "texto": "Não é pra mim",
+        "perfil": {
+          "extroversao": -1
+        }
       }
     ]
   },
@@ -2398,6 +2593,10 @@
         "resposta": "Casa mais segura, orgulho um pouco ferido.",
         "efeitos": {
           "dinheiro": -400
+        },
+        "perfil": {
+          "disciplina": 1,
+          "impulsividade": -1
         }
       },
       {
@@ -2422,6 +2621,9 @@
             -12,
             "fraturou o punho numa queda em casa"
           ]
+        },
+        "perfil": {
+          "impulsividade": 1
         }
       }
     ]
@@ -2484,12 +2686,18 @@
           "reviu_crush",
           10,
           "reencontrou {crush} anos depois"
-        ]
+        ],
+        "perfil": {
+          "extroversao": 1
+        }
       },
       {
         "texto": "Dar um oi rápido e ir embora",
         "efeitos": {
           "atributos.felicidade": -1
+        },
+        "perfil": {
+          "extroversao": -1
         }
       }
     ]
@@ -2511,7 +2719,9 @@
     },
     "texto": [
       "Uma gripe forte te derrubou por uma semana.",
-      "Febre, tosse e uma semana inteira de cama."
+      "Febre, tosse e uma semana inteira de cama.",
+      "Gripe daquelas: três dias sem conseguir sair da cama.",
+      "Você ficou de cama com gripe, tomando chá de limão com mel e vendo TV."
     ],
     "efeitos": {
       "atributos.saude": -3,
@@ -2639,12 +2849,20 @@
             "estudo.nota": -4,
             "atributos.felicidade": -3
           }
+        },
+        "perfil": {
+          "ambicao": 1,
+          "extroversao": 1
         }
       },
       {
         "texto": "Entregar como está",
         "efeitos": {
           "estudo.nota": -5
+        },
+        "perfil": {
+          "estabilidade": 1,
+          "ambicao": -1
         }
       }
     ]
@@ -2671,7 +2889,11 @@
           "formatura",
           12,
           "dançou a valsa na formatura do médio"
-        ]
+        ],
+        "perfil": {
+          "extroversao": 1,
+          "impulsividade": 1
+        }
       },
       {
         "texto": "Ir só na colação de grau",
@@ -2683,6 +2905,9 @@
         "texto": "Não ir",
         "efeitos": {
           "atributos.felicidade": -2
+        },
+        "perfil": {
+          "extroversao": -1
         }
       }
     ]
@@ -2713,12 +2938,18 @@
           "estagio",
           12,
           "fez estágio durante a faculdade"
-        ]
+        ],
+        "perfil": {
+          "ambicao": 1
+        }
       },
       {
         "texto": "Focar só nos estudos",
         "efeitos": {
           "estudo.nota": 3
+        },
+        "perfil": {
+          "disciplina": 1
         }
       }
     ]
@@ -2790,6 +3021,10 @@
             "trabalho.desempenho": -15,
             "atributos.felicidade": -5
           }
+        },
+        "perfil": {
+          "moralidade": 1,
+          "ambicao": 1
         }
       },
       {
@@ -2799,7 +3034,10 @@
           "atributos.felicidade": 3,
           "desgaste": -10
         },
-        "resposta": "Você saiu de cabeça erguida."
+        "resposta": "Você saiu de cabeça erguida.",
+        "perfil": {
+          "impulsividade": 1
+        }
       }
     ]
   },
@@ -2821,6 +3059,10 @@
           "dinheiro": 400,
           "desgaste": 10,
           "trabalho.desempenho": 4
+        },
+        "perfil": {
+          "ambicao": 1,
+          "disciplina": 1
         }
       },
       {
@@ -2828,6 +3070,9 @@
         "efeitos": {
           "trabalho.desempenho": -3,
           "desgaste": -3
+        },
+        "perfil": {
+          "ambicao": -1
         }
       }
     ]
@@ -2854,7 +3099,11 @@
           "trabalho.desempenho": -10,
           "atributos.felicidade": 5
         },
-        "resposta": "Mesmo cargo, empresa nova, salário melhor."
+        "resposta": "Mesmo cargo, empresa nova, salário melhor.",
+        "perfil": {
+          "ambicao": 1,
+          "curiosidade": 1
+        }
       },
       {
         "texto": "Usar a proposta para pedir aumento",
@@ -2875,6 +3124,10 @@
           "efeitos": {
             "trabalho.desempenho": -5
           }
+        },
+        "perfil": {
+          "ambicao": 1,
+          "moralidade": -1
         }
       },
       {
@@ -2919,6 +3172,9 @@
             -18,
             "foi cortad{o|a} num corte em massa"
           ]
+        },
+        "perfil": {
+          "estabilidade": 1
         }
       },
       {
@@ -2949,6 +3205,10 @@
             -18,
             "foi cortad{o|a} num corte em massa"
           ]
+        },
+        "perfil": {
+          "disciplina": 1,
+          "estabilidade": -1
         }
       }
     ]
@@ -2985,6 +3245,9 @@
             "trabalho.desempenho": -6,
             "atributos.felicidade": -3
           }
+        },
+        "perfil": {
+          "impulsividade": 1
         }
       },
       {
@@ -2992,6 +3255,10 @@
         "efeitos": {
           "desgaste": 5,
           "trabalho.desempenho": 2
+        },
+        "perfil": {
+          "estabilidade": 1,
+          "impulsividade": -1
         }
       }
     ]
@@ -3032,6 +3299,9 @@
           "efeitos": {
             "atributos.felicidade": -3
           }
+        },
+        "perfil": {
+          "disciplina": 1
         }
       },
       {
@@ -3044,7 +3314,10 @@
           "nome_sujo",
           -12,
           "teve o nome no Serasa"
-        ]
+        ],
+        "perfil": {
+          "disciplina": -1
+        }
       }
     ]
   },
@@ -3073,6 +3346,10 @@
         "efeitos": {
           "desgaste": -20,
           "atributos.felicidade": -2
+        },
+        "perfil": {
+          "ambicao": -1,
+          "estabilidade": 1
         }
       }
     ]
@@ -3137,6 +3414,10 @@
             1,
             4
           ]
+        },
+        "perfil": {
+          "impulsividade": 1,
+          "ambicao": 1
         }
       }
     ]
@@ -3160,6 +3441,10 @@
         "efeitos": {
           "dinheiro": "-15%",
           "pessoa.afeto": 5
+        },
+        "perfil": {
+          "empatia": 1,
+          "estabilidade": 1
         }
       },
       {
@@ -3183,6 +3468,10 @@
             "dinheiro": "-30%",
             "atributos.felicidade": -6
           }
+        },
+        "perfil": {
+          "impulsividade": 1,
+          "ambicao": 1
         }
       }
     ]
@@ -3267,12 +3556,18 @@
           "dinheiro": -2000,
           "pessoa.saude": 8,
           "pessoa.afeto": 3
+        },
+        "perfil": {
+          "empatia": 1
         }
       },
       {
         "texto": "Deixar com os outros da família",
         "efeitos": {
           "pessoa.afeto": -12
+        },
+        "perfil": {
+          "empatia": -1
         }
       }
     ]
@@ -3319,12 +3614,19 @@
             1,
             3
           ]
+        },
+        "perfil": {
+          "empatia": 1
         }
       },
       {
         "texto": "Dizer que não dá",
         "efeitos": {
           "pessoa.afeto": -8
+        },
+        "perfil": {
+          "disciplina": 1,
+          "empatia": -1
         }
       }
     ]
@@ -3416,6 +3718,9 @@
           "efeitos": {
             "pessoa.afeto": -8
           }
+        },
+        "perfil": {
+          "estabilidade": 1
         }
       },
       {
@@ -3423,6 +3728,10 @@
         "efeitos": {
           "pessoa.afeto": -12,
           "atributos.felicidade": -2
+        },
+        "perfil": {
+          "impulsividade": 1,
+          "estabilidade": -1
         }
       }
     ]
@@ -3444,7 +3753,10 @@
       "base": 1.5
     },
     "texto": [
-      "{pessoa} organizou uma festa surpresa no seu aniversário."
+      "{pessoa} organizou uma festa surpresa no seu aniversário.",
+      "{pessoa} juntou seus amigos escondido e fez uma festa surpresa. Você fingiu que não desconfiava.",
+      "No seu aniversário, {pessoa} apareceu com bolo, velas e metade das pessoas que você mais gosta.",
+      "{pessoa} reservou um restaurante e chamou seus amigos escondido. Você chorou na sobremesa."
     ],
     "efeitos": {
       "atributos.felicidade": 8
@@ -3485,6 +3797,10 @@
         "efeitos": {
           "dinheiro": -800,
           "pessoa.afeto": 18
+        },
+        "perfil": {
+          "curiosidade": 1,
+          "empatia": 1
         }
       },
       {
@@ -3506,12 +3822,18 @@
           "efeitos": {
             "pessoa.afeto": -8
           }
+        },
+        "perfil": {
+          "estabilidade": 1
         }
       },
       {
         "texto": "Terminar",
         "efeitos": {
           "pessoa.terminar": 1
+        },
+        "perfil": {
+          "impulsividade": 1
         }
       }
     ]
@@ -3608,6 +3930,9 @@
           "efeitos": {
             "pessoa.afeto": -6
           }
+        },
+        "perfil": {
+          "empatia": 1
         }
       },
       {
@@ -3615,6 +3940,10 @@
         "efeitos": {
           "pessoa.afeto": -10,
           "desgaste": 4
+        },
+        "perfil": {
+          "disciplina": 1,
+          "empatia": -1
         }
       }
     ]
@@ -3654,12 +3983,18 @@
           "ajudou_filho",
           12,
           "ajudou {pessoa} a pagar a faculdade"
-        ]
+        ],
+        "perfil": {
+          "empatia": 1
+        }
       },
       {
         "texto": "Dizer que não dá",
         "efeitos": {
           "pessoa.afeto": -6
+        },
+        "perfil": {
+          "disciplina": 1
         }
       }
     ]
@@ -3681,7 +4016,9 @@
       "base": 1
     },
     "texto": [
-      "{pessoa} perdeu o emprego. A casa ficou mais apertada."
+      "{pessoa} perdeu o emprego. A casa ficou mais apertada.",
+      "{pessoa} foi demitid{pa} sem aviso. Vocês sentaram na mesa da cozinha para refazer as contas.",
+      "A empresa d{pdo} {pessoa} fechou as portas. A casa entrou em modo economia."
     ],
     "efeitos": {
       "pessoa.renda": "-100%",
@@ -3832,6 +4169,10 @@
         "texto": "Chorar até o portão fechar",
         "efeitos": {
           "atributos.felicidade": -2
+        },
+        "perfil": {
+          "estabilidade": -1,
+          "extroversao": -1
         }
       },
       {
@@ -3867,6 +4208,9 @@
           "efeitos": {
             "atributos.felicidade": -1
           }
+        },
+        "perfil": {
+          "extroversao": 1
         }
       }
     ]
@@ -3888,12 +4232,19 @@
           "reencontro_amigo",
           12,
           "reencontrou {amigo}, amigo de infância"
-        ]
+        ],
+        "perfil": {
+          "extroversao": 1,
+          "empatia": 1
+        }
       },
       {
         "texto": "Responder com um emoji e só",
         "efeitos": {
           "atributos.felicidade": -1
+        },
+        "perfil": {
+          "extroversao": -1
         }
       }
     ]
@@ -3987,7 +4338,10 @@
         "efeitos": {
           "atributos.felicidade": -2
         },
-        "resposta": "Remarcaram para outro dia."
+        "resposta": "Remarcaram para outro dia.",
+        "perfil": {
+          "estabilidade": -1
+        }
       }
     ]
   },
@@ -4091,6 +4445,10 @@
         "texto": "Desistir da ideia",
         "efeitos": {
           "atributos.felicidade": -1
+        },
+        "perfil": {
+          "estabilidade": 1,
+          "impulsividade": -1
         }
       }
     ]
@@ -4146,12 +4504,18 @@
         },
         "efeitos": {
           "dinheiro": -400
+        },
+        "perfil": {
+          "impulsividade": 1
         }
       },
       {
         "texto": "Usar trincado mesmo",
         "efeitos": {
           "atributos.felicidade": -2
+        },
+        "perfil": {
+          "disciplina": 1
         }
       }
     ]
@@ -4207,10 +4571,17 @@
             -6,
             "fez uma tatuagem que ficou torta"
           ]
+        },
+        "perfil": {
+          "impulsividade": 1,
+          "curiosidade": 1
         }
       },
       {
-        "texto": "Deixar para depois"
+        "texto": "Deixar para depois",
+        "perfil": {
+          "impulsividade": -1
+        }
       }
     ]
   },
@@ -4290,7 +4661,11 @@
         }
       },
       {
-        "texto": "Não ir"
+        "texto": "Não ir",
+        "perfil": {
+          "curiosidade": -1,
+          "extroversao": -1
+        }
       }
     ]
   },
@@ -4329,6 +4704,9 @@
           "efeitos": {
             "atributos.felicidade": -6
           }
+        },
+        "perfil": {
+          "estabilidade": 1
         }
       },
       {
@@ -4380,6 +4758,9 @@
         "efeitos": {
           "pessoa.afeto": -8,
           "atributos.felicidade": -2
+        },
+        "perfil": {
+          "impulsividade": 1
         }
       }
     ]
@@ -4414,12 +4795,19 @@
           "show_favorito",
           10,
           "foi ao show da banda favorita"
-        ]
+        ],
+        "perfil": {
+          "impulsividade": 1,
+          "extroversao": 1
+        }
       },
       {
         "texto": "Assistir aos vídeos depois",
         "efeitos": {
           "atributos.felicidade": -1
+        },
+        "perfil": {
+          "disciplina": 1
         }
       }
     ]
@@ -4447,7 +4835,11 @@
         "efeitos": {
           "dinheiro": "8%"
         },
-        "resposta": "Rendeu devagar, mas rendeu."
+        "resposta": "Rendeu devagar, mas rendeu.",
+        "perfil": {
+          "disciplina": 1,
+          "impulsividade": -1
+        }
       },
       {
         "texto": "Cripto que um amigo indicou",
@@ -4472,10 +4864,17 @@
             -10,
             "perdeu dinheiro com cripto"
           ]
+        },
+        "perfil": {
+          "impulsividade": 1,
+          "curiosidade": 1
         }
       },
       {
-        "texto": "Deixar na conta mesmo"
+        "texto": "Deixar na conta mesmo",
+        "perfil": {
+          "curiosidade": -1
+        }
       }
     ]
   },
@@ -4544,10 +4943,18 @@
             -20,
             "abriu {negocio} que quebrou"
           ]
+        },
+        "perfil": {
+          "ambicao": 1,
+          "impulsividade": 1
         }
       },
       {
-        "texto": "Guardar a ideia"
+        "texto": "Guardar a ideia",
+        "perfil": {
+          "impulsividade": -1,
+          "ambicao": -1
+        }
       }
     ]
   },
@@ -4560,7 +4967,10 @@
       "base": 1.5
     },
     "texto": [
-      "Chegou uma multa: você passou a 72 km/h num trecho de 60."
+      "Chegou uma multa: você passou a 72 km/h num trecho de 60.",
+      "Uma multa chegou pelo correio: avanço de sinal num cruzamento que você nem lembra.",
+      "Multa de trânsito: estacionou onde não podia, por cinco minutos.",
+      "O radar te pegou a 70 numa avenida de 50."
     ],
     "efeitos": {
       "dinheiro": -195,
@@ -4602,6 +5012,9 @@
             -15,
             "foi pego na Lei Seca"
           ]
+        },
+        "perfil": {
+          "moralidade": 1
         }
       },
       {
@@ -4610,7 +5023,11 @@
           "dinheiro": -2934,
           "atributos.felicidade": -8
         },
-        "resposta": "Recusar dá a mesma multa e a mesma suspensão."
+        "resposta": "Recusar dá a mesma multa e a mesma suspensão.",
+        "perfil": {
+          "moralidade": -1,
+          "impulsividade": 1
+        }
       }
     ]
   },
@@ -4697,12 +5114,20 @@
             "dinheiro": -1500,
             "atributos.felicidade": -2
           }
+        },
+        "perfil": {
+          "extroversao": 1,
+          "ambicao": 1
         }
       },
       {
         "texto": "Aceitar calad{o|a}",
         "efeitos": {
           "dinheiro": -1500
+        },
+        "perfil": {
+          "extroversao": -1,
+          "estabilidade": 1
         }
       }
     ]
@@ -4722,7 +5147,10 @@
       "base": 1.5
     },
     "texto": [
-      "Febre, dor atrás dos olhos e manchas pelo corpo: dengue."
+      "Febre, dor atrás dos olhos e manchas pelo corpo: dengue.",
+      "Dengue. Uma semana de cama, soro e o corpo inteiro doendo.",
+      "Você pegou dengue. O mosquito estava no vaso de planta da vizinha, jura todo mundo.",
+      "Febre alta e dor no corpo: o posto confirmou dengue. Hidratação e paciência."
     ],
     "efeitos": {
       "atributos.saude": -5,
@@ -4742,7 +5170,10 @@
       "base": 0.8
     },
     "texto": [
-      "Um apagão deixou {cidade} sem luz por dois dias. A comida da geladeira foi toda para o lixo."
+      "Um apagão deixou {cidade} sem luz por dois dias. A comida da geladeira foi toda para o lixo.",
+      "Faltou luz no bairro a noite inteira. A família jogou baralho à luz de vela.",
+      "Um transformador explodiu na rua e {cidade} ficou um dia no escuro.",
+      "Apagão em {cidade}. A geladeira descongelou e o celular morreu às 9 da noite."
     ],
     "efeitos": {
       "atributos.felicidade": -2,
@@ -4790,6 +5221,9 @@
         },
         "falha": {
           "resposta": "Acertou dois números. Ano que vem tem mais."
+        },
+        "perfil": {
+          "impulsividade": 1
         }
       },
       {
@@ -4809,10 +5243,16 @@
         },
         "falha": {
           "resposta": "Nada. O bolão já está combinado para o ano que vem."
+        },
+        "perfil": {
+          "extroversao": 1
         }
       },
       {
-        "texto": "Não jogar"
+        "texto": "Não jogar",
+        "perfil": {
+          "disciplina": 1
+        }
       }
     ]
   },
@@ -4851,10 +5291,16 @@
           "efeitos": {
             "atributos.felicidade": -5
           }
+        },
+        "perfil": {
+          "extroversao": 1
         }
       },
       {
-        "texto": "Não ir"
+        "texto": "Não ir",
+        "perfil": {
+          "extroversao": -1
+        }
       }
     ]
   },
@@ -4897,7 +5343,10 @@
       "base": 1
     },
     "texto": [
-      "Arrombaram sua casa enquanto você estava fora."
+      "Arrombaram sua casa enquanto você estava fora.",
+      "Entraram na sua casa durante o feriado e levaram a TV e o notebook.",
+      "Voltando de viagem, você achou a porta arrombada e as gavetas reviradas.",
+      "Levaram a bicicleta e o botijão de gás do quintal durante a madrugada."
     ],
     "efeitos": {
       "dinheiro": -2500,
@@ -4922,7 +5371,9 @@
       "base": 0.6
     },
     "texto": [
-      "O país entrou em recessão. Os preços subiram e as empresas estão demitindo."
+      "O país entrou em recessão. Os preços subiram e as empresas estão demitindo.",
+      "Crise no país: o preço do mercado subiu de novo, e o jornal só fala em desemprego.",
+      "A economia travou. Muita gente conhecida foi demitida no mesmo mês."
     ],
     "efeitos": {
       "atributos.felicidade": -3,
@@ -4975,13 +5426,40 @@
           "efeitos": {
             "atributos.felicidade": -4
           }
+        },
+        "perfil": {
+          "extroversao": 1
         }
       },
       {
         "texto": "Ignorar a Copa",
         "efeitos": {
           "desgaste": -5
+        },
+        "perfil": {
+          "extroversao": -1,
+          "curiosidade": -1
         }
+      }
+    ],
+    "textos": [
+      {
+        "idade": [
+          4,
+          12
+        ],
+        "texto": [
+          "Copa do Mundo! Você pintou a cara de verde e amarelo e ajudou a enfeitar a rua com bandeirinhas."
+        ]
+      },
+      {
+        "idade": [
+          60,
+          120
+        ],
+        "texto": [
+          "Mais uma Copa. Você já viu tantas que sabe a escalação de 1970 de cor."
+        ]
       }
     ]
   },
@@ -5010,6 +5488,9 @@
         "efeitos": {
           "atributos.felicidade": -3,
           "desgaste": 6
+        },
+        "perfil": {
+          "impulsividade": 1
         }
       },
       {
@@ -5043,7 +5524,8 @@
       ]
     },
     "texto": [
-      "Réveillon em Copacabana: dois milhões de pessoas de branco e fogos no mar."
+      "Réveillon em Copacabana: dois milhões de pessoas de branco e fogos no mar.",
+      "Virada em Copacabana: você chegou à tarde para garantir um lugar na areia."
     ],
     "escolhas": [
       {
@@ -5051,12 +5533,18 @@
         "efeitos": {
           "atributos.felicidade": 7,
           "desgaste": 8
+        },
+        "perfil": {
+          "extroversao": 1
         }
       },
       {
         "texto": "Ver pela TV",
         "efeitos": {
           "atributos.felicidade": 1
+        },
+        "perfil": {
+          "extroversao": -1
         }
       }
     ],
@@ -5091,10 +5579,16 @@
           "dinheiro": -250,
           "atributos.felicidade": 6,
           "desgaste": 8
+        },
+        "perfil": {
+          "extroversao": 1
         }
       },
       {
-        "texto": "Ficar em casa"
+        "texto": "Ficar em casa",
+        "perfil": {
+          "extroversao": -1
+        }
       }
     ]
   },
@@ -5114,7 +5608,9 @@
       "base": 2.5
     },
     "texto": [
-      "Semana Farroupilha: acampamento crioulo, churrasco e pilcha."
+      "Semana Farroupilha: acampamento crioulo, churrasco e pilcha.",
+      "Semana Farroupilha: desfile de cavalos, chimarrão na praça e gente de bombacha na rua.",
+      "Vinte de Setembro: acampamento farroupilha, costela no fogo de chão e música gaúcha."
     ],
     "efeitos": {
       "atributos.felicidade": 4
@@ -5136,7 +5632,9 @@
       "base": 2
     },
     "texto": [
-      "2 de Julho em {cidade}: o desfile da Independência da Bahia lotou as ruas."
+      "2 de Julho em {cidade}: o desfile da Independência da Bahia lotou as ruas.",
+      "Dois de Julho: o caboclo e a cabocla desfilaram pelo centro de {cidade}, com fanfarra e muita gente na rua.",
+      "Feriado do Dois de Julho em {cidade}. Você acompanhou o cortejo com a família."
     ],
     "efeitos": {
       "atributos.felicidade": 3
@@ -5155,7 +5653,9 @@
       "base": 0.8
     },
     "texto": [
-      "Uma chuva de granizo destruiu telhados em {cidade}, inclusive o seu."
+      "Uma chuva de granizo destruiu telhados em {cidade}, inclusive o seu.",
+      "Choveu granizo em {cidade}: pedras do tamanho de bolinha de gude e o telhado cheio de furos.",
+      "Uma tempestade de granizo amassou carros e quebrou telhas pela cidade inteira, inclusive na sua casa."
     ],
     "efeitos": {
       "dinheiro": -1200,
@@ -5224,13 +5724,19 @@
           "bodas",
           20,
           "renovou os votos com {pessoa}"
-        ]
+        ],
+        "perfil": {
+          "extroversao": 1
+        }
       },
       {
         "texto": "Jantar a dois",
         "efeitos": {
           "atributos.felicidade": 4,
           "pessoa.afeto": 6
+        },
+        "perfil": {
+          "extroversao": -1
         }
       }
     ]
@@ -5266,14 +5772,21 @@
           "caiu_golpe",
           -15,
           "caiu no golpe do falso neto"
-        ]
+        ],
+        "perfil": {
+          "impulsividade": 1,
+          "curiosidade": -1
+        }
       },
       {
         "texto": "Desligar e ligar para a família",
         "efeitos": {
           "atributos.inteligencia": 1
         },
-        "resposta": "Golpe desmascarado."
+        "resposta": "Golpe desmascarado.",
+        "perfil": {
+          "impulsividade": -1
+        }
       }
     ]
   },
@@ -5302,7 +5815,10 @@
         }
       },
       {
-        "texto": "Não precisa"
+        "texto": "Não precisa",
+        "perfil": {
+          "curiosidade": -1
+        }
       }
     ]
   },
@@ -5349,12 +5865,18 @@
             -20,
             "recebeu o diagnóstico de demência"
           ]
+        },
+        "perfil": {
+          "disciplina": 1
         }
       },
       {
         "texto": "Fingir que não foi nada",
         "efeitos": {
           "atributos.inteligencia": -1
+        },
+        "perfil": {
+          "estabilidade": -1
         }
       }
     ]
@@ -5462,10 +5984,17 @@
           "viagem_velhice",
           18,
           "conheceu {destino} depois de aposentad{o|a}"
-        ]
+        ],
+        "perfil": {
+          "curiosidade": 1,
+          "impulsividade": 1
+        }
       },
       {
-        "texto": "Guardar o dinheiro"
+        "texto": "Guardar o dinheiro",
+        "perfil": {
+          "disciplina": 1
+        }
       }
     ]
   },
@@ -5490,12 +6019,18 @@
         "efeitos": {
           "atributos.felicidade": 5,
           "desgaste": 12
+        },
+        "perfil": {
+          "empatia": 1
         }
       },
       {
         "texto": "Dizer que não dá",
         "efeitos": {
           "atributos.felicidade": -1
+        },
+        "perfil": {
+          "empatia": -1
         }
       }
     ]
@@ -5635,6 +6170,9 @@
             1,
             4
           ]
+        },
+        "perfil": {
+          "curiosidade": 1
         }
       },
       {
@@ -5664,13 +6202,19 @@
           "famoso",
           15,
           "ficou famos{o|a} por não envelhecer"
-        ]
+        ],
+        "perfil": {
+          "extroversao": 1
+        }
       },
       {
         "texto": "Se esconder",
         "efeitos": {
           "atributos.felicidade": -8,
           "desgaste": 10
+        },
+        "perfil": {
+          "extroversao": -1
         }
       }
     ]
@@ -5681,14 +6225,27 @@
       "base": 1.5
     },
     "quando": {
-      "idade": [
-        0,
-        120
+      "ou": [
+        {
+          "idade": [
+            0,
+            12
+          ]
+        },
+        {
+          "idade": [
+            60,
+            120
+          ]
+        }
       ]
     },
     "recorrente": true,
     "texto": [
-      "Campanha de vacinação no posto do bairro. Fila, adesivo e um pirulito para quem é criança."
+      "Campanha de vacinação no posto do bairro. Fila, adesivo e um pirulito para quem é criança.",
+      "Dia de vacina no posto: fila dobrando a esquina e uma enfermeira simpática que já conhece todo mundo.",
+      "Campanha de vacinação. Você saiu com o braço doendo e a carteirinha em dia.",
+      "Vacina da gripe no posto do bairro. Na fila, você ouviu a vida inteira de três desconhecidos."
     ],
     "efeitos": {
       "atributos.saude": 1
@@ -5754,12 +6311,18 @@
           "atributos.forma": 2,
           "atributos.felicidade": 3,
           "desgaste": 4
+        },
+        "perfil": {
+          "disciplina": 1
         }
       },
       {
         "texto": "Dormir até tarde",
         "efeitos": {
           "desgaste": -5
+        },
+        "perfil": {
+          "disciplina": -1
         }
       }
     ]
@@ -5786,12 +6349,18 @@
           "atributos.saude": 2,
           "atributos.felicidade": 2,
           "atributos.forma": 1
+        },
+        "perfil": {
+          "disciplina": 1
         }
       },
       {
         "texto": "Trocar pela cama",
         "efeitos": {
           "desgaste": -5
+        },
+        "perfil": {
+          "disciplina": -1
         }
       }
     ]
@@ -5880,6 +6449,9 @@
         "efeitos": {
           "atributos.felicidade": 2,
           "atributos.carisma": 1
+        },
+        "perfil": {
+          "extroversao": 1
         }
       },
       {
@@ -5910,12 +6482,18 @@
         "efeitos": {
           "atributos.saude": 2,
           "desgaste": 3
+        },
+        "perfil": {
+          "disciplina": 1
         }
       },
       {
         "texto": "Esquecer de voltar",
         "efeitos": {
           "atributos.saude": -1
+        },
+        "perfil": {
+          "disciplina": -1
         }
       }
     ]
@@ -5947,6 +6525,9 @@
           "atributos.felicidade": 4,
           "atributos.forma": -0.5,
           "pessoa.afeto": 4
+        },
+        "perfil": {
+          "impulsividade": 1
         }
       },
       {
@@ -5961,6 +6542,10 @@
           "pessoa.afeto": 3,
           "desgaste": 3,
           "atributos.carisma": 0.5
+        },
+        "perfil": {
+          "estabilidade": 1,
+          "empatia": 1
         }
       },
       {
@@ -5969,7 +6554,10 @@
           "idade": [
             16,
             100
-          ]
+          ],
+          "min": {
+            "personalidade.impulsividade": -20
+          }
         },
         "chance": {
           "base": 0.3,
@@ -5990,6 +6578,9 @@
             "atributos.felicidade": -2,
             "pessoa.afeto": -6
           }
+        },
+        "perfil": {
+          "impulsividade": 1
         }
       },
       {
@@ -5997,7 +6588,42 @@
         "efeitos": {
           "desgaste": -4,
           "pessoa.afeto": -2
+        },
+        "perfil": {
+          "extroversao": -1
         }
+      }
+    ],
+    "textos": [
+      {
+        "idade": [
+          0,
+          12
+        ],
+        "texto": [
+          "Almoço de domingo na casa d{pdo} {pessoa}: criança na mesinha separada, refrigerante só no fim de semana.",
+          "Domingo na casa d{pdo} {pessoa}: você brincou no quintal até chamarem três vezes para comer."
+        ]
+      },
+      {
+        "idade": [
+          13,
+          19
+        ],
+        "texto": [
+          "Almoço de domingo na casa d{pdo} {pessoa}. Você queria estar em qualquer outro lugar, mas a lasanha estava boa.",
+          "Domingo de família na casa d{pdo} {pessoa}: celular na mão por baixo da mesa e a avó reclamando."
+        ]
+      },
+      {
+        "idade": [
+          60,
+          120
+        ],
+        "texto": [
+          "Agora o almoço de domingo é na sua casa. {pessoa} chegou cedo e já foi mexer nas panelas.",
+          "Domingo cheio: você na cabeceira, {pessoa} contando as mesmas histórias de sempre, e os mais novos no celular."
+        ]
       }
     ]
   },
@@ -6026,7 +6652,8 @@
     },
     "texto": [
       "Natal na casa {pdo} {pessoa}: amigo secreto, uva-passa no arroz e a discussão de sempre sobre quem senta onde.",
-      "Ceia de Natal com a família toda espremida na sala. {pessoa} contou a mesma história do ano passado."
+      "Ceia de Natal com a família toda espremida na sala. {pessoa} contou a mesma história do ano passado.",
+      "Natal na casa d{pdo} {pessoa}: o amigo secreto atrasou duas horas porque alguém esqueceu o presente em casa."
     ],
     "escolhas": [
       {
@@ -6038,7 +6665,10 @@
         "resposta": [
           "Você tirou {pessoa} e acertou no presente.",
           "Você ganhou um par de meias. De novo."
-        ]
+        ],
+        "perfil": {
+          "extroversao": 1
+        }
       },
       {
         "texto": "Tirar a uva-passa do arroz, uma por uma",
@@ -6058,14 +6688,46 @@
         "efeitos": {
           "pessoa.afeto": -3,
           "desgaste": -3
+        },
+        "perfil": {
+          "extroversao": -1
         }
+      }
+    ],
+    "textos": [
+      {
+        "idade": [
+          0,
+          10
+        ],
+        "texto": [
+          "Natal na casa d{pdo} {pessoa}: você ficou acordad{o|a} até meia-noite esperando o Papai Noel, que era o tio de barba de algodão."
+        ]
+      },
+      {
+        "idade": [
+          13,
+          19
+        ],
+        "texto": [
+          "Natal na casa d{pdo} {pessoa}. Você foi escalad{o|a} para a mesa das crianças de novo, mesmo já sendo adolescente."
+        ]
+      },
+      {
+        "idade": [
+          60,
+          120
+        ],
+        "texto": [
+          "Natal na casa d{pdo} {pessoa}, que agora recebe a família toda. Você levou a farofa, como manda a tradição."
+        ]
       }
     ]
   },
   {
     "id": "natal_vaquinha",
     "recorrente": true,
-    "calendario": 0.5,
+    "calendario": 0.3,
     "quando": {
       "idade": [
         3,
@@ -6079,7 +6741,10 @@
       ]
     },
     "texto": [
-      "A ceia de Natal saiu de uma vaquinha da família inteira: cada um levou um prato, e sobrou comida para três dias."
+      "A ceia de Natal saiu de uma vaquinha da família inteira: cada um levou um prato, e sobrou comida para três dias.",
+      "Natal de vaquinha: cada parente levou um prato, e três pessoas levaram maionese.",
+      "A ceia saiu da vaquinha de sempre. Faltou cadeira, sobrou risada.",
+      "Natal na casa mais espaçosa da família, com cada um contribuindo como dava. A sobremesa foi gelatina colorida."
     ],
     "efeitos": {
       "atributos.felicidade": 4
@@ -6103,7 +6768,8 @@
     },
     "texto": [
       "Natal fora: sua família alugou uma casa na praia e a ceia foi de bermuda.",
-      "A família passou o Natal viajando. A avó reclamou do hotel por mensagem de áudio."
+      "A família passou o Natal viajando. A avó reclamou do hotel por mensagem de áudio.",
+      "Natal na serra, num chalé alugado, com lareira e ceia encomendada."
     ],
     "efeitos": {
       "atributos.felicidade": 5,
@@ -6124,7 +6790,9 @@
       ]
     },
     "texto": [
-      "Virada do ano: roupa branca, lentilha no prato e todo mundo contando os segundos juntos."
+      "Virada do ano: roupa branca, lentilha no prato e todo mundo contando os segundos juntos.",
+      "Ano-novo: a contagem regressiva atrasou dois segundos em relação à TV, e ninguém ligou.",
+      "Virada do ano com fogos no bairro, champanhe barata e abraço em todo mundo."
     ],
     "escolhas": [
       {
@@ -6132,6 +6800,9 @@
         "efeitos": {
           "atributos.felicidade": 3,
           "atributos.sorte": 1
+        },
+        "perfil": {
+          "extroversao": 1
         }
       },
       {
@@ -6145,7 +6816,30 @@
         "texto": "Dormir antes da meia-noite",
         "efeitos": {
           "desgaste": -6
+        },
+        "perfil": {
+          "extroversao": -1
         }
+      }
+    ],
+    "textos": [
+      {
+        "idade": [
+          5,
+          12
+        ],
+        "texto": [
+          "Virada do ano: você conseguiu ficar acordad{o|a} até meia-noite pela primeira vez, e viu os fogos do quintal."
+        ]
+      },
+      {
+        "idade": [
+          60,
+          100
+        ],
+        "texto": [
+          "Virada do ano: roupa branca, lentilha e a família toda. Você foi o primeiro a dormir, depois do abraço."
+        ]
       }
     ]
   },
@@ -6183,7 +6877,27 @@
     ],
     "efeitos": {
       "atributos.felicidade": 2
-    }
+    },
+    "textos": [
+      {
+        "idade": [
+          18,
+          29
+        ],
+        "texto": [
+          "Seu aniversário: os amigos cantaram parabéns desafinado num bar e alguém pagou a sua conta."
+        ]
+      },
+      {
+        "idade": [
+          60,
+          120
+        ],
+        "texto": [
+          "Seu aniversário. Os netos fizeram um cartaz torto e a família inteira veio. Você contou as velas: muitas."
+        ]
+      }
+    ]
   },
   {
     "id": "dia_das_maes_crianca",
@@ -6230,7 +6944,9 @@
       }
     },
     "texto": [
-      "Dia das Mães. Todos os restaurantes da cidade lotados, e {pessoa} dizendo que não precisava de nada."
+      "Dia das Mães. Todos os restaurantes da cidade lotados, e {pessoa} dizendo que não precisava de nada.",
+      "Dia das Mães. {pessoa} pediu só uma coisa: a família inteira na mesa, sem celular.",
+      "Dia das Mães, e {pessoa} acordou cedo para cozinhar para todo mundo, mesmo sendo o dia dela."
     ],
     "escolhas": [
       {
@@ -6239,6 +6955,9 @@
           "dinheiro": -150,
           "pessoa.afeto": 8,
           "atributos.felicidade": 3
+        },
+        "perfil": {
+          "empatia": 1
         }
       },
       {
@@ -6247,12 +6966,19 @@
           "pessoa.afeto": 6,
           "habilidade.culinaria": 1,
           "desgaste": 3
+        },
+        "perfil": {
+          "empatia": 1,
+          "disciplina": 1
         }
       },
       {
         "texto": "Só mandar mensagem",
         "efeitos": {
           "pessoa.afeto": -4
+        },
+        "perfil": {
+          "empatia": -1
         }
       }
     ]
@@ -6260,7 +6986,7 @@
   {
     "id": "dia_dos_pais",
     "recorrente": true,
-    "calendario": 0.35,
+    "calendario": 0.25,
     "quando": {
       "idade": [
         5,
@@ -6276,7 +7002,10 @@
       }
     },
     "texto": [
-      "Dia dos Pais. {pessoa} ganhou mais uma camisa polo e fingiu surpresa."
+      "Dia dos Pais. {pessoa} ganhou mais uma camisa polo e fingiu surpresa.",
+      "Dia dos Pais: churrasco em casa, e {pessoa} na churrasqueira, que é onde ele gosta de ficar.",
+      "Dia dos Pais. {pessoa} disse que o melhor presente era a família reunida, e depois perguntou do presente.",
+      "Dia dos Pais: {pessoa} passou a tarde contando as mesmas piadas de sempre, e todo mundo riu de novo."
     ],
     "efeitos": {
       "pessoa.afeto": 4,
@@ -6286,7 +7015,7 @@
   {
     "id": "janeiro_contas",
     "recorrente": true,
-    "calendario": 0.3,
+    "calendario": 0.2,
     "quando": {
       "idade": [
         24,
@@ -6299,7 +7028,9 @@
       "moradia": "aluguel"
     },
     "texto": [
-      "Janeiro chegou com IPTU, IPVA, material escolar e a fatura do Natal, tudo junto."
+      "Janeiro chegou com IPTU, IPVA, material escolar e a fatura do Natal, tudo junto.",
+      "Janeiro: o boleto do IPTU chegou junto com o material escolar e a fatura das festas.",
+      "Começo de ano apertado: as contas de janeiro levaram o que sobrou do 13º."
     ],
     "efeitos": {
       "dinheiro": -250,
@@ -6322,7 +7053,9 @@
       "empregado": true
     },
     "texto": [
-      "Prazo do Imposto de Renda. Você, claro, deixou para o último dia."
+      "Prazo do Imposto de Renda. Você, claro, deixou para o último dia.",
+      "Abril chegou, e com ele a pasta de recibos que você jurou organizar o ano todo.",
+      "Declaração do Imposto de Renda: o programa travou duas vezes antes de você terminar."
     ],
     "escolhas": [
       {
@@ -6347,12 +7080,19 @@
             "atributos.felicidade": -3,
             "desgaste": 5
           }
+        },
+        "perfil": {
+          "curiosidade": 1,
+          "disciplina": 1
         }
       },
       {
         "texto": "Pagar um contador (R$ 150)",
         "efeitos": {
           "dinheiro": -150
+        },
+        "perfil": {
+          "curiosidade": -1
         }
       }
     ]
@@ -6383,6 +7123,9 @@
         "texto": "Gastar a mesada em pacotinhos",
         "efeitos": {
           "atributos.felicidade": 3
+        },
+        "perfil": {
+          "impulsividade": 1
         }
       },
       {
@@ -6410,6 +7153,9 @@
           "efeitos": {
             "atributos.felicidade": -1
           }
+        },
+        "perfil": {
+          "extroversao": 1
         }
       }
     ]
@@ -6417,7 +7163,7 @@
   {
     "id": "festa_padroeiro",
     "recorrente": true,
-    "calendario": 0.12,
+    "calendario": 0.08,
     "quando": {
       "idade": [
         4,
@@ -6431,7 +7177,9 @@
       ]
     },
     "texto": [
-      "Festa do padroeiro de {cidade}: procissão de manhã, barraquinha de pastel à tarde e show na praça à noite."
+      "Festa do padroeiro de {cidade}: procissão de manhã, barraquinha de pastel à tarde e show na praça à noite.",
+      "Festa do padroeiro: quermesse na praça, bingo de frango assado e fogos à meia-noite.",
+      "Dia do padroeiro de {cidade}. A cidade inteira acompanhou a procissão e depois foi comer pastel."
     ],
     "efeitos": {
       "atributos.felicidade": 3
@@ -6463,6 +7211,9 @@
         "texto": "Rir por educação",
         "efeitos": {
           "pessoa.afeto": 3
+        },
+        "perfil": {
+          "empatia": 1
         }
       },
       {
@@ -6470,6 +7221,9 @@
         "efeitos": {
           "pessoa.afeto": -2,
           "atributos.felicidade": 1
+        },
+        "perfil": {
+          "impulsividade": 1
         }
       },
       {
@@ -6491,6 +7245,14 @@
           "resposta": "Silêncio. Alguém tossiu.",
           "efeitos": {
             "atributos.felicidade": -1
+          }
+        },
+        "perfil": {
+          "extroversao": 1
+        },
+        "requer": {
+          "min": {
+            "personalidade.extroversao": 0
           }
         }
       }
@@ -6530,6 +7292,9 @@
         "texto": "Dizer que está focad{o|a} nos estudos",
         "efeitos": {
           "pessoa.afeto": 2
+        },
+        "perfil": {
+          "estabilidade": 1
         }
       },
       {
@@ -6538,6 +7303,11 @@
           "pessoa.afeto": -7,
           "atributos.felicidade": 3,
           "personalidade.impulsividade": 1
+        },
+        "requer": {
+          "min": {
+            "personalidade.impulsividade": 25
+          }
         }
       }
     ]
@@ -6577,6 +7347,10 @@
         "efeitos": {
           "pessoa.afeto": 6,
           "atributos.felicidade": 2
+        },
+        "perfil": {
+          "empatia": 1,
+          "estabilidade": 1
         }
       },
       {
@@ -6618,6 +7392,9 @@
           "atributos.forma": -0.5,
           "atributos.felicidade": 2,
           "pessoa.afeto": 4
+        },
+        "perfil": {
+          "empatia": 1
         }
       },
       {
@@ -6639,6 +7416,9 @@
           "efeitos": {
             "pessoa.afeto": -4
           }
+        },
+        "perfil": {
+          "disciplina": 1
         }
       }
     ]
@@ -6687,12 +7467,19 @@
           "efeitos": {
             "pessoa.afeto": -7
           }
+        },
+        "perfil": {
+          "curiosidade": 1,
+          "impulsividade": 1
         }
       },
       {
         "texto": "Responder com uma figurinha de bom-dia",
         "efeitos": {
           "pessoa.afeto": 2
+        },
+        "perfil": {
+          "empatia": 1
         }
       },
       {
@@ -6700,7 +7487,30 @@
         "efeitos": {
           "desgaste": -2,
           "pessoa.afeto": -1
+        },
+        "perfil": {
+          "extroversao": -1
         }
+      }
+    ],
+    "textos": [
+      {
+        "idade": [
+          12,
+          25
+        ],
+        "texto": [
+          "No grupo da família, {pessoa} mandou um vídeo de bom-dia às 6h e uma notícia que você tem certeza que é falsa."
+        ]
+      },
+      {
+        "idade": [
+          60,
+          120
+        ],
+        "texto": [
+          "No grupo da família, {pessoa} reclamou que ninguém responde as suas mensagens de bom-dia. Você inclusive."
+        ]
       }
     ]
   },
@@ -6768,12 +7578,18 @@
           "desgaste": 8,
           "pessoa.afeto": 8,
           "pessoa.saude": 6
+        },
+        "perfil": {
+          "empatia": 1
         }
       },
       {
         "texto": "Mandar mensagem perguntando",
         "efeitos": {
           "pessoa.afeto": 1
+        },
+        "perfil": {
+          "empatia": -1
         }
       }
     ]
@@ -6807,6 +7623,9 @@
         "efeitos": {
           "pessoa.afeto": -6,
           "atributos.felicidade": -1
+        },
+        "perfil": {
+          "impulsividade": 1
         }
       },
       {
@@ -6820,6 +7639,15 @@
         "efeitos": {
           "pessoa.afeto": -2,
           "atributos.felicidade": 2
+        },
+        "perfil": {
+          "impulsividade": 1,
+          "moralidade": -1
+        },
+        "requer": {
+          "max": {
+            "personalidade.moralidade": 50
+          }
         }
       }
     ]
@@ -6850,6 +7678,10 @@
         "efeitos": {
           "desgaste": 6,
           "pessoa.afeto": 5
+        },
+        "perfil": {
+          "empatia": 1,
+          "estabilidade": 1
         }
       },
       {
@@ -6872,6 +7704,9 @@
             "pessoa.afeto": -6,
             "atributos.felicidade": -2
           }
+        },
+        "perfil": {
+          "impulsividade": 1
         }
       }
     ]
@@ -6936,6 +7771,9 @@
         "efeitos": {
           "atributos.felicidade": 2,
           "pessoa.afeto": -1
+        },
+        "perfil": {
+          "extroversao": 1
         }
       },
       {
@@ -6985,6 +7823,10 @@
             "atributos.felicidade": -2,
             "personalidade.disciplina": 1
           }
+        },
+        "perfil": {
+          "impulsividade": 1,
+          "disciplina": -1
         }
       }
     ]
@@ -7068,6 +7910,9 @@
         "efeitos": {
           "atributos.felicidade": 4,
           "atributos.forma": 0.5
+        },
+        "perfil": {
+          "extroversao": 1
         }
       },
       {
@@ -7249,6 +8094,9 @@
         "efeitos": {
           "dinheiro": -120,
           "atributos.felicidade": 2
+        },
+        "perfil": {
+          "impulsividade": 1
         }
       },
       {
@@ -7334,6 +8182,10 @@
           "dinheiro": -80,
           "atributos.felicidade": 5,
           "pessoa.afeto": 5
+        },
+        "perfil": {
+          "extroversao": 1,
+          "empatia": 1
         }
       },
       {
@@ -7341,6 +8193,9 @@
         "efeitos": {
           "atributos.felicidade": 3,
           "pessoa.afeto": 1
+        },
+        "perfil": {
+          "extroversao": 1
         }
       },
       {
@@ -7348,7 +8203,30 @@
         "efeitos": {
           "desgaste": -4,
           "pessoa.afeto": -3
+        },
+        "perfil": {
+          "extroversao": -1
         }
+      }
+    ],
+    "textos": [
+      {
+        "idade": [
+          16,
+          22
+        ],
+        "texto": [
+          "{pessoa} chamou para um churrasco na laje. Caixa de som alugada e carne que alguém trouxe do mercado."
+        ]
+      },
+      {
+        "idade": [
+          50,
+          80
+        ],
+        "texto": [
+          "{pessoa} chamou para um churrasco na laje. Você foi encarregad{o|a} da picanha, por ser o mais experiente."
+        ]
       }
     ]
   },
@@ -7399,6 +8277,15 @@
             "atributos.felicidade": 1,
             "pessoa.afeto": 3
           }
+        },
+        "perfil": {
+          "extroversao": 1,
+          "impulsividade": 1
+        },
+        "requer": {
+          "min": {
+            "personalidade.extroversao": -10
+          }
         }
       },
       {
@@ -7421,12 +8308,19 @@
             "pessoa.afeto": -9,
             "atributos.felicidade": -2
           }
+        },
+        "perfil": {
+          "impulsividade": 1
         }
       },
       {
         "texto": "Pôr o fone e tentar dormir",
         "efeitos": {
           "desgaste": 5
+        },
+        "perfil": {
+          "estabilidade": 1,
+          "extroversao": -1
         }
       }
     ]
@@ -7465,6 +8359,9 @@
           "atributos.felicidade": 3,
           "pessoa.afeto": 4,
           "desgaste": 3
+        },
+        "perfil": {
+          "extroversao": 1
         }
       },
       {
@@ -7472,7 +8369,30 @@
         "efeitos": {
           "pessoa.afeto": 3,
           "atributos.felicidade": 2
+        },
+        "perfil": {
+          "extroversao": 1
         }
+      }
+    ],
+    "textos": [
+      {
+        "idade": [
+          12,
+          17
+        ],
+        "texto": [
+          "{pessoa} chamou para a pelada na quadra da escola, quem perde sai."
+        ]
+      },
+      {
+        "idade": [
+          40,
+          70
+        ],
+        "texto": [
+          "{pessoa} chamou para a pelada dos veteranos: mais conversa do que corrida, e cerveja no fim."
+        ]
       }
     ]
   },
@@ -7507,13 +8427,49 @@
           "pessoa.afeto": 6,
           "atributos.felicidade": 3,
           "desgaste": 2
+        },
+        "perfil": {
+          "extroversao": 1,
+          "empatia": 1
         }
       },
       {
         "texto": "Mandar só um parabéns no grupo",
         "efeitos": {
           "pessoa.afeto": -2
+        },
+        "perfil": {
+          "extroversao": -1
         }
+      }
+    ],
+    "textos": [
+      {
+        "idade": [
+          7,
+          12
+        ],
+        "texto": [
+          "Festa de aniversário d{pdo} {pessoa}, com cama elástica e bolo de brigadeiro."
+        ]
+      },
+      {
+        "idade": [
+          13,
+          18
+        ],
+        "texto": [
+          "Aniversário d{pdo} {pessoa}: festa na garagem, música alta e os pais fingindo que não estão vendo."
+        ]
+      },
+      {
+        "idade": [
+          60,
+          95
+        ],
+        "texto": [
+          "Aniversário d{pdo} {pessoa}, mais um ano de amizade. A festa termina às dez, e ninguém reclama."
+        ]
       }
     ]
   },
@@ -7573,12 +8529,23 @@
           "efeitos": {
             "pessoa.afeto": -5
           }
+        },
+        "perfil": {
+          "impulsividade": 1
+        },
+        "requer": {
+          "min": {
+            "personalidade.extroversao": -30
+          }
         }
       },
       {
         "texto": "Mudar de assunto",
         "efeitos": {
           "pessoa.afeto": -5
+        },
+        "perfil": {
+          "empatia": -1
         }
       }
     ]
@@ -7613,6 +8580,11 @@
           "pessoa.afeto": -5,
           "atributos.felicidade": 1,
           "personalidade.moralidade": -1
+        },
+        "requer": {
+          "min": {
+            "personalidade.impulsividade": 10
+          }
         }
       },
       {
@@ -7636,6 +8608,10 @@
           "efeitos": {
             "atributos.felicidade": -3
           }
+        },
+        "perfil": {
+          "empatia": 1,
+          "estabilidade": 1
         }
       },
       {
@@ -7679,7 +8655,10 @@
           "reencontro",
           8,
           "reencontrou {pessoa} por acaso no mercado"
-        ]
+        ],
+        "perfil": {
+          "extroversao": 1
+        }
       },
       {
         "texto": "Fingir que não viu",
@@ -7719,6 +8698,9 @@
         "efeitos": {
           "pessoa.afeto": 6,
           "habilidade.culinaria": 1
+        },
+        "perfil": {
+          "empatia": 1
         }
       },
       {
@@ -7726,7 +8708,10 @@
         "efeitos": {
           "pessoa.afeto": -3
         },
-        "resposta": "Pote vazio não se devolve. {pessoa} comentou com a rua inteira."
+        "resposta": "Pote vazio não se devolve. {pessoa} comentou com a rua inteira.",
+        "perfil": {
+          "disciplina": -1
+        }
       }
     ]
   },
@@ -7769,6 +8754,10 @@
         "efeitos": {
           "pessoa.afeto": -2,
           "trabalho.desempenho": 1
+        },
+        "perfil": {
+          "moralidade": 1,
+          "extroversao": -1
         }
       }
     ]
@@ -7827,6 +8816,11 @@
           "efeitos": {
             "desgaste": 6,
             "atributos.felicidade": -2
+          }
+        },
+        "requer": {
+          "max": {
+            "personalidade.moralidade": 40
           }
         }
       },
@@ -7911,7 +8905,11 @@
           "padrinho",
           10,
           "foi {padrinho|madrinha} de casamento {pdo} {pessoa}"
-        ]
+        ],
+        "perfil": {
+          "extroversao": 1,
+          "empatia": 1
+        }
       },
       {
         "texto": "Ir à festa e mandar um presente pelo pix (R$ 150)",
@@ -7919,12 +8917,19 @@
           "dinheiro": -150,
           "atributos.felicidade": 4,
           "pessoa.afeto": 5
+        },
+        "perfil": {
+          "extroversao": 1
         }
       },
       {
         "texto": "Inventar uma desculpa e não ir",
         "efeitos": {
           "pessoa.afeto": -8
+        },
+        "perfil": {
+          "extroversao": -1,
+          "moralidade": -1
         }
       }
     ]
@@ -7961,7 +8966,10 @@
           "emprestou",
           4,
           "emprestou dinheiro para {pessoa} numa hora difícil"
-        ]
+        ],
+        "perfil": {
+          "empatia": 1
+        }
       },
       {
         "texto": "Indicar {pele} para uma vaga",
@@ -7983,12 +8991,19 @@
           "efeitos": {
             "pessoa.afeto": 3
           }
+        },
+        "perfil": {
+          "empatia": 1,
+          "extroversao": 1
         }
       },
       {
         "texto": "Dizer que agora não dá",
         "efeitos": {
           "pessoa.afeto": -6
+        },
+        "perfil": {
+          "empatia": -1
         }
       }
     ]
@@ -8020,6 +9035,9 @@
           "pessoa.afeto": -15,
           "pessoa.rival": 1,
           "atributos.felicidade": -3
+        },
+        "perfil": {
+          "impulsividade": 1
         }
       },
       {
@@ -8027,6 +9045,9 @@
         "efeitos": {
           "pessoa.afastado": 1,
           "atributos.felicidade": -4
+        },
+        "perfil": {
+          "estabilidade": -1
         }
       },
       {
@@ -8131,6 +9152,9 @@
         "texto": "Ficar em casa vendo TV",
         "efeitos": {
           "desgaste": -3
+        },
+        "perfil": {
+          "extroversao": -1
         }
       }
     ]
@@ -8273,7 +9297,7 @@
   {
     "id": "natal_em_casa",
     "recorrente": true,
-    "calendario": 0.3,
+    "calendario": 0.2,
     "quando": {
       "idade": [
         1,
@@ -8288,10 +9312,1239 @@
       ]
     },
     "texto": [
-      "Natal em casa: um peru que ninguém sabe fazer direito, pavê de sobremesa e o especial de fim de ano na TV."
+      "Natal em casa: um peru que ninguém sabe fazer direito, pavê de sobremesa e o especial de fim de ano na TV.",
+      "Natal em casa: pisca-pisca que metade não acende e a família inteira no sofá vendo o especial de fim de ano.",
+      "Ceia em casa, mais simples este ano: frango assado, farofa e panetone dividido em fatias finas.",
+      "Natal em casa. Alguém dormiu antes da meia-noite, e alguém abriu o presente antes da hora."
     ],
     "efeitos": {
       "atributos.felicidade": 3
+    }
+  },
+  {
+    "id": "banda_garagem",
+    "arco": "banda",
+    "unico": true,
+    "peso": {
+      "base": 3,
+      "x": {
+        "personalidade.extroversao": 0.004
+      }
+    },
+    "quando": {
+      "idade": [
+        14,
+        24
+      ],
+      "pessoa": {
+        "papel": [
+          "amigo",
+          "primo",
+          "colega"
+        ],
+        "idade": [
+          13,
+          30
+        ],
+        "afeto": [
+          45,
+          100
+        ]
+      }
+    },
+    "texto": [
+      "{pessoa} quer montar uma banda na garagem e disse que só falta você."
+    ],
+    "escolhas": [
+      {
+        "texto": "Topar (R$ 200 num instrumento usado)",
+        "perfil": {
+          "extroversao": 1,
+          "curiosidade": 1
+        },
+        "efeitos": {
+          "dinheiro": -200,
+          "atributos.felicidade": 4,
+          "pessoa.afeto": 6
+        },
+        "memoria": [
+          "banda_comecou",
+          8,
+          "montou uma banda com {pessoa}"
+        ],
+        "gancho": {
+          "evento": "banda_primeiro_show",
+          "chance": 1,
+          "em_anos": [
+            0.8,
+            2
+          ]
+        }
+      },
+      {
+        "texto": "Dizer que não leva jeito",
+        "perfil": {
+          "extroversao": -1,
+          "curiosidade": -1
+        },
+        "efeitos": {
+          "pessoa.afeto": -2
+        }
+      }
+    ]
+  },
+  {
+    "id": "banda_primeiro_show",
+    "arco": "banda",
+    "soGancho": true,
+    "quando": {
+      "pessoa": {
+        "papel": [
+          "amigo",
+          "primo",
+          "colega"
+        ]
+      }
+    },
+    "texto": [
+      "A banda com {pessoa} conseguiu o primeiro show, num bar de {cidade}. Vinte pessoas na plateia, metade da família."
+    ],
+    "escolhas": [
+      {
+        "texto": "Ensaiar todo dia até o show",
+        "perfil": {
+          "disciplina": 1
+        },
+        "chance": {
+          "base": 0.5,
+          "x": {
+            "atributos.carisma": 0.004
+          }
+        },
+        "sucesso": {
+          "resposta": "O show foi lindo. O dono do bar chamou de volta.",
+          "efeitos": {
+            "atributos.felicidade": 6,
+            "fama": 2,
+            "pessoa.afeto": 6
+          },
+          "gancho": {
+            "evento": "banda_radio",
+            "chance": 1,
+            "em_anos": [
+              1,
+              3
+            ]
+          }
+        },
+        "falha": {
+          "resposta": "A corda arrebentou na segunda música, mas vocês terminaram rindo.",
+          "efeitos": {
+            "atributos.felicidade": 2,
+            "pessoa.afeto": 3
+          },
+          "gancho": {
+            "evento": "banda_radio",
+            "chance": 0.5,
+            "em_anos": [
+              1,
+              3
+            ]
+          }
+        }
+      },
+      {
+        "texto": "Brigar com {pessoa} pela lista de músicas",
+        "perfil": {
+          "impulsividade": 1
+        },
+        "efeitos": {
+          "pessoa.afeto": -12,
+          "atributos.felicidade": -2
+        },
+        "gancho": {
+          "evento": "banda_acabou",
+          "chance": 1,
+          "em_anos": [
+            0.5,
+            1.5
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "banda_radio",
+    "arco": "banda",
+    "soGancho": true,
+    "quando": {
+      "pessoa": {
+        "papel": [
+          "amigo",
+          "primo",
+          "colega"
+        ]
+      }
+    },
+    "texto": [
+      "Uma rádio de {cidade} tocou a música que você compôs com {pessoa}. Vocês ouviram juntos, gritando no carro."
+    ],
+    "escolhas": [
+      {
+        "texto": "Apostar tudo na banda",
+        "perfil": {
+          "ambicao": 1,
+          "impulsividade": 1
+        },
+        "chance": {
+          "base": 0.3,
+          "x": {
+            "atributos.carisma": 0.004,
+            "atributos.sorte": 0.002
+          }
+        },
+        "sucesso": {
+          "resposta": "Vieram shows em outras cidades. Não é fama de TV, mas é de verdade.",
+          "efeitos": {
+            "fama": 10,
+            "atributos.felicidade": 10,
+            "dinheiro": 2000
+          },
+          "memoria": [
+            "banda_sucesso",
+            25,
+            "viu a banda com {pessoa} tocar na rádio e lotar shows"
+          ]
+        },
+        "falha": {
+          "resposta": "O sucesso durou um verão. Ficou a música, e ninguém tira isso de vocês.",
+          "efeitos": {
+            "atributos.felicidade": 3
+          },
+          "memoria": [
+            "banda_verao",
+            15,
+            "teve um verão de sucesso com a banda de {pessoa}"
+          ]
+        }
+      },
+      {
+        "texto": "Manter como hobby de fim de semana",
+        "perfil": {
+          "disciplina": 1,
+          "ambicao": -1
+        },
+        "efeitos": {
+          "atributos.felicidade": 5,
+          "pessoa.afeto": 4
+        },
+        "memoria": [
+          "banda_hobby",
+          12,
+          "tocou anos com {pessoa} só pelo prazer"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "banda_acabou",
+    "arco": "banda",
+    "soGancho": true,
+    "quando": {
+      "pessoa": {
+        "papel": [
+          "amigo",
+          "primo",
+          "colega",
+          "vizinho"
+        ]
+      }
+    },
+    "texto": [
+      "A banda acabou naquela briga. Anos depois, {pessoa} te mandou o vídeo do primeiro ensaio, sem dizer nada."
+    ],
+    "escolhas": [
+      {
+        "texto": "Responder que sente saudade",
+        "perfil": {
+          "empatia": 1
+        },
+        "efeitos": {
+          "pessoa.afeto": 15,
+          "atributos.felicidade": 4,
+          "pessoa.rival": 0
+        }
+      },
+      {
+        "texto": "Visualizar e não responder",
+        "perfil": {
+          "empatia": -1,
+          "estabilidade": -1
+        },
+        "efeitos": {
+          "atributos.felicidade": -1
+        }
+      }
+    ]
+  },
+  {
+    "id": "mochilao_plano",
+    "arco": "mochilao",
+    "unico": true,
+    "peso": {
+      "base": 3,
+      "x": {
+        "personalidade.curiosidade": 0.005
+      }
+    },
+    "quando": {
+      "idade": [
+        18,
+        32
+      ],
+      "pessoa": {
+        "papel": [
+          "amigo",
+          "primo",
+          "colega"
+        ],
+        "idade": [
+          18,
+          40
+        ],
+        "afeto": [
+          50,
+          100
+        ]
+      }
+    },
+    "texto": [
+      "{pessoa} apareceu com um mapa: mochilão pela América do Sul daqui a um ano. É só juntar o dinheiro."
+    ],
+    "escolhas": [
+      {
+        "texto": "Topar e começar a juntar",
+        "perfil": {
+          "curiosidade": 1,
+          "disciplina": 1
+        },
+        "efeitos": {
+          "pessoa.afeto": 5,
+          "personalidade.disciplina": 1
+        },
+        "gancho": {
+          "evento": "mochilao_viagem",
+          "chance": 1,
+          "em_anos": [
+            1,
+            1.3
+          ]
+        }
+      },
+      {
+        "texto": "Dizer que não é a sua",
+        "perfil": {
+          "curiosidade": -1
+        },
+        "efeitos": {
+          "pessoa.afeto": -3
+        }
+      }
+    ]
+  },
+  {
+    "id": "mochilao_viagem",
+    "arco": "mochilao",
+    "soGancho": true,
+    "quando": {
+      "pessoa": {
+        "papel": [
+          "amigo",
+          "primo",
+          "colega"
+        ]
+      }
+    },
+    "texto": [
+      "Chegou a hora do mochilão com {pessoa}. As mochilas estão prontas na sala."
+    ],
+    "escolhas": [
+      {
+        "texto": "Ir (R$ 3.000)",
+        "requer": {
+          "min": {
+            "dinheiro": 3000
+          }
+        },
+        "perfil": {
+          "curiosidade": 1,
+          "impulsividade": 1
+        },
+        "efeitos": {
+          "dinheiro": -3000,
+          "atributos.felicidade": 10,
+          "personalidade.curiosidade": 3,
+          "desgaste": -15,
+          "pessoa.afeto": 12
+        },
+        "resposta": "Três semanas de ônibus, albergue e pôr do sol na montanha.",
+        "memoria": [
+          "mochilao",
+          22,
+          "fez um mochilão pela América do Sul com {pessoa}"
+        ],
+        "gancho": {
+          "evento": "mochilao_foto",
+          "chance": 1,
+          "em_anos": [
+            6,
+            15
+          ]
+        }
+      },
+      {
+        "texto": "Desistir em cima da hora",
+        "perfil": {
+          "curiosidade": -1,
+          "estabilidade": -1
+        },
+        "efeitos": {
+          "pessoa.afeto": -12,
+          "atributos.felicidade": -3
+        },
+        "resposta": "{pessoa} foi sozinh{pa} e voltou cheio de histórias que você não viveu."
+      }
+    ]
+  },
+  {
+    "id": "mochilao_foto",
+    "arco": "mochilao",
+    "soGancho": true,
+    "quando": {
+      "memoria": "mochilao",
+      "pessoa": {
+        "papel": [
+          "amigo",
+          "primo",
+          "colega"
+        ],
+        "afastado": false
+      }
+    },
+    "texto": [
+      "Arrumando uma gaveta, você achou a foto do mochilão: você e {pessoa}, queimados de sol, em cima de uma montanha."
+    ],
+    "efeitos": {
+      "atributos.felicidade": 4,
+      "pessoa.afeto": 6
+    }
+  },
+  {
+    "id": "reforma_inicio",
+    "arco": "reforma",
+    "unico": true,
+    "peso": {
+      "base": 3
+    },
+    "quando": {
+      "idade": [
+        28,
+        70
+      ],
+      "moradia": "aluguel",
+      "min": {
+        "dinheiro": 1500
+      }
+    },
+    "texto": [
+      "A casa pede reforma: infiltração no banheiro, piso soltando e a cozinha caindo aos pedaços."
+    ],
+    "escolhas": [
+      {
+        "texto": "Contratar um pedreiro indicado (R$ 4.000)",
+        "requer": {
+          "min": {
+            "dinheiro": 4000
+          }
+        },
+        "perfil": {
+          "disciplina": -1
+        },
+        "efeitos": {
+          "dinheiro": -4000
+        },
+        "gancho": {
+          "evento": "reforma_pedreiro",
+          "chance": 1,
+          "em_anos": [
+            0.2,
+            0.5
+          ]
+        }
+      },
+      {
+        "texto": "Fazer você mesm{o|a} nos fins de semana",
+        "perfil": {
+          "disciplina": 1,
+          "curiosidade": 1
+        },
+        "efeitos": {
+          "dinheiro": -1200,
+          "desgaste": 10
+        },
+        "gancho": {
+          "evento": "reforma_cano",
+          "chance": 1,
+          "em_anos": [
+            0.2,
+            0.5
+          ]
+        }
+      },
+      {
+        "texto": "Deixar como está",
+        "perfil": {
+          "ambicao": -1
+        },
+        "efeitos": {
+          "atributos.felicidade": -1
+        }
+      }
+    ]
+  },
+  {
+    "id": "reforma_pedreiro",
+    "arco": "reforma",
+    "soGancho": true,
+    "texto": [
+      "O pedreiro sumiu com metade da obra feita e o celular desligado."
+    ],
+    "escolhas": [
+      {
+        "texto": "Ir atrás dele",
+        "perfil": {
+          "impulsividade": 1
+        },
+        "chance": {
+          "base": 0.4,
+          "x": {
+            "atributos.carisma": 0.003
+          }
+        },
+        "sucesso": {
+          "resposta": "Ele voltou, pediu desculpas e terminou o serviço.",
+          "gancho": {
+            "evento": "reforma_fim",
+            "chance": 1,
+            "em_anos": [
+              0.2,
+              0.5
+            ]
+          }
+        },
+        "falha": {
+          "resposta": "Nunca mais apareceu. Você perdeu o que já tinha pago.",
+          "efeitos": {
+            "dinheiro": -1500,
+            "atributos.felicidade": -4
+          },
+          "gancho": {
+            "evento": "reforma_fim",
+            "chance": 1,
+            "em_anos": [
+              0.3,
+              0.8
+            ]
+          }
+        }
+      },
+      {
+        "texto": "Chamar outro (R$ 2.000)",
+        "perfil": {
+          "estabilidade": 1
+        },
+        "efeitos": {
+          "dinheiro": -2000
+        },
+        "gancho": {
+          "evento": "reforma_fim",
+          "chance": 1,
+          "em_anos": [
+            0.2,
+            0.5
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "reforma_cano",
+    "arco": "reforma",
+    "soGancho": true,
+    "texto": [
+      "No meio da reforma, a furadeira acertou um cano e a cozinha virou uma piscina."
+    ],
+    "escolhas": [
+      {
+        "texto": "Aprender a consertar vendo vídeo",
+        "perfil": {
+          "curiosidade": 1,
+          "disciplina": 1
+        },
+        "efeitos": {
+          "habilidade.mecanica": 4,
+          "desgaste": 6
+        },
+        "resposta": "Duas horas e muito palavrão depois, o cano estava novo.",
+        "gancho": {
+          "evento": "reforma_fim",
+          "chance": 1,
+          "em_anos": [
+            0.3,
+            0.6
+          ]
+        }
+      },
+      {
+        "texto": "Chamar um encanador (R$ 400)",
+        "perfil": {
+          "curiosidade": -1
+        },
+        "efeitos": {
+          "dinheiro": -400
+        },
+        "gancho": {
+          "evento": "reforma_fim",
+          "chance": 1,
+          "em_anos": [
+            0.3,
+            0.6
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "reforma_fim",
+    "arco": "reforma",
+    "soGancho": true,
+    "texto": [
+      "A reforma acabou. Você ficou parad{o|a} na porta da cozinha nova, sem acreditar."
+    ],
+    "efeitos": {
+      "atributos.felicidade": 8,
+      "desgaste": -5
+    },
+    "memoria": [
+      "reforma",
+      14,
+      "terminou a reforma da casa"
+    ]
+  },
+  {
+    "id": "varzea_convite",
+    "arco": "varzea",
+    "unico": true,
+    "peso": {
+      "base": 3
+    },
+    "quando": {
+      "idade": [
+        15,
+        45
+      ],
+      "pessoa": {
+        "papel": [
+          "amigo",
+          "colega",
+          "vizinho",
+          "primo"
+        ],
+        "idade": [
+          15,
+          60
+        ]
+      }
+    },
+    "texto": [
+      "{pessoa} te chamou para o time de várzea do bairro. O uniforme é de um patrocinador: a padaria da esquina."
+    ],
+    "escolhas": [
+      {
+        "texto": "Entrar no time",
+        "perfil": {
+          "extroversao": 1
+        },
+        "efeitos": {
+          "atributos.forma": 1,
+          "pessoa.afeto": 5
+        },
+        "gancho": {
+          "evento": "varzea_final",
+          "chance": 1,
+          "em_anos": [
+            0.5,
+            1.5
+          ]
+        }
+      },
+      {
+        "texto": "Agradecer e recusar",
+        "perfil": {
+          "extroversao": -1
+        }
+      }
+    ]
+  },
+  {
+    "id": "varzea_final",
+    "arco": "varzea",
+    "soGancho": true,
+    "quando": {
+      "pessoa": {
+        "papel": [
+          "amigo",
+          "colega",
+          "vizinho",
+          "primo"
+        ]
+      }
+    },
+    "texto": [
+      "Final do campeonato da várzea. Campo de terra, churrasco na beira e o bairro inteiro no barranco. Pênalti no último minuto."
+    ],
+    "escolhas": [
+      {
+        "texto": "Pegar a bola e bater",
+        "perfil": {
+          "impulsividade": 1,
+          "extroversao": 1
+        },
+        "chance": {
+          "base": 0.45,
+          "x": {
+            "atributos.forma": 0.004,
+            "atributos.sorte": 0.002
+          }
+        },
+        "sucesso": {
+          "resposta": "Gol! Você foi carregad{o|a} até o bar.",
+          "efeitos": {
+            "atributos.felicidade": 10,
+            "pessoa.afeto": 8
+          },
+          "memoria": [
+            "campeao_varzea",
+            18,
+            "bateu o pênalti do título da várzea"
+          ],
+          "gancho": {
+            "evento": "varzea_foto",
+            "chance": 1,
+            "em_anos": [
+              8,
+              20
+            ]
+          }
+        },
+        "falha": {
+          "resposta": "Na trave. O bairro vai lembrar disso por anos.",
+          "efeitos": {
+            "atributos.felicidade": -6
+          },
+          "memoria": [
+            "penalti_perdido",
+            -8,
+            "perdeu o pênalti da final da várzea"
+          ]
+        }
+      },
+      {
+        "texto": "Deixar {pessoa} bater",
+        "perfil": {
+          "impulsividade": -1,
+          "empatia": 1
+        },
+        "chance": {
+          "base": 0.5
+        },
+        "sucesso": {
+          "resposta": "{pessoa} marcou, e vocês foram campeões.",
+          "efeitos": {
+            "atributos.felicidade": 8,
+            "pessoa.afeto": 10
+          },
+          "memoria": [
+            "campeao_varzea",
+            15,
+            "foi campeão da várzea com {pessoa}"
+          ],
+          "gancho": {
+            "evento": "varzea_foto",
+            "chance": 1,
+            "em_anos": [
+              8,
+              20
+            ]
+          }
+        },
+        "falha": {
+          "resposta": "{pessoa} perdeu. Você foi o primeiro a dar um abraço.",
+          "efeitos": {
+            "atributos.felicidade": -3,
+            "pessoa.afeto": 12
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "varzea_foto",
+    "arco": "varzea",
+    "soGancho": true,
+    "quando": {
+      "memoria": "campeao_varzea"
+    },
+    "texto": [
+      "A foto do time campeão continua pendurada no bar do bairro, meio desbotada. Alguém sempre aponta você nela."
+    ],
+    "efeitos": {
+      "atributos.felicidade": 4
+    }
+  },
+  {
+    "id": "alzheimer_inicio",
+    "arco": "alzheimer",
+    "unico": true,
+    "peso": {
+      "base": 3
+    },
+    "quando": {
+      "idade": [
+        30,
+        80
+      ],
+      "pessoa": {
+        "papel": [
+          "mae",
+          "pai"
+        ],
+        "idade": [
+          70,
+          110
+        ]
+      }
+    },
+    "texto": [
+      "{Papel}, {pessoa}, esqueceu o caminho de casa e foi encontrad{pa} por um vizinho. O médico falou em Alzheimer."
+    ],
+    "escolhas": [
+      {
+        "texto": "Levar para morar com você",
+        "perfil": {
+          "empatia": 1
+        },
+        "efeitos": {
+          "desgaste": 12,
+          "pessoa.afeto": 10,
+          "atributos.felicidade": -2
+        },
+        "gancho": {
+          "evento": "alzheimer_meio",
+          "chance": 1,
+          "em_anos": [
+            0.8,
+            2
+          ]
+        }
+      },
+      {
+        "texto": "Contratar uma cuidadora (R$ 2.500)",
+        "requer": {
+          "min": {
+            "dinheiro": 2500
+          }
+        },
+        "perfil": {
+          "disciplina": 1
+        },
+        "efeitos": {
+          "dinheiro": -2500,
+          "pessoa.afeto": 4
+        },
+        "gancho": {
+          "evento": "alzheimer_meio",
+          "chance": 1,
+          "em_anos": [
+            0.8,
+            2
+          ]
+        }
+      },
+      {
+        "texto": "Procurar uma casa de repouso",
+        "perfil": {
+          "empatia": -1
+        },
+        "efeitos": {
+          "pessoa.afeto": -6
+        },
+        "gancho": {
+          "evento": "alzheimer_meio",
+          "chance": 1,
+          "em_anos": [
+            0.8,
+            2
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "alzheimer_meio",
+    "arco": "alzheimer",
+    "soGancho": true,
+    "quando": {
+      "pessoa": {
+        "papel": [
+          "mae",
+          "pai"
+        ]
+      }
+    },
+    "texto": [
+      "{pessoa} te chamou pelo nome de outra pessoa hoje. Tem dias bons e dias ruins."
+    ],
+    "escolhas": [
+      {
+        "texto": "Mostrar o álbum de fotos antigas",
+        "perfil": {
+          "empatia": 1,
+          "estabilidade": 1
+        },
+        "efeitos": {
+          "atributos.felicidade": 2,
+          "pessoa.afeto": 5
+        },
+        "resposta": "{pessoa} lembrou de todo mundo nas fotos. Menos de você, mas sorriu mesmo assim.",
+        "gancho": {
+          "evento": "alzheimer_fim",
+          "chance": 1,
+          "em_anos": [
+            0.8,
+            2.5
+          ]
+        }
+      },
+      {
+        "texto": "Sair para chorar no carro",
+        "perfil": {
+          "estabilidade": -1
+        },
+        "efeitos": {
+          "atributos.felicidade": -4,
+          "desgaste": -2
+        },
+        "gancho": {
+          "evento": "alzheimer_fim",
+          "chance": 1,
+          "em_anos": [
+            0.8,
+            2.5
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "alzheimer_fim",
+    "arco": "alzheimer",
+    "soGancho": true,
+    "quando": {
+      "pessoa": {
+        "papel": [
+          "mae",
+          "pai"
+        ]
+      }
+    },
+    "texto": [
+      "Num dia bom, {pessoa} segurou sua mão, te chamou pelo nome e disse que tinha orgulho de você."
+    ],
+    "efeitos": {
+      "atributos.felicidade": 6,
+      "pessoa.afeto": 10
+    },
+    "memoria": [
+      "orgulho_alzheimer",
+      25,
+      "ouviu {pessoa} dizer que tinha orgulho, num dia bom"
+    ]
+  },
+  {
+    "id": "vizinho_queda",
+    "arco": "vizinho_idoso",
+    "unico": true,
+    "peso": {
+      "base": 3
+    },
+    "quando": {
+      "idade": [
+        12,
+        90
+      ],
+      "pessoa": {
+        "papel": [
+          "vizinho"
+        ],
+        "idade": [
+          70,
+          110
+        ]
+      }
+    },
+    "texto": [
+      "{Papel}, {pessoa}, caiu em casa e ficou horas no chão até alguém ouvir. Não tem família por perto."
+    ],
+    "escolhas": [
+      {
+        "texto": "Passar a visitar toda semana",
+        "perfil": {
+          "empatia": 1
+        },
+        "efeitos": {
+          "pessoa.afeto": 12,
+          "desgaste": 3
+        },
+        "gancho": {
+          "evento": "vizinho_discos",
+          "chance": 1,
+          "em_anos": [
+            0.8,
+            2
+          ]
+        }
+      },
+      {
+        "texto": "Avisar a assistência social e seguir a vida",
+        "perfil": {
+          "empatia": -1
+        },
+        "efeitos": {
+          "pessoa.afeto": 2
+        }
+      }
+    ]
+  },
+  {
+    "id": "vizinho_discos",
+    "arco": "vizinho_idoso",
+    "soGancho": true,
+    "quando": {
+      "pessoa": {
+        "papel": [
+          "vizinho",
+          "amigo"
+        ]
+      }
+    },
+    "texto": [
+      "Numa das visitas, {pessoa} contou que tocava em baile nos anos 70 e abriu um armário cheio de discos de vinil."
+    ],
+    "escolhas": [
+      {
+        "texto": "Pedir para ouvir um por um",
+        "perfil": {
+          "curiosidade": 1,
+          "empatia": 1
+        },
+        "efeitos": {
+          "pessoa.afeto": 8,
+          "atributos.felicidade": 3,
+          "personalidade.curiosidade": 1
+        },
+        "gancho": {
+          "evento": "vizinho_heranca",
+          "chance": 1,
+          "em_anos": [
+            1,
+            3
+          ]
+        }
+      },
+      {
+        "texto": "Ouvir um pouco e inventar que precisa ir",
+        "perfil": {
+          "curiosidade": -1
+        },
+        "efeitos": {
+          "pessoa.afeto": -2
+        }
+      }
+    ]
+  },
+  {
+    "id": "vizinho_heranca",
+    "arco": "vizinho_idoso",
+    "soGancho": true,
+    "quando": {
+      "pessoa": {
+        "papel": [
+          "vizinho",
+          "amigo"
+        ]
+      }
+    },
+    "texto": [
+      "{pessoa} foi morar com uma sobrinha no interior. Deixou na sua porta a coleção de discos e um bilhete: \"para quem teve tempo para um velho\"."
+    ],
+    "efeitos": {
+      "atributos.felicidade": 5,
+      "pessoa.afastado": 1
+    },
+    "memoria": [
+      "discos_vizinho",
+      16,
+      "ganhou os discos d{pdo} {pessoa}, o vizinho que tocava em baile"
+    ]
+  },
+  {
+    "id": "intercambio_ideia",
+    "arco": "intercambio2",
+    "unico": true,
+    "peso": {
+      "base": 3,
+      "x": {
+        "habilidade.ingles": 0.03
+      }
+    },
+    "quando": {
+      "idade": [
+        18,
+        35
+      ],
+      "min": {
+        "habilidade.ingles": 10
+      }
+    },
+    "texto": [
+      "Uma bolsa de seis meses para estudar fora abriu inscrições. O prazo é curto."
+    ],
+    "escolhas": [
+      {
+        "texto": "Se inscrever",
+        "perfil": {
+          "ambicao": 1,
+          "curiosidade": 1
+        },
+        "chance": {
+          "base": 0.35,
+          "x": {
+            "habilidade.ingles": 0.006,
+            "atributos.inteligencia": 0.002
+          }
+        },
+        "sucesso": {
+          "resposta": "Você passou!",
+          "gancho": {
+            "evento": "intercambio_fora",
+            "chance": 1,
+            "em_anos": [
+              0.3,
+              0.6
+            ]
+          }
+        },
+        "falha": {
+          "resposta": "Não foi desta vez. A carta de recusa ficou na geladeira como lembrete.",
+          "efeitos": {
+            "personalidade.ambicao": 1
+          }
+        }
+      },
+      {
+        "texto": "Deixar para o ano que vem",
+        "perfil": {
+          "ambicao": -1,
+          "curiosidade": -1
+        }
+      }
+    ]
+  },
+  {
+    "id": "intercambio_fora",
+    "arco": "intercambio2",
+    "soGancho": true,
+    "texto": [
+      "Seis meses fora: neve pela primeira vez, comida estranha e saudade de arroz com feijão."
+    ],
+    "escolhas": [
+      {
+        "texto": "Se jogar e fazer amigos do mundo todo",
+        "perfil": {
+          "extroversao": 1,
+          "curiosidade": 1
+        },
+        "efeitos": {
+          "habilidade.ingles": 15,
+          "atributos.felicidade": 6,
+          "personalidade.curiosidade": 3,
+          "personalidade.extroversao": 2
+        },
+        "memoria": [
+          "intercambio_fora",
+          20,
+          "fez intercâmbio e viu neve pela primeira vez"
+        ],
+        "gancho": {
+          "evento": "intercambio_volta",
+          "chance": 1,
+          "em_anos": [
+            3,
+            10
+          ]
+        }
+      },
+      {
+        "texto": "Estudar muito e contar os dias para voltar",
+        "perfil": {
+          "disciplina": 1,
+          "extroversao": -1
+        },
+        "efeitos": {
+          "habilidade.ingles": 10,
+          "estudo": 5,
+          "atributos.felicidade": -1
+        },
+        "memoria": [
+          "intercambio_fora",
+          12,
+          "fez intercâmbio e contou os dias para voltar"
+        ],
+        "gancho": {
+          "evento": "intercambio_volta",
+          "chance": 1,
+          "em_anos": [
+            3,
+            10
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "intercambio_volta",
+    "arco": "intercambio2",
+    "soGancho": true,
+    "quando": {
+      "memoria": "intercambio_fora"
+    },
+    "texto": [
+      "Uma amiga do intercâmbio, de outro país, apareceu de surpresa em {cidade} e pediu para provar coxinha."
+    ],
+    "efeitos": {
+      "atributos.felicidade": 5,
+      "habilidade.ingles": 2
     }
   }
 ]
