@@ -64,7 +64,7 @@ export function App() {
           O navegador não deixou salvar. Exporte um backup em Mais para não perder esta vida.
         </div>
       )}
-      <main class="tela">
+      <main class={aba === 'vida' ? 'tela tela-vida' : 'tela'}>
         {aba === 'vida' && (
           <TelaVida
             vida={vida}

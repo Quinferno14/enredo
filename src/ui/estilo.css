@@ -347,3 +347,32 @@ details.cartao summary { cursor: pointer; font-weight: 600; }
 .fim-feed { height: 1px; scroll-margin-bottom: 150px; }
 .feed { padding-bottom: 8px; }
 .folha > * { flex-shrink: 0; }
+
+/* Tela Vida como app: topo e status fixos, só o feed rola */
+.tela-vida {
+  height: calc(100dvh - 57px - env(safe-area-inset-bottom));
+  padding: 10px 16px 8px;
+  gap: 8px;
+  overflow: hidden;
+}
+.tela-vida > * { flex-shrink: 0; }
+.tela-vida .feed {
+  flex: 1 1 auto; min-height: 0;
+  overflow-y: auto;
+  border: 1px solid var(--borda); border-radius: var(--raio);
+  padding: 10px 12px; background: var(--superficie);
+}
+.tela-vida .topo h1 { font-size: 1.05rem; }
+.tela-vida .retrato { width: 44px; height: 44px; }
+.hud { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px 10px; }
+.hud-item { min-width: 0; }
+.hud-linha { display: flex; justify-content: space-between; align-items: baseline; gap: 4px; font-size: 0.75rem; color: var(--sutil); }
+.hud-linha strong { color: var(--texto); font-variant-numeric: tabular-nums; font-size: 0.8125rem; }
+.hud .barra { height: 4px; margin-top: 2px; }
+.hud .numero-edit { width: 48px; padding: 0 4px; font-size: 0.8125rem; }
+.tela-vida .habitos .chips { flex-wrap: nowrap; overflow-x: auto; }
+.tela-vida .habitos .chip { flex: none; }
+.fixos { display: flex; flex-direction: column; gap: 8px; }
+.fixos:empty { display: none; }
+.fixos .decisao, .fixos .fim { max-height: 42dvh; overflow-y: auto; }
+.tela-vida .dock { position: static; padding: 0; background: none; }

@@ -60,15 +60,15 @@ export function TelaVida(props: Props) {
   const p = vida.personagem;
   const morte = vida.morte;
   const herdeiros = filhosQuePodemContinuar(vida);
-  const [verAtributos, setVerAtributos] = useState(false);
   const [habitoAberto, setHabitoAberto] = useState<string | null>(null);
   const [folha, setFolha] = useState(false);
   const [verTudo, setVerTudo] = useState(false);
-  const fim = useRef<HTMLDivElement>(null);
+  const feed = useRef<HTMLElement>(null);
 
-  // O feed desce sozinho até o fato mais recente.
+  // Só o feed rola, e ele desce sozinho até o fato mais recente.
   useEffect(() => {
-    fim.current?.scrollIntoView({ block: 'end' });
+    const el = feed.current;
+    if (el) el.scrollTop = el.scrollHeight;
   }, [vida.historico.length, !!vida.pendente, !!vida.morte]);
 
   const emp = p.trabalho.emprego;
@@ -101,54 +101,34 @@ export function TelaVida(props: Props) {
           class={deus ? 'botao-deus ativo' : 'botao-deus'}
           aria-pressed={deus}
           title={deus ? 'Sair do Modo Deus' : 'Modo Deus: editar os números'}
-          onClick={() => { onDeus(); setVerAtributos(true); }}
+          onClick={onDeus}
         >✎</button>
       </header>
 
-      <button class="faixa-atributos" aria-expanded={verAtributos || deus} onClick={() => setVerAtributos(!verAtributos)}>
-        {VISIVEIS.map((a) => {
-          const v = Math.round(p.atributos[a]);
-          const antes = Math.round(vida.atributosAnteriores[a]);
+      <section class="hud" aria-label="Atributos">
+        {[...atributos, 'desgaste' as const].map((a) => {
+          const cansaco = a === 'desgaste';
+          const v = Math.round(cansaco ? p.desgaste : p.atributos[a]);
+          const antes = cansaco ? v : Math.round(vida.atributosAnteriores[a]);
+          const nome = cansaco ? 'Cansaço' : CURTO[a];
           return (
-            <span key={a} class="chip-attr">
-              {CURTO[a]} <strong>{v}</strong>
-              {v > antes && <span class="sobe"> ↑</span>}{v < antes && <span class="desce"> ↓</span>}
-            </span>
+            <div class="hud-item" key={a} title={cansaco ? 'Cansaço' : NOME_ATRIBUTO[a]}>
+              <div class="hud-linha">
+                <span>{nome}</span>
+                {deus ? (
+                  <input class="numero-edit" type="number" min={0} max={100} value={v} aria-label={nome}
+                    onChange={(e) => onEditar(a, Number(e.currentTarget.value))} />
+                ) : (
+                  <strong class={cansaco && v >= 60 ? 'desce' : ''}>
+                    {v}{v > antes && <span class="sobe">↑</span>}{v < antes && <span class="desce">↓</span>}
+                  </strong>
+                )}
+              </div>
+              <div class={cansaco ? 'barra cansaco' : 'barra'}><div class={cansaco && v >= 60 ? 'alto' : ''} style={{ width: `${v}%` }} /></div>
+            </div>
           );
         })}
-        <span class="chip-attr">Cansaço <strong class={desgaste >= 60 ? 'desce' : ''}>{desgaste}</strong></span>
-        <span class="sutil">{verAtributos || deus ? '▴' : '▾'}</span>
-      </button>
-
-      {(verAtributos || deus) && (
-        <section class="atributos" aria-label="Atributos">
-          {atributos.map((a) => {
-            const v = Math.round(p.atributos[a]);
-            return (
-              <div class="atributo" key={a}>
-                <div class="atributo-linha">
-                  <span>{NOME_ATRIBUTO[a]}</span>
-                  {deus ? (
-                    <input class="numero-edit" type="number" min={0} max={100} value={v} aria-label={NOME_ATRIBUTO[a]}
-                      onChange={(e) => onEditar(a, Number(e.currentTarget.value))} />
-                  ) : <span class="numero">{v}</span>}
-                </div>
-                <div class="barra"><div style={{ width: `${v}%` }} /></div>
-              </div>
-            );
-          })}
-          <div class="atributo">
-            <div class="atributo-linha">
-              <span>Cansaço</span>
-              {deus ? (
-                <input class="numero-edit" type="number" min={0} max={100} value={desgaste} aria-label="Cansaço"
-                  onChange={(e) => onEditar('desgaste', Number(e.currentTarget.value))} />
-              ) : <span class={desgaste >= 60 ? 'numero desce' : 'numero'}>{desgaste}</span>}
-            </div>
-            <div class="barra cansaco"><div class={desgaste >= 60 ? 'alto' : ''} style={{ width: `${desgaste}%` }} /></div>
-          </div>
-        </section>
-      )}
+      </section>
 
       {!morte && (vida.habitos.length > 0 || horas > 0) && (
         <section class="habitos" aria-label="Rotina e hábitos">
@@ -189,7 +169,7 @@ export function TelaVida(props: Props) {
         </section>
       )}
 
-      <section class="feed" aria-label="Sua história" aria-live="polite">
+      <section class="feed" ref={feed} aria-label="Sua história" aria-live="polite">
         {!verTudo && grupos.length > GRUPOS_VISIVEIS && (
           <button class="link" onClick={() => setVerTudo(true)}>Mostrar a história anterior</button>
         )}
@@ -200,6 +180,9 @@ export function TelaVida(props: Props) {
           </article>
         ))}
 
+      </section>
+
+      <div class="fixos">
         {vida.pendente && !morte && (
           <section class="cartao decisao" aria-label="Decisão">
             <p>{vida.pendente.texto}</p>
@@ -233,8 +216,7 @@ export function TelaVida(props: Props) {
             <button class={herdeiros.length ? 'secundario' : 'primario'} onClick={onNovaVida}>Começar outra vida</button>
           </section>
         )}
-        <div ref={fim} class="fim-feed" />
-      </section>
+      </div>
 
       {!morte && (
         <div class="dock">
