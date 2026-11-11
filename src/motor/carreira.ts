@@ -358,11 +358,24 @@ export function rodarDinheiro(vida: Vida, anos: number): string[] {
     else if (emp || p.trabalho.aposentadoria > 0) saiu += 400 * meses;
   }
 
+  // Parcelas só saem do que sobra: sem saldo, a dívida fica atrasada (e pode virar Serasa),
+  // em vez de empurrar a conta para o cheque especial.
+  let livre = Math.max(0, p.dinheiro + entrou - saiu);
   for (const d of p.dividas) {
     if (d.parcela <= 0) continue;
-    const pago = Math.min(d.saldo, d.parcela * meses);
+    const devido = Math.min(d.saldo, d.parcela * meses);
+    const pago = Math.min(devido, livre);
+    livre -= pago;
     d.saldo -= pago;
     saiu += pago;
+    if (pago < devido) {
+      d.saldo += Math.round((devido - pago) * 0.1); // multa e juros do atraso
+      linhas.push(`Sem dinheiro para a parcela de ${d.nome}: a dívida atrasou.`);
+      if (d.saldo > 10000 && !vida.memorias.some((m) => m.id === 'nome_sujo')) {
+        lembrar(vida, 'nome_sujo', `teve o nome sujo por atrasar ${d.nome}`, -12);
+        linhas.push('Seu nome foi para o Serasa.');
+      }
+    }
     if (d.saldo <= 0) linhas.push(`Você quitou ${d.nome === 'FIES' ? 'o FIES' : d.nome}!`);
   }
   p.dividas = p.dividas.filter((d) => d.saldo > 0);

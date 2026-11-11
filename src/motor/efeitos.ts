@@ -37,6 +37,10 @@ export interface Quando {
   /** Precisa existir alguém assim; o evento usa essa pessoa como personagem. */
   pessoa?: QuandoPessoa;
   semParceiro?: boolean;
+  /** Anos de diferença, no mínimo, entre a idade real e a do corpo (idade pausada). */
+  anomalia?: number;
+  /** Calendário: o ano precisa deixar este resto na divisão (ex.: Copa = [4, 2]). */
+  ano?: [number, number];
 }
 
 export interface QuandoPessoa {
@@ -112,6 +116,11 @@ export function atende(vida: Vida, q: Quando | undefined): boolean {
   if (q.classe && !q.classe.includes(p.classe)) return false;
   if (q.pessoa && pessoasQueAtendem(vida, q.pessoa).length === 0) return false;
   if (q.semParceiro && vida.pessoas.some((x) => x.papel === 'parceiro' && x.vivo)) return false;
+  if (q.anomalia !== undefined) {
+    const bio = p.idadeBiologicaMeses;
+    if (bio === undefined || (vida.relogio.idadeMeses - bio) / 12 < q.anomalia) return false;
+  }
+  if (q.ano && vida.relogio.ano % q.ano[0] !== q.ano[1]) return false;
   if (q.acao) {
     const habito = vida.habitos.some((h) => h.acao === q.acao && !h.pausado);
     if (!habito && !(vida.periodo[q.acao] ?? 0)) return false;

@@ -4,6 +4,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { jogarPeriodo } from './automatico';
+import { pausarIdade } from './deus';
 import { EVENTOS } from './eventos';
 import type { Vida } from './tipos';
 import { criarVida } from './vida';
@@ -23,7 +24,9 @@ function jogar(seed: string): Medidas {
   });
   const ordem: string[] = [];
   let periodos60 = 0, vazios60 = 0;
-  for (let i = 0; i < 300 && !v.morte; i++) {
+  for (let i = 0; i < 150 && !v.morte; i++) {
+    // Algumas vidas pausam a idade aos 30, para o mundo reagir à anomalia.
+    if (Number(seed.slice(4)) % 7 === 0 && v.relogio.idadeMeses === 30 * 12) v = pausarIdade(v, true);
     const antes = { ...v.vistos };
     v = jogarPeriodo(v, { acoes: 3, chanceHabito: 0.15, carreira: Number(seed.slice(4)) % 2 === 0, familia: Number(seed.slice(4)) % 3 !== 0 });
     const novos = Object.keys(v.vistos).filter((k) => v.vistos[k] !== antes[k]);
@@ -36,7 +39,7 @@ function jogar(seed: string): Medidas {
   return { vida: v, distintos: Object.keys(v.vistos).length, primeiros20: ordem.slice(0, 20).join(','), periodos60, vazios60 };
 }
 
-describe('variedade (marco 3)', () => {
+describe('variedade (metas do doc)', () => {
   const vidas = Array.from({ length: 200 }, (_, i) => jogar(`var-${i}`));
   const media = (xs: number[]) => xs.reduce((s, x) => s + x, 0) / xs.length;
 
@@ -46,7 +49,8 @@ describe('variedade (marco 3)', () => {
   const vazios = p60 ? vidas.reduce((s, m) => s + m.vazios60, 0) / p60 : 0;
   const seqs = new Set(vidas.map((m) => m.primeiros20));
   const repetidas = 1 - seqs.size / vidas.length;
-  const idadeMorte = media(vidas.map((m) => m.vida.morte!.idadeMeses / 12));
+  // Quem pausou a idade quase não morre: fica fora da média.
+  const idadeMorte = media(vidas.filter((m) => m.vida.morte && m.vida.personagem.idadeBiologicaMeses === undefined).map((m) => m.vida.morte!.idadeMeses / 12));
   console.log('Variedade:', JSON.stringify({
     eventosDistintosPorVida: distintos.toFixed(1),
     ganchosQueVoltaram: ganchos.toFixed(2),
@@ -55,20 +59,20 @@ describe('variedade (marco 3)', () => {
     idadeMediaMorte: idadeMorte.toFixed(1),
   }));
 
-  it('cada vida vê muitos eventos diferentes', () => {
-    expect(distintos).toBeGreaterThan(15);
+  it('cada vida vê 60 ou mais eventos diferentes', () => {
+    expect(distintos).toBeGreaterThanOrEqual(60);
   });
 
   it('nenhuma vida repete a sequência de eventos de outra', () => {
     expect(repetidas).toBeLessThan(0.01);
   });
 
-  it('ganchos voltam', () => {
-    expect(ganchos).toBeGreaterThan(0.5);
+  it('3 ou mais ganchos voltam por vida', () => {
+    expect(ganchos).toBeGreaterThanOrEqual(3);
   });
 
   it('a velhice tem novidade na maior parte dos períodos', () => {
-    expect(vazios).toBeLessThan(0.5);
+    expect(vazios).toBeLessThan(0.2);
   });
 
   it('todo evento acontece em alguma vida', () => {

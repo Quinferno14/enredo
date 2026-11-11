@@ -3,9 +3,9 @@
 // herança; e continuar a história como um dos filhos.
 
 import nomes from '../conteudo/nomes.json';
-import { estadoDe, estudoInicial } from './carreira';
+import { EMPREGOS, estadoDe, estudoInicial, tituloEmprego } from './carreira';
 import { curva } from './curva';
-import { aplicar, lembrar, reais } from './efeitos';
+import { aplicar, atende, lembrar, reais } from './efeitos';
 import {
   alvoAparencia, alvoForma, alvoInteligencia, alvoSaude, chanceMorteAnual, limitar, patamarFelicidade,
 } from './envelhecer';
@@ -552,6 +552,16 @@ export function continuarComoFilho(morta: Vida, filhoId: string, novoId: string,
     anterior: null,
     voltas: 0,
   };
+  // Filho adulto com renda chega com o emprego mais parecido com o que já fazia.
+  if (idade >= 18 && f.renda > 0) {
+    const possiveis = EMPREGOS.filter((e) => atende(vida, e.requer));
+    const perto = [...possiveis].sort((a, b) => Math.abs(a.salario - f.renda) - Math.abs(b.salario - f.renda))[0];
+    if (perto) {
+      vida.personagem.trabalho.emprego = { id: perto.id, salario: f.renda, desempenho: 55, nivel: 0, desdeMeses: f.idadeMeses };
+      vida.personagem.trabalho.cargos.push(tituloEmprego(vida, vida.personagem.trabalho.emprego));
+      vida.personagem.trabalho.anosContribuicao = Math.max(0, idade - 20);
+    }
+  }
   lembrar(vida, fem(pm) ? 'morte_mae' : 'morte_pai', `perdeu ${fem(pm) ? 'a mãe' : 'o pai'}, ${pm.nome}`, -25, { pessoa: pm.nome });
   return vida;
 }

@@ -36,6 +36,8 @@ export interface EventoDef extends ResultadoDef {
   peso?: { base?: number; x?: Record<string, number> };
   /** Acontece no máximo uma vez na vida. */
   unico?: boolean;
+  /** Datas que se repetem (Copa, Réveillon): sem a perda de peso por ter acontecido há pouco. */
+  recorrente?: boolean;
   /** Só acontece quando um gancho chama. */
   soGancho?: boolean;
   vars?: Record<string, string[]>;
@@ -55,7 +57,7 @@ export function pesoEvento(vida: Vida, e: EventoDef): number {
   if (!atende(vida, e.quando)) return 0;
   let p = (e.peso?.base ?? 1) * multiplicador(vida, e.peso?.x);
   const visto = vida.vistos[e.id];
-  if (visto !== undefined && vida.relogio.idadeMeses - visto < ANOS_RECENTE * 12) p *= 0.04;
+  if (visto !== undefined && !e.recorrente && vida.relogio.idadeMeses - visto < ANOS_RECENTE * 12) p *= 0.04;
   return p;
 }
 

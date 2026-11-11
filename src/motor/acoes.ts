@@ -297,6 +297,7 @@ export function sugereHabito(vida: Vida, id: string): boolean {
  */
 export function rodarHabitos(vida: Vida, anos: number, rng: Rng): string[] {
   const linhas: string[] = [];
+  const resumos: string[] = [];
   for (const h of vida.habitos) {
     const a = acaoPorId(h.acao);
     if (!a) continue;
@@ -336,9 +337,12 @@ export function rodarHabitos(vida: Vida, anos: number, rng: Rng): string[] {
     const extras = sessoesFeitas(vida, a, sessoes, rng);
     const r = resumo(diferenca(antes, foto(vida)));
     const rot = `${a.nome} (${h.porSemana}x/sem${h.imposto ? ', imposto pelos pais' : ''})`;
-    linhas.push(r ? `${rot}: ${r}.` : `${rot}.`);
+    resumos.push(r ? `${rot} ${r}` : rot);
     linhas.push(...extras);
   }
+
+  // Um resumo só para todos os hábitos, para o feed não repetir uma linha por hábito.
+  if (resumos.length) linhas.unshift(`Seus hábitos no período: ${resumos.join('; ')}.`);
 
   // Agenda cheia cansa: escola, trabalho e hábitos passando de 50 h por semana.
   const horas = horasAgenda(vida);
