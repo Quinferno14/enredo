@@ -7,6 +7,7 @@ import { acaoPorId, rodarHabitos } from './acoes';
 import { estudoInicial, rodarDinheiro, rodarEscola, rodarTrabalho, sortearClasse, textoClasse } from './carreira';
 import { aplicar, reais } from './efeitos';
 import { atributosNaIdade, envelhecer, limitar, sortearMorte } from './envelhecer';
+import { garantirGenes } from './corpo';
 import { rodarEventos } from './eventos';
 import { criarFamilia, rodarPessoas } from './familia';
 import { amigosDeInicio } from './social';
@@ -78,7 +79,7 @@ export function criarVida(o: OpcoesNovaVida): Vida {
     ? `Sua história começa aos ${IDADE_INICIO_ADULTO} anos, em ${cidade} (${estado.sigla}).`
     : `Você nasceu em ${cidade} (${estado.sigla}), numa família ${textoClasse(classe)}.`;
 
-  return {
+  const vida: Vida = {
     versao: VERSAO_SAVE,
     id: o.id,
     criadaEm: o.criadaEm,
@@ -112,6 +113,8 @@ export function criarVida(o: OpcoesNovaVida): Vida {
     anterior: null,
     voltas: 0,
   };
+  garantirGenes(vida);
+  return vida;
 }
 
 /** Efeito por ano de cada nível de vício ou condição. */
@@ -257,6 +260,7 @@ export function avancarPeriodo(vida: Vida, pularAno = false): Vida {
       : `Um período tranquilo. Você está com ${textoIdade(prox.relogio.idadeMeses)}.`;
     prox.historico.push({ quando: quandoAgora(prox), texto });
   }
+  garantirGenes(prox);
   prox.rng = rng.estado();
   return prox;
 }

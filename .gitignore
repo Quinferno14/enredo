@@ -8,3 +8,5 @@ saves/
 # dependências / builds futuros
 node_modules/
 dist/
+# folha de prova do motor de arte (gerada pelos testes)
+prova/

@@ -799,6 +799,7 @@ export function continuarComoFilho(morta: Vida, filhoId: string, novoId: string,
     idadeMeses: morta.morte.idadeMeses, vivo: false, afeto: f.afeto, saude: 0,
     aparencia: Math.round(pm.atributos.aparencia), inteligencia: Math.round(pm.atributos.inteligencia), carisma: Math.round(pm.atributos.carisma),
     potencial: pm.potencial, personalidade: pm.personalidade, renda: 0, morte: morta.morte,
+    ...(pm.genes ? { genes: pm.genes } : {}), ...(pm.visual ? { visual: pm.visual } : {}),
   };
   pessoas.push(genitorMorto);
   const outro = morta.pessoas.find((x) => x.id === f.outroGenitor);
@@ -855,6 +856,7 @@ export function continuarComoFilho(morta: Vida, filhoId: string, novoId: string,
       trabalho: { emprego: null, anosContribuicao: 0, aposentadoria: 0, cargos: [], extras: [] }, dividas: [],
       moradia: idade >= 18 && !outro?.vivo ? 'aluguel' : 'pais', interesse: 'todos',
       habilidades: {}, fama: 0, seguidores: 0, negocio: null,
+      ...(f.genes ? { genes: f.genes } : {}), ...(f.visual ? { visual: f.visual } : {}),
     },
     atributosAnteriores: { ...atributos },
     historico: [{

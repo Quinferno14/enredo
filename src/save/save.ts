@@ -3,6 +3,7 @@
 // (janela anônima, dados bloqueados), então toda leitura e escrita é protegida.
 
 import { estudoInicial } from '../motor/carreira';
+import { garantirGenes } from '../motor/corpo';
 import { familiaParaSaveAntigo } from '../motor/familia';
 import { Rng } from '../motor/rng';
 import { familiaEstendida, sortearGostos } from '../motor/social';
@@ -162,6 +163,8 @@ export function migrar(dados: unknown): Vida | null {
       vida.pessoas.push(...familiaEstendida(rng, p2.sobrenome, vida.relogio.idadeMeses, mae, pai, vida.relogio.ano, new Set([p2.nome, ...vida.pessoas.map((x) => x.nome)])));
     }
   }
+  // Versão 8 → 9: rosto e corpo (genes herdados na família).
+  garantirGenes(vida);
   vida.versao = VERSAO_SAVE;
   return vida;
 }

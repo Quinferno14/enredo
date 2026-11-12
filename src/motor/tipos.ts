@@ -1,9 +1,10 @@
 // Tipos do estado de uma vida. Tudo o que o jogo sabe fica num objeto Vida,
 // que é o que se salva, exporta e (no Modo Deus) edita.
 
+import type { Genes, Visual } from './corpo';
 import type { EstadoRng } from './rng';
 
-export const VERSAO_SAVE = 8;
+export const VERSAO_SAVE = 9;
 
 export const ATRIBUTOS = [
   'saude', 'felicidade', 'inteligencia', 'aparencia', 'forma', 'carisma', 'sorte',
@@ -81,6 +82,10 @@ export interface Personagem {
   negocio: Negocio | null;
   /** Por quem tem interesse romântico. Escolha do jogador. */
   interesse: 'homens' | 'mulheres' | 'todos';
+  /** Rosto e corpo herdados (ver corpo.ts). */
+  genes?: Genes;
+  /** O que você mudou no visual (corte, tintura, tatuagem, peso). */
+  visual?: Visual;
 }
 
 export type Papel =
@@ -138,6 +143,9 @@ export interface Pessoa {
   longe?: boolean;
   /** Com quem a pessoa namora ou é casada (vida própria). */
   parceiroNome?: string;
+  /** Rosto e corpo herdados (ver corpo.ts). */
+  genes?: Genes;
+  visual?: Visual;
   casado?: boolean;
   /** Quantos filhos tem (os da família viram pessoas de verdade). */
   filhos?: number;
