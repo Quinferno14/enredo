@@ -12,7 +12,15 @@
 
 import { CONTORNO, contorno, sombra, tom } from './estilo';
 
-export type TipoCabelo = 'cacheado' | 'crespo' | 'liso-curto' | 'liso-longo' | 'coque' | 'raspado' | 'careca' | 'tranças';
+export type TipoCabelo = 'cacheado' | 'crespo' | 'liso-curto' | 'liso-longo' | 'coque' | 'raspado' | 'careca' | 'tranças'
+  | 'franja' | 'chanel' | 'rabo' | 'dreads' | 'moicano';
+export const CABELOS: TipoCabelo[] = ['cacheado', 'crespo', 'liso-curto', 'liso-longo', 'coque', 'raspado', 'careca', 'tranças', 'franja', 'chanel', 'rabo', 'dreads', 'moicano'];
+export type FormatoOlho = 'redondo' | 'amendoado' | 'puxado';
+export type Sobrancelha = 'fina' | 'media' | 'grossa';
+export type Labios = 'finos' | 'medios' | 'cheios';
+export type Orelhas = 'pequenas' | 'medias' | 'grandes';
+export type Acessorio = 'brinco' | 'argola' | 'piercing-nariz' | 'colar' | 'bone';
+export const ACESSORIOS: Acessorio[] = ['brinco', 'argola', 'piercing-nariz', 'colar', 'bone'];
 export type TipoBarba = 'nenhuma' | 'cheia' | 'cavanhaque' | 'bigode' | 'por-fazer';
 export type FormatoRosto = 'oval' | 'redondo' | 'quadrado' | 'fino';
 export type Nariz = 'pequeno' | 'medio' | 'largo';
@@ -44,6 +52,16 @@ export interface Aparencia {
   modelosTatuagem?: Partial<Record<LocalTatuagem, ModeloTatuagem>>;
   /** Cor da roupa (a peça vem do contexto). */
   corRoupa: string;
+  // Variações do rosto (sem elas, o padrão).
+  formatoOlho?: FormatoOlho;
+  sobrancelha?: Sobrancelha;
+  labios?: Labios;
+  orelhas?: Orelhas;
+  /** Pinta no rosto. */
+  pinta?: boolean;
+  /** Covinhas quando sorri. */
+  covinhas?: boolean;
+  acessorios?: Acessorio[];
 }
 
 export interface OpcoesDesenho {
@@ -131,7 +149,9 @@ export function desenharPessoa(a: Aparencia, o: OpcoesDesenho = {}): string {
   const yBusto = yOmbro + tronco * 0.34;
   const yCintura = yOmbro + tronco * 0.6;
   const yPescoco = yOmbro - 3;
-  const yCabeca = yPescoco - cab * 0.5;
+  // Bebê sentado: corpo em pera, cabeça apoiada nele.
+  const bw = cab * 0.62, bh = cab * 0.95;
+  const yCabeca = sentado ? -bh * 0.92 - cab * 0.36 : yPescoco - cab * 0.5;
   // O rosto é desenhado numa cabeça-padrão de 28px e escalado.
   const CAB = 28;
   const k = cab / CAB;
@@ -223,17 +243,26 @@ export function desenharPessoa(a: Aparencia, o: OpcoesDesenho = {}): string {
   const olhoY = ry * 0.04;
   const olhoDx = rx * 0.4;
   const corOlho = misturar(a.olhos, '#1a120c', 0.35);
-  const rOlho = crianca ? 2.1 : 1.8;
-  const olho = (x: number) => humor === 'cansado'
-    ? `<path d="M${x - 2.4} ${olhoY + 0.5} q2.4 1.2 4.8 0" fill="none" stroke="${CONTORNO}" stroke-width="1.5" stroke-linecap="round"/>`
-    : `<ellipse cx="${x}" cy="${olhoY}" rx="${rOlho}" ry="${rOlho * (humor === 'feliz' ? 1.1 : 1.3)}" fill="${corOlho}"/><circle cx="${x + 0.6}" cy="${olhoY - 0.8}" r="0.6" fill="#fff"/>`;
+  const rOlho = sentado ? 2.4 : crianca ? 2.1 : 1.8;
+  const formatoOlho = a.formatoOlho ?? 'redondo';
+  const brilho = (x: number) => `<circle cx="${x + 0.6}" cy="${olhoY - 0.7}" r="0.6" fill="#fff"/>`;
+  const olho = (x: number) => {
+    if (humor === 'cansado') return `<path d="M${x - 2.4} ${olhoY + 0.5} q2.4 1.2 4.8 0" fill="none" stroke="${CONTORNO}" stroke-width="1.5" stroke-linecap="round"/>`;
+    const fora = x < 0 ? -1 : 1;
+    if (formatoOlho === 'amendoado') return `<ellipse cx="${x}" cy="${olhoY}" rx="${rOlho * 1.3}" ry="${rOlho * (humor === 'feliz' ? 0.85 : 1)}" transform="rotate(${fora * -8} ${x} ${olhoY})" fill="${corOlho}"/>${brilho(x)}`;
+    if (formatoOlho === 'puxado') {
+      const w = rOlho * 1.45;
+      return `<path d="M${x - w} ${olhoY + 0.4} Q${x - fora * 0.6} ${olhoY - rOlho * 1.3} ${x + w} ${olhoY - 0.3} Q${x} ${olhoY + rOlho * 0.75} ${x - w} ${olhoY + 0.4} Z" fill="${corOlho}"/>${brilho(x)}`;
+    }
+    return `<ellipse cx="${x}" cy="${olhoY}" rx="${rOlho}" ry="${rOlho * (humor === 'feliz' ? 1.1 : 1.3)}" fill="${corOlho}"/>${brilho(x)}`;
+  };
   // Cílios discretos para mulheres adolescentes e adultas.
   const cilios = fem && pub > 0.4 && humor !== 'cansado'
     ? `<path d="M${-olhoDx - rOlho} ${olhoY - 1.3} l-1.4 -1 M${olhoDx + rOlho} ${olhoY - 1.3} l1.4 -1" stroke="${CONTORNO}" stroke-width="1" stroke-linecap="round"/>` : '';
   const olhos = olho(-olhoDx) + olho(olhoDx) + cilios;
   const sobInc = humor === 'bravo' ? 3 : humor === 'triste' ? -2 : 0;
   const corSob = tom(misturar(cc, '#3a2e26', 0.3), -0.1);
-  const espSob = fem ? 1.2 : formaM > 0.5 ? 1.8 : 1.4;
+  const espSob = (fem ? 1.2 : formaM > 0.5 ? 1.8 : 1.4) * ({ fina: 0.7, media: 1, grossa: 1.5 }[a.sobrancelha ?? 'media']) * (sentado ? 0.6 : 1);
   const sobrancelhas = `<path d="M${-olhoDx - 3.5} ${olhoY - 5 + sobInc * 0.3} q3.5 ${-1.8 - sobInc * 0.3} 7 ${sobInc * 0.6}" fill="none" stroke="${corSob}" stroke-width="${espSob}" stroke-linecap="round"/>
     <path d="M${olhoDx - 3.5} ${olhoY - 5 + sobInc * 0.3} q3.5 ${-1.8 - sobInc * 0.3} 7 ${-sobInc * 0.6}" fill="none" stroke="${corSob}" stroke-width="${espSob}" stroke-linecap="round"/>`;
   const narizL = a.nariz === 'largo' ? 3.2 : a.nariz === 'pequeno' ? 1.8 : 2.5;
@@ -244,7 +273,10 @@ export function desenharPessoa(a: Aparencia, o: OpcoesDesenho = {}): string {
   const boca = humor === 'feliz' ? `<path d="M-4.5 ${bocaY - 1} q4.5 5 9 0 Z" fill="${labio}" ${contorno(1.2)}/>`
     : humor === 'triste' ? `<path d="M-4 ${bocaY + 1.5} q4 -3 8 0" fill="none" ${contorno(1.4)}/>`
     : humor === 'bravo' ? `<path d="M-4 ${bocaY + 0.5} h8" ${contorno(1.5)}/>`
-    : `<path d="M-3.5 ${bocaY} q3.5 1.8 7 0" fill="none" stroke="${fem && pub > 0.4 ? labio : CONTORNO}" stroke-width="1.4" stroke-linecap="round"/>`;
+    : a.labios === 'cheios' && !crianca ? `<path d="M-3.8 ${bocaY - 0.3} q3.8 -1.4 7.6 0 q-3.8 3.4 -7.6 0 Z" fill="${tom(labio, 0.15)}" ${contorno(1)}/><path d="M-3.8 ${bocaY - 0.3} q3.8 1 7.6 0" fill="none" ${contorno(1)}/>`
+    : `<path d="M-3.5 ${bocaY} q3.5 1.8 7 0" fill="none" stroke="${fem && pub > 0.4 ? labio : CONTORNO}" stroke-width="${a.labios === 'finos' ? 1.1 : 1.4}" stroke-linecap="round"/>`;
+  const covinhas = a.covinhas && humor === 'feliz' ? `<path d="M-5.8 ${bocaY - 1.5} q-0.6 1 0 2 M5.8 ${bocaY - 1.5} q0.6 1 0 2" stroke="${peleSombra}" stroke-width="1" fill="none" stroke-linecap="round"/>` : '';
+  const pinta = a.pinta ? `<circle cx="${rx * 0.46}" cy="${bocaY - 2.4}" r="0.75" fill="#4a2f22"/>` : '';
   const bochecha = crianca || (fem && humor === 'feliz') ? `<circle cx="${-rx * 0.62}" cy="${bocaY - 3}" r="2.6" fill="#e98a7a" opacity="0.35"/><circle cx="${rx * 0.62}" cy="${bocaY - 3}" r="2.6" fill="#e98a7a" opacity="0.35"/>` : '';
   const sardas = a.sardas ? [-0.58, -0.44, -0.3, 0.3, 0.44, 0.58].map((f, i) => `<circle cx="${rx * f}" cy="${bocaY - 5.5 + (i % 2) * 1.6}" r="0.6" fill="#8a4b2d" opacity="0.55"/>`).join('') : '';
   const rugas = idade >= 55 ? `<path d="M${-rx * 0.78} ${olhoY - 0.5} l-2.5 -1 M${rx * 0.78} ${olhoY - 0.5} l2.5 -1 M${-rx * 0.42} ${bocaY - 3} q-1.5 2.5 -0.5 4.5 M${rx * 0.42} ${bocaY - 3} q1.5 2.5 0.5 4.5" stroke="${peleSombra}" stroke-width="1" fill="none" stroke-linecap="round"/>` : '';
@@ -253,7 +285,15 @@ export function desenharPessoa(a: Aparencia, o: OpcoesDesenho = {}): string {
   const queixo = a.rosto === 'quadrado'
     ? `M${-rx} 0 Q${-rx} ${ry * 0.95} 0 ${ry} Q${rx} ${ry * 0.95} ${rx} 0 Q${rx} ${-ry} 0 ${-ry} Q${-rx} ${-ry} ${-rx} 0 Z`
     : `M${-rx} 0 Q${-rx} ${ry * 0.85} 0 ${ry} Q${rx} ${ry * 0.85} ${rx} 0 Q${rx} ${-ry} 0 ${-ry} Q${-rx} ${-ry} ${-rx} 0 Z`;
-  const orelhas = `<ellipse cx="${-rx - 0.5}" cy="${olhoY + 2}" rx="2.6" ry="4" fill="${pele}" ${c}/><ellipse cx="${rx + 0.5}" cy="${olhoY + 2}" rx="2.6" ry="4" fill="${peleSombra}" ${c}/>`;
+  const fo = { pequenas: 0.8, medias: 1, grandes: 1.3 }[a.orelhas ?? 'medias'];
+  const orelhas = `<ellipse cx="${-rx - 0.5 - (fo - 1) * 2}" cy="${olhoY + 2}" rx="${2.6 * fo}" ry="${4 * fo}" fill="${pele}" ${c}/><ellipse cx="${rx + 0.5 + (fo - 1) * 2}" cy="${olhoY + 2}" rx="${2.6 * fo}" ry="${4 * fo}" fill="${peleSombra}" ${c}/>`;
+  // Acessórios do rosto: brinco no lóbulo, argola, piercing no nariz.
+  const ac = a.acessorios ?? [];
+  const lobY = olhoY + 2 + 4 * fo;
+  const brincos = ac.includes('argola')
+    ? [-1, 1].map((s) => `<circle cx="${s * (rx + 0.6)}" cy="${lobY + 1.6}" r="1.9" fill="none" stroke="#d4a017" stroke-width="1"/>`).join('')
+    : ac.includes('brinco') ? [-1, 1].map((s) => `<circle cx="${s * (rx + 0.6)}" cy="${lobY - 0.3}" r="1.1" fill="#f2d16b" ${contorno(0.6)}/>`).join('') : '';
+  const piercing = ac.includes('piercing-nariz') && idade >= 14 ? `<circle cx="-2" cy="${olhoY + 5.2}" r="0.55" fill="#cfd6dc" ${contorno(0.4)}/>` : '';
 
   // ---- Cabelo ----
   // Calota: cobre o topo da cabeça e desce pelas têmporas até `t`; a borda de baixo
@@ -267,7 +307,35 @@ export function desenharPessoa(a: Aparencia, o: OpcoesDesenho = {}): string {
   const cs = `fill="${cc}" ${c}`;
   let atras = '';
   let frente = '';
-  switch (a.cabelo) {
+  switch (sentado ? 'bebe' : a.cabelo) {
+    case 'bebe': {
+      // Bebê: só um tufinho (cachinhos para quem tem cabelo enrolado).
+      const enrolado = a.cabelo === 'crespo' || a.cabelo === 'cacheado' || a.cabelo === 'tranças' || a.cabelo === 'dreads';
+      frente = enrolado
+        ? `<g ${cs}>${[-0.45, -0.15, 0.15, 0.45].map((f, i) => `<circle cx="${f * rx}" cy="${-ry * (0.92 - (i % 2) * 0.06)}" r="${rx * 0.2}"/>`).join('')}</g>`
+        : `<path d="M-1 ${-ry * 0.98} q2.5 -3.5 4.5 -1 q1 2 -1.5 2.2" fill="none" stroke="${cc}" stroke-width="1.6" stroke-linecap="round"/>`;
+      break;
+    }
+    case 'franja':
+      atras = `<path d="M${-rx * 1.1} ${-ry * 0.3} Q${-rx * 1.14} ${-ry * 1.25} 0 ${-ry * 1.14} Q${rx * 1.14} ${-ry * 1.25} ${rx * 1.1} ${-ry * 0.3} L${rx * 1.18} ${ry * 0.95} L${-rx * 1.18} ${ry * 0.95} Z" ${cs}/>`;
+      frente = `<path d="M${-rx * 1.06} ${ry * 0.6} Q${-rx * 1.14} ${-ry * 1.22} 0 ${-ry * 1.15} Q${rx * 1.14} ${-ry * 1.22} ${rx * 1.06} ${ry * 0.6} L${rx * 0.92} ${ry * 0.6} L${rx * 0.9} ${-ry * 0.42} L${-rx * 0.9} ${-ry * 0.42} L${-rx * 0.92} ${ry * 0.6} Z" ${cs}/>`;
+      break;
+    case 'chanel':
+      atras = `<path d="M${-rx * 1.12} ${-ry * 0.3} Q${-rx * 1.16} ${-ry * 1.25} 0 ${-ry * 1.15} Q${rx * 1.16} ${-ry * 1.25} ${rx * 1.12} ${-ry * 0.3} Q${rx * 1.3} ${ry * 0.6} ${rx * 1.2} ${ry * 0.82} L${-rx * 1.2} ${ry * 0.82} Q${-rx * 1.3} ${ry * 0.6} ${-rx * 1.12} ${-ry * 0.3} Z" ${cs}/>`;
+      frente = `<path d="${calota(ry * 0.72)}" ${cs}/>`;
+      break;
+    case 'rabo':
+      atras = `<path d="M${rx * 0.5} ${-ry * 0.95} Q${rx * 1.9} ${-ry * 0.7} ${rx * 1.5} ${ry * 0.9} Q${rx * 1.3} ${ry * 0.2} ${rx * 0.7} ${-ry * 0.4} Z" ${cs}/>`;
+      frente = `<path d="${calota(-ry * 0.08, 0, false)}" ${cs}/><circle cx="${rx * 0.92}" cy="${-ry * 0.72}" r="1.6" fill="${tom(a.corRoupa, -0.1)}" ${contorno(0.8)}/>`;
+      break;
+    case 'dreads':
+      // Mechas com traço fino (contorno grosso em cada uma vira listra).
+      atras = `<g fill="${cc}" stroke="${tom(cc, -0.35)}" stroke-width="0.7">${[-1.2, -0.88, -0.56, 0.56, 0.88, 1.2].map((f, i) => `<rect x="${f * rx - 2.3}" y="${-ry * 0.7}" width="4.6" height="${ry * (2.1 + (i % 2) * 0.25)}" rx="2.3"/>`).join('')}</g>`;
+      frente = `<path d="${calota(-ry * 0.05, 1.5, false)}" ${cs}/><g ${cs}>${[-0.6, -0.2, 0.2, 0.6].map((f) => `<rect x="${f * rx - 1.6}" y="${linha - 1}" width="3.2" height="4" rx="1.6"/>`).join('')}</g>`;
+      break;
+    case 'moicano':
+      frente = `<path d="${calota(-ry * 0.12, -1, false)}" fill="${misturar(cc, pele, 0.55)}" ${contorno(1)}/><path d="M-3.2 ${linha + 0.5} Q-3.6 ${-ry * 1.5} 0 ${-ry * 1.62} Q3.6 ${-ry * 1.5} 3.2 ${linha + 0.5} Z" ${cs}/>`;
+      break;
     case 'liso-curto':
       atras = `<ellipse cx="0" cy="${-ry * 0.3}" rx="${rx * 1.08}" ry="${ry * 0.92}" ${cs}/>`;
       frente = `<path d="${calota(-ry * 0.05)}" ${cs}/>`;
@@ -303,6 +371,11 @@ export function desenharPessoa(a: Aparencia, o: OpcoesDesenho = {}): string {
       break;
   }
 
+  // Boné: cúpula sobre o cabelo e aba virada para o lado da luz.
+  const bone = ac.includes('bone') && !sentado
+    ? `<path d="M${-rx * 1.08} ${-ry * 0.42} Q${-rx * 1.1} ${-ry * 1.28} 0 ${-ry * 1.22} Q${rx * 1.1} ${-ry * 1.28} ${rx * 1.08} ${-ry * 0.42} Z" fill="${tom(a.corRoupa, 0.2)}" ${c}/><path d="M${-rx * 1.1} ${-ry * 0.42} Q${-rx * 1.5} ${-ry * 0.42} ${-rx * 1.75} ${-ry * 0.28} Q${-rx * 1.2} ${-ry * 0.22} ${rx * 0.2} ${-ry * 0.4} Z" fill="${tom(a.corRoupa, -0.05)}" ${c}/>`
+    : '';
+
   // ---- Barba: segue a linha do queixo; bigode à parte ----
   // Bigode fino, entre a ponta do nariz e a boca.
   const bigode = (grosso: number) => `<path d="M-5 ${bocaY - 1} Q-2.5 ${bocaY - 3.4 - grosso} 0 ${bocaY - 2.6 - grosso * 0.6} Q2.5 ${bocaY - 3.4 - grosso} 5 ${bocaY - 1} Q0 ${bocaY - 1.8} -5 ${bocaY - 1} Z" fill="${cc}" ${contorno(0.9)}/>`;
@@ -318,11 +391,29 @@ export function desenharPessoa(a: Aparencia, o: OpcoesDesenho = {}): string {
 
   const cabeloAtras = `<g transform="translate(0 ${yCabeca}) scale(${k})">${atras}</g>`;
   const cabeca = `<g transform="translate(0 ${yCabeca}) scale(${k})">
-    ${orelhas}
+    ${orelhas}${brincos}
     <path d="${queixo}" fill="${pele}" ${c}/>
     <path d="${queixo}" fill="url(#luz)"/>
-    ${bochecha}${sardas}${barba}${frente}${sobrancelhas}${olhos}${nariz}${boca}${rugas}${oculos}
+    ${bochecha}${sardas}${pinta}${barba}${frente}${bone}${sobrancelhas}${olhos}${nariz}${piercing}${boca}${covinhas}${rugas}${oculos}
   </g>`;
+
+  const colar = ac.includes('colar') && !sentado
+    ? `<path d="M${-pescW * 0.9} ${yOmbro - 0.5} Q0 ${yOmbro + cab * 0.28} ${pescW * 0.9} ${yOmbro - 0.5}" fill="none" stroke="#d4a017" stroke-width="1.1"/><circle cx="0" cy="${yOmbro + cab * 0.15}" r="1.3" fill="#d4a017"/>` : '';
+
+  if (sentado) {
+    // Corpo de bebê: macacão em pera, perninhas para a frente, bracinhos curtos.
+    const corpo = `M${-bw * 0.62} ${-bh} Q${-bw * 1.18} ${-bh * 0.45} ${-bw} ${-bh * 0.1} Q${-bw * 0.9} 0 0 0 Q${bw * 0.9} 0 ${bw} ${-bh * 0.1} Q${bw * 1.18} ${-bh * 0.45} ${bw * 0.62} ${-bh} Z`;
+    const perninhas = [-1, 1].map((s) => `<ellipse cx="${s * bw * 0.62}" cy="${-bh * 0.1}" rx="${bw * 0.48}" ry="${bh * 0.17}" fill="${tom(cor, s === 1 ? -0.12 : 0)}" ${c}/><circle cx="${s * bw * 1.08}" cy="${-bh * 0.1}" r="${bh * 0.13}" fill="${s === 1 ? peleSombra : pele}" ${c}/>`).join('');
+    const bracinhos = [-1, 1].map((s) => `<ellipse cx="${s * bw * 0.98}" cy="${-bh * 0.58}" rx="${bw * 0.2}" ry="${bh * 0.28}" transform="rotate(${s * -18} ${s * bw * 0.98} ${-bh * 0.58})" fill="${tom(cor, s === 1 ? -0.12 : 0)}" ${c}/><circle cx="${s * bw * 1.12}" cy="${-bh * 0.32}" r="${bh * 0.1}" fill="${s === 1 ? peleSombra : pele}" ${c}/>`).join('');
+    return `<g transform="scale(${o.virada ?? 1} 1)">
+      ${o.semSombra ? '' : sombra(0, 0, bw * 2.8)}
+      ${cabeloAtras}
+      <path d="${corpo}" fill="${cor}" ${c}/><path d="${corpo}" fill="url(#luz)"/>
+      ${bracinhos}${perninhas}
+      <path d="M${-bw * 0.32} ${-bh * 0.97} q${bw * 0.32} ${bh * 0.14} ${bw * 0.64} 0" fill="none" ${contorno(1.2)}/>
+      ${cabeca}
+    </g>`;
+  }
 
   return `<g transform="scale(${o.virada ?? 1} 1)">
     ${o.semSombra ? '' : sombra(0, 0, quadril * 3.2)}
@@ -331,7 +422,7 @@ export function desenharPessoa(a: Aparencia, o: OpcoesDesenho = {}): string {
     ${braco(-1)}
     ${tronco_}
     ${braco(1)}
-    ${pescoco}
+    ${pescoco}${colar}
     ${cabeca}
   </g>`;
 }

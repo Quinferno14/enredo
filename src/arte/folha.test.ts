@@ -5,9 +5,10 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { DEFS, type FaseArte, type Hora } from './estilo';
-import { MODELOS_TATUAGEM, desenharPessoa, type Aparencia, type Humor, type OpcoesDesenho, type Roupa, type TipoBarba, type TipoCabelo } from './pessoa';
+import { CABELOS, MODELOS_TATUAGEM, desenharPessoa, type Aparencia, type Humor, type OpcoesDesenho, type Roupa, type TipoBarba, type TipoCabelo } from './pessoa';
 import { LUGARES, desenharCena, type Cena, type Lugar } from './comodos';
-import { aparenciaDe, aparenciaDaPessoa } from '../motor/corpo';
+import { aparenciaDe, aparenciaDaPessoa, sortearGenes } from '../motor/corpo';
+import { Rng } from '../motor/rng';
 import { criarVida } from '../motor/vida';
 
 const PELES = ['#f6d5b8', '#e8b48f', '#c98d63', '#9b6a45', '#6b4630'] as const;
@@ -26,7 +27,7 @@ function quadroPessoa(a: Aparencia, o: OpcoesDesenho, legenda: string): string {
 }
 
 function folhaPessoas() {
-  const s = { 'Idades': [] as string[], 'Corpos (adulto)': [] as string[], 'Cabelos': [] as string[], 'Barbas': [] as string[], 'Marcas: tatuagem, óculos, sardas': [] as string[], 'Tatuagens (modelos)': [] as string[], 'Adolescentes e adultos (F × M)': [] as string[], 'Humor': [] as string[], 'Roupas': [] as string[], 'Peles': [] as string[] } satisfies Record<string, string[]>;
+  const s = { 'Idades': [] as string[], 'Corpos (adulto)': [] as string[], 'Cabelos': [] as string[], 'Barbas': [] as string[], 'Marcas: tatuagem, óculos, sardas': [] as string[], 'Tatuagens (modelos)': [] as string[], 'Bebês (até 1 ano e meio)': [] as string[], 'Adolescentes e adultos (F × M)': [] as string[], 'Humor': [] as string[], 'Roupas': [] as string[], 'Peles': [] as string[] } satisfies Record<string, string[]>;
   for (const sexo of ['feminino', 'masculino'] as const) for (const idade of [0, 2, 5, 9, 13, 16, 25, 45, 62, 80]) {
     s['Idades'].push(quadroPessoa(base({ sexo, idadeAnos: idade, alturaCm: alturaPara(idade, sexo), pesoKg: pesoPara(idade), cabelo: sexo === 'masculino' ? (idade > 60 ? 'careca' : 'liso-curto') : 'liso-longo', corCabelo: idade > 60 ? '#bdbdbd' : '#2b1d14', barba: sexo === 'masculino' && idade >= 25 ? 'por-fazer' : 'nenhuma' }), { humor: 'feliz', roupa: idade >= 6 && idade < 18 ? 'escola' : 'casa' }, `${sexo === 'feminino' ? 'F' : 'M'} ${idade} anos`));
   }
@@ -44,6 +45,7 @@ function folhaPessoas() {
     quadroPessoa(base({ oculos: true, pele: PELES[0], cabelo: 'liso-longo', corCabelo: '#b0413e', sardas: true }), {}, 'óculos + sardas'),
     quadroPessoa(base({ tatuagens: ['braco-esquerdo'] }), { roupa: 'social' }, 'manga longa esconde'),
   );
+  CABELOS.forEach((cabelo, i) => s['Bebês (até 1 ano e meio)'].push(quadroPessoa(base({ sexo: i % 2 ? 'masculino' : 'feminino', idadeAnos: i % 3 === 0 ? 0.4 : 1, alturaCm: i % 3 === 0 ? 64 : 74, pesoKg: 9, pele: pelePor(i), cabelo, corRoupa: ['#f2b5a7', '#9fd3ea', '#f6dc8a', '#b9e3c6'][i % 4] ?? '#f2b5a7', acessorios: i % 2 ? [] : ['brinco'] }), { humor: (['feliz', 'neutro', 'triste'] as Humor[])[i % 3] ?? 'feliz' }, `${cabelo} ${i % 3 === 0 ? '5m' : '1a'}`)));
   MODELOS_TATUAGEM.forEach((m, i) => s['Tatuagens (modelos)'].push(quadroPessoa(base({ pele: pelePor(i), sexo: i % 2 ? 'masculino' : 'feminino', cabelo: i % 2 ? 'raspado' : 'coque', tatuagens: ['braco-esquerdo', 'braco-direito', 'pescoco', 'perna'], modelosTatuagem: { 'braco-esquerdo': m, 'braco-direito': m, pescoco: m, perna: m } }), { roupa: 'esporte' }, m)));
   for (const idade of [12, 14, 16, 20, 35]) for (const sexo of ['feminino', 'masculino'] as const) {
     s['Adolescentes e adultos (F × M)'].push(quadroPessoa(base({ sexo, idadeAnos: idade, alturaCm: alturaPara(idade, sexo), pesoKg: idade < 18 ? pesoPara(idade) : sexo === 'feminino' ? 60 : 72, cabelo: 'liso-curto', barba: sexo === 'masculino' ? 'cheia' : 'nenhuma' }), { humor: 'feliz' }, `${sexo === 'feminino' ? 'F' : 'M'} ${idade}`));
@@ -131,8 +133,22 @@ figcaption{font-size:11px;color:#7a6a58}.cenas{display:grid;grid-template-column
       return `<figure><svg viewBox="-38 ${-topo - 8} 76 70" width="228" height="210">${DEFS}${desenharPessoa(ap, o)}</svg><figcaption>${legenda}</figcaption></figure>`;
     };
     const rostos: string[] = [];
-    const cabelos: TipoCabelo[] = ['cacheado', 'crespo', 'liso-curto', 'liso-longo', 'coque', 'raspado', 'careca', 'tranças'];
+    const cabelos: TipoCabelo[] = CABELOS;
     for (const sexo of ['feminino', 'masculino'] as const) cabelos.forEach((cabelo, i) => rostos.push(rosto(base({ sexo, alturaCm: sexo === 'feminino' ? 163 : 175, cabelo, corCabelo: ['#2b1d14', '#111', '#8a5a2b', '#a5432a', '#2b1d14', '#2b1d14', '#5a3a22', '#111'][i] ?? '#111', pele: pelePor(i), oculos: i === 3 || i === 6, barba: sexo === 'masculino' ? (['nenhuma', 'cheia', 'cavanhaque', 'bigode', 'por-fazer'] as TipoBarba[])[i % 5] ?? 'nenhuma' : 'nenhuma' }), { humor: (['feliz', 'neutro', 'triste', 'bravo', 'cansado'] as Humor[])[i % 5] ?? 'feliz' }, `${sexo[0]} ${cabelo}`)));
+    // Bebês inteiros, de perto.
+    CABELOS.slice(0, 8).forEach((cabelo, i) => {
+      const ap = base({ sexo: i % 2 ? 'masculino' : 'feminino', idadeAnos: i % 2 ? 0.5 : 1.2, alturaCm: i % 2 ? 66 : 76, pesoKg: 9, pele: pelePor(i), cabelo, corRoupa: ['#f2b5a7', '#9fd3ea', '#f6dc8a', '#b9e3c6'][i % 4] ?? '#f2b5a7', acessorios: i % 2 ? [] : ['brinco'] });
+      rostos.push(`<figure><svg viewBox="-34 -66 68 70" width="228" height="235">${DEFS}<line x1="-34" x2="34" y1="0" y2="0" stroke="#d8cbb4"/>${desenharPessoa(ap, { humor: (['feliz', 'neutro', 'triste', 'cansado'] as Humor[])[i % 4] ?? 'feliz' })}</svg><figcaption>bebê ${cabelo}</figcaption></figure>`);
+    });
+    // Multidão: 24 adultos sorteados pelos genes, para ver a variedade de verdade.
+    const rngM = Rng.daSeed('multidao');
+    for (let i = 0; i < 24; i++) {
+      const sexo = i % 2 ? 'masculino' : 'feminino';
+      const idade = 18 + ((i * 7) % 60);
+      const g = sortearGenes(rngM, sexo);
+      const ap = aparenciaDe({ sexo, idadeAnos: idade, forma: 30 + ((i * 13) % 60), genes: g });
+      rostos.push(rosto({ ...ap, corRoupa: ['#2f6db5', '#e8553d', '#3aa26b', '#8e44ad', '#f2c14e', '#16a085'][i % 6] ?? '#2f6db5' }, { humor: (['feliz', 'neutro', 'feliz', 'triste'] as Humor[])[i % 4] ?? 'feliz' }, `${sexo[0]} ${idade} · ${ap.cabelo} · ${ap.formatoOlho ?? ''}`));
+    }
     writeFileSync('prova/rostos.html', `<!doctype html><meta charset="utf-8"><style>body{font:13px system-ui;background:#f4efe6;margin:16px}.g{display:flex;flex-wrap:wrap;gap:6px}figure{margin:0;background:#fffaf0;border:1px solid #e3d6bf;border-radius:8px;text-align:center}figcaption{font-size:11px}</style><div class="g">${rostos.join('')}</div>`);
     writeFileSync('prova/folha.html', html);
   });

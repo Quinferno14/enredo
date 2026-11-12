@@ -8,7 +8,7 @@
 
 import { Rng } from './rng';
 import type { Pessoa, Personagem, Sexo, Vida } from './tipos';
-import type { Aparencia, FormatoRosto, LocalTatuagem, ModeloTatuagem, Nariz, TipoBarba, TipoCabelo } from '../arte/pessoa';
+import type { Acessorio, Aparencia, FormatoOlho, FormatoRosto, Labios, LocalTatuagem, ModeloTatuagem, Nariz, Orelhas, Sobrancelha, TipoBarba, TipoCabelo } from '../arte/pessoa';
 
 export type TipoNatural = 'liso' | 'ondulado' | 'cacheado' | 'crespo';
 
@@ -35,6 +35,15 @@ export interface Genes {
   barba: TipoBarba;
   /** Chance de ter tatuagem na vida adulta (pessoas que não são você). */
   tatuada: boolean;
+  // Variações do rosto (saves da versão 9 antiga podem não ter: o desenho usa o padrão).
+  formatoOlho?: FormatoOlho;
+  sobrancelha?: Sobrancelha;
+  labios?: Labios;
+  orelhas?: Orelhas;
+  covinhas?: boolean;
+  pinta?: boolean;
+  /** O que a pessoa costuma usar (não é herdado). */
+  acessorios?: Acessorio[];
 }
 
 /** O que a pessoa mudou por vontade própria (ou o Modo Deus mudou). */
@@ -44,6 +53,7 @@ export interface Visual {
   barba?: TipoBarba;
   oculos?: boolean;
   tatuagens?: LocalTatuagem[];
+  acessorios?: Acessorio[];
   /** Qual desenho em cada lugar tatuado. */
   modelosTatuagem?: Partial<Record<LocalTatuagem, ModeloTatuagem>>;
   /** Kg a mais (+) ou a menos (−) do que a forma física daria. */
@@ -78,14 +88,14 @@ function hexMisturar(a: string, b: string, t: number): string {
 /** Corte de cabelo que a pessoa usaria pelo tipo natural. */
 function estiloPadrao(rng: Rng, sexo: Sexo, natural: TipoNatural): TipoCabelo {
   if (sexo === 'masculino') {
-    if (natural === 'crespo') return rng.escolher(['raspado', 'crespo', 'raspado', 'tranças'] as const);
-    if (natural === 'cacheado') return rng.escolher(['cacheado', 'raspado', 'liso-curto'] as const);
-    return rng.escolher(['liso-curto', 'liso-curto', 'raspado'] as const);
+    if (natural === 'crespo') return rng.escolher(['raspado', 'crespo', 'raspado', 'tranças', 'dreads'] as const);
+    if (natural === 'cacheado') return rng.escolher(['cacheado', 'raspado', 'liso-curto', 'cacheado'] as const);
+    return rng.escolher(['liso-curto', 'liso-curto', 'raspado', 'franja', 'liso-curto', 'moicano'] as const);
   }
-  if (natural === 'crespo') return rng.escolher(['crespo', 'tranças', 'coque', 'crespo'] as const);
-  if (natural === 'cacheado') return rng.escolher(['cacheado', 'cacheado', 'coque'] as const);
-  if (natural === 'ondulado') return rng.escolher(['liso-longo', 'cacheado', 'coque'] as const);
-  return rng.escolher(['liso-longo', 'liso-longo', 'liso-curto', 'coque'] as const);
+  if (natural === 'crespo') return rng.escolher(['crespo', 'tranças', 'coque', 'crespo', 'dreads'] as const);
+  if (natural === 'cacheado') return rng.escolher(['cacheado', 'cacheado', 'coque', 'rabo'] as const);
+  if (natural === 'ondulado') return rng.escolher(['liso-longo', 'cacheado', 'coque', 'chanel', 'rabo'] as const);
+  return rng.escolher(['liso-longo', 'liso-longo', 'liso-curto', 'coque', 'franja', 'chanel', 'rabo'] as const);
 }
 
 /** Genes de alguém sem parentes conhecidos (ou ao redor de um tom de família). */
@@ -107,10 +117,15 @@ export function sortearGenes(rng: Rng, sexo: Sexo, tomFamilia?: number): Genes {
     alturaAlvo: (sexo === 'feminino' ? 160 : 173) + (rng.proximo() + rng.proximo() - 1) * 10,
     metabolismo: rng.proximo() * 2 - 1,
     sardas: ip <= 1 && rng.proximo() < 0.25,
+    formatoOlho: sortearPeso<FormatoOlho>(rng, ['redondo', 'amendoado', 'puxado'], [0.45, 0.4, 0.15]),
+    sobrancelha: sortearPeso<Sobrancelha>(rng, ['fina', 'media', 'grossa'], [0.25, 0.5, 0.25]),
+    labios: sortearPeso<Labios>(rng, ['finos', 'medios', 'cheios'], [0.3 - escuro * 0.2, 0.45, 0.25 + escuro * 0.2]),
+    orelhas: sortearPeso<Orelhas>(rng, ['pequenas', 'medias', 'grandes'], [0.25, 0.55, 0.2]),
+    covinhas: rng.proximo() < 0.2,
   });
 }
 
-function montarGenes(rng: Rng, sexo: Sexo, base: Pick<Genes, 'pele' | 'olhos' | 'cabeloNatural' | 'corCabelo' | 'rosto' | 'nariz' | 'alturaAlvo' | 'metabolismo' | 'sardas'>): Genes {
+function montarGenes(rng: Rng, sexo: Sexo, base: Pick<Genes, 'pele' | 'olhos' | 'cabeloNatural' | 'corCabelo' | 'rosto' | 'nariz' | 'alturaAlvo' | 'metabolismo' | 'sardas' | 'formatoOlho' | 'sobrancelha' | 'labios' | 'orelhas' | 'covinhas'>): Genes {
   const masc = sexo === 'masculino';
   return {
     ...base,
@@ -118,11 +133,25 @@ function montarGenes(rng: Rng, sexo: Sexo, base: Pick<Genes, 'pele' | 'olhos' | 
     metabolismo: Math.round(base.metabolismo * 100) / 100,
     grisalhoAos: rng.inteiro(42, 68),
     calvicieAos: masc && rng.proximo() < 0.4 ? rng.inteiro(24, 55) : null,
-    oculosAos: rng.proximo() < 0.3 ? rng.inteiro(7, 30) : rng.proximo() < 0.6 ? rng.inteiro(42, 52) : null,
+    oculosAos: rng.proximo() < 0.3 ? rng.inteiro(7, 30) : rng.proximo() < 0.4 ? rng.inteiro(42, 55) : null,
     estilo: estiloPadrao(rng, sexo, base.cabeloNatural),
     barba: masc ? sortearPeso<TipoBarba>(rng, ['nenhuma', 'por-fazer', 'cheia', 'cavanhaque', 'bigode'], [0.4, 0.25, 0.17, 0.12, 0.06]) : 'nenhuma',
     tatuada: rng.proximo() < 0.25,
+    pinta: rng.proximo() < 0.15,
+    acessorios: sortearAcessorios(rng, sexo),
   };
+}
+
+function sortearAcessorios(rng: Rng, sexo: Sexo): Acessorio[] {
+  const fem = sexo === 'feminino';
+  const lista: Acessorio[] = [];
+  const r = rng.proximo();
+  if (fem ? r < 0.55 : r < 0.08) lista.push('brinco');
+  else if (fem && r < 0.75) lista.push('argola');
+  if (rng.proximo() < 0.06) lista.push('piercing-nariz');
+  if (rng.proximo() < 0.15) lista.push('colar');
+  if (rng.proximo() < (fem ? 0.05 : 0.12)) lista.push('bone');
+  return lista;
 }
 
 /** Filho de dois genes: mistura a pele, puxa um dos dois em cada traço, altura na média. */
@@ -145,6 +174,11 @@ export function herdarGenes(rng: Rng, sexo: Sexo, mae: Genes, pai?: Genes): Gene
     alturaAlvo: mediaAltura + (rng.proximo() + rng.proximo() - 1) * 7,
     metabolismo: (mae.metabolismo + outro.metabolismo) / 2 + (rng.proximo() - 0.5) * 0.6,
     sardas: (mae.sardas || outro.sardas) && rng.proximo() < 0.5,
+    formatoOlho: puxa('formatoOlho') ?? 'redondo',
+    sobrancelha: puxa('sobrancelha') ?? 'media',
+    labios: puxa('labios') ?? 'medios',
+    orelhas: puxa('orelhas') ?? 'medias',
+    covinhas: (mae.covinhas || outro.covinhas) === true && rng.proximo() < 0.5,
   });
 }
 
@@ -236,6 +270,13 @@ export function aparenciaDe(s: Sujeito): Aparencia {
     cabelo, corCabelo,
     barba: sexo === 'masculino' && idade >= 18 ? (v.barba ?? g.barba) : 'nenhuma',
     sardas: g.sardas,
+    ...(g.formatoOlho ? { formatoOlho: g.formatoOlho } : {}),
+    ...(g.sobrancelha ? { sobrancelha: g.sobrancelha } : {}),
+    ...(g.labios ? { labios: g.labios } : {}),
+    ...(g.orelhas ? { orelhas: g.orelhas } : {}),
+    ...(g.covinhas ? { covinhas: true } : {}),
+    ...(g.pinta && idade >= 8 ? { pinta: true } : {}),
+    acessorios: acessoriosNaIdade(v.acessorios ?? g.acessorios ?? [], idade, sexo),
     oculos: v.oculos ?? (g.oculosAos !== null && idade >= g.oculosAos),
     tatuagens: idade < 16 ? [] : tatuagens,
     ...(v.modelosTatuagem ? { modelosTatuagem: v.modelosTatuagem } : {}),
@@ -282,4 +323,15 @@ export function mudarVisual(alvo: Personagem | Pessoa, idadeAnos: number, mudanc
   const { intimo } = alvo.visual ?? {};
   alvo.visual = { ...(alvo.visual ?? {}), ...mudanca, ...(intimo ? { intimo } : {}) };
   return true;
+}
+
+/** Acessórios que fazem sentido na idade: brinco desde bebê (comum para meninas), o resto mais tarde. */
+function acessoriosNaIdade(lista: Acessorio[], idade: number, sexo: Sexo): Acessorio[] {
+  return lista.filter((x) => {
+    if (x === 'brinco') return sexo === 'feminino' || idade >= 14;
+    if (x === 'argola') return idade >= 12;
+    if (x === 'piercing-nariz') return idade >= 16;
+    if (x === 'colar') return idade >= 12;
+    return idade >= 6; // boné
+  });
 }
