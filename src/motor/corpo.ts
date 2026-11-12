@@ -8,7 +8,7 @@
 
 import { Rng } from './rng';
 import type { Pessoa, Personagem, Sexo, Vida } from './tipos';
-import type { Aparencia, FormatoRosto, LocalTatuagem, Nariz, TipoBarba, TipoCabelo } from '../arte/pessoa';
+import type { Aparencia, FormatoRosto, LocalTatuagem, ModeloTatuagem, Nariz, TipoBarba, TipoCabelo } from '../arte/pessoa';
 
 export type TipoNatural = 'liso' | 'ondulado' | 'cacheado' | 'crespo';
 
@@ -44,6 +44,8 @@ export interface Visual {
   barba?: TipoBarba;
   oculos?: boolean;
   tatuagens?: LocalTatuagem[];
+  /** Qual desenho em cada lugar tatuado. */
+  modelosTatuagem?: Partial<Record<LocalTatuagem, ModeloTatuagem>>;
   /** Kg a mais (+) ou a menos (−) do que a forma física daria. */
   ajustePeso?: number;
   /** Só 18+. Texto, nunca desenho. */
@@ -236,6 +238,7 @@ export function aparenciaDe(s: Sujeito): Aparencia {
     sardas: g.sardas,
     oculos: v.oculos ?? (g.oculosAos !== null && idade >= g.oculosAos),
     tatuagens: idade < 16 ? [] : tatuagens,
+    ...(v.modelosTatuagem ? { modelosTatuagem: v.modelosTatuagem } : {}),
     corRoupa: '#2f6db5',
   };
 }

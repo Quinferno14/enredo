@@ -1,7 +1,14 @@
 // Motor de arte · pessoas em camadas. O mesmo desenho serve a todo mundo do jogo:
-// corpo (altura e peso de verdade, músculo), rosto (formato, olhos, nariz, boca,
-// sobrancelha), cabelo, barba, roupa, tatuagens e acessórios, todos encaixados em
-// pontos do corpo. Os pés ficam em y = 0; quem posiciona é a cena.
+// corpo (altura e peso de verdade, músculo, formas de homem e de mulher a partir da
+// puberdade), rosto (formato, olhos, nariz, boca, sobrancelha), cabelo, barba, roupa,
+// tatuagens e acessórios. Os pés ficam em y = 0; quem posiciona é a cena.
+//
+// Regras para os "adereços" não ficarem soltos:
+// - o cabelo da frente é uma calota que cobre o topo da cabeça até a linha do cabelo
+//   (nunca uma faixa solta na testa);
+// - a barba segue a linha do queixo;
+// - a tatuagem é desenhada recortada na pele (clipPath do braço, do pescoço ou da
+//   perna), então nunca sai do corpo.
 
 import { CONTORNO, contorno, sombra, tom } from './estilo';
 
@@ -11,6 +18,8 @@ export type FormatoRosto = 'oval' | 'redondo' | 'quadrado' | 'fino';
 export type Nariz = 'pequeno' | 'medio' | 'largo';
 export type Humor = 'feliz' | 'neutro' | 'triste' | 'cansado' | 'bravo';
 export type LocalTatuagem = 'braco-esquerdo' | 'braco-direito' | 'pescoco' | 'perna';
+export type ModeloTatuagem = 'flor' | 'ancora' | 'tribal' | 'coracao' | 'estrelas';
+export const MODELOS_TATUAGEM: ModeloTatuagem[] = ['flor', 'ancora', 'tribal', 'coracao', 'estrelas'];
 export type Roupa = 'casa' | 'escola' | 'social' | 'esporte' | 'jaleco' | 'festa' | 'pijama';
 
 /** Tudo o que se vê de uma pessoa. O motor do jogo guarda isso; a arte só desenha. */
@@ -31,6 +40,8 @@ export interface Aparencia {
   sardas: boolean;
   oculos: boolean;
   tatuagens: LocalTatuagem[];
+  /** Qual desenho em cada lugar (sem isso, um modelo fixo por pessoa). */
+  modelosTatuagem?: Partial<Record<LocalTatuagem, ModeloTatuagem>>;
   /** Cor da roupa (a peça vem do contexto). */
   corRoupa: string;
 }
@@ -45,10 +56,11 @@ export interface OpcoesDesenho {
 
 /** Pixels por centímetro no palco (escala 1). */
 const PX_CM = 0.95;
+/** Contador para ids de recorte únicos no documento. */
+let seq = 0;
 
-/** Proporção da cabeça pelo tamanho do corpo: bebê é quase só cabeça. */
+/** Proporção da cabeça pelo tamanho do corpo. Estilizado: maior que a real, para o rosto ter expressão. */
 function alturaCabeca(idade: number): number {
-  // Estilizado: cabeça maior que a real, para o rosto ter expressão no celular.
   if (idade < 2) return 0.34;
   if (idade < 6) return 0.27;
   if (idade < 12) return 0.23;
@@ -56,36 +68,76 @@ function alturaCabeca(idade: number): number {
   return 0.18;
 }
 
+const limitar01 = (x: number) => Math.max(0, Math.min(1, x));
+function misturar(a: string, b: string, t: number): string {
+  const pa = parseInt(a.slice(1), 16), pb = parseInt(b.slice(1), 16);
+  const c = [16, 8, 0].map((s) => Math.round(((pa >> s) & 255) * (1 - t) + ((pb >> s) & 255) * t));
+  return `#${c.map((v) => v.toString(16).padStart(2, '0')).join('')}`;
+}
+function hash(s: string): number { let h = 7; for (const ch of s) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h; }
+
+const TINTA = '#24365c';
+const TINTA2 = '#b23a48';
+/** Desenho de tatuagem centrado em (0,0), cabendo num quadrado de lado s. */
+function desenhoTatuagem(m: ModeloTatuagem, s: number): string {
+  const u = s / 10;
+  const tr = `stroke="${TINTA}" stroke-width="${Math.max(0.8, u * 0.9)}" fill="none" stroke-linecap="round" stroke-linejoin="round"`;
+  switch (m) {
+    case 'flor':
+      return `${[0, 72, 144, 216, 288].map((r) => `<ellipse cx="0" cy="${-2.2 * u}" rx="${1.5 * u}" ry="${2.2 * u}" transform="rotate(${r})" fill="${TINTA2}" opacity="0.85"/>`).join('')}<circle r="${1.1 * u}" fill="${TINTA}"/>`;
+    case 'ancora':
+      return `<path d="M0 ${-4 * u} V${4 * u} M${-2.5 * u} ${-1.5 * u} H${2.5 * u} M${-3.5 * u} ${1.5 * u} Q${-3 * u} ${4.5 * u} 0 ${4 * u} Q${3 * u} ${4.5 * u} ${3.5 * u} ${1.5 * u}" ${tr}/><circle cy="${-4.6 * u}" r="${0.9 * u}" ${tr}/>`;
+    case 'tribal':
+      return `<path d="M${-4 * u} ${-4 * u} Q0 ${-2 * u} ${4 * u} ${-4 * u} M${-4 * u} 0 Q0 ${2 * u} ${4 * u} 0 M${-4 * u} ${4 * u} Q0 ${6 * u} ${4 * u} ${4 * u}" ${tr} stroke-width="${u * 1.4}"/>`;
+    case 'coracao':
+      return `<path d="M0 ${3.5 * u} C${-5 * u} 0 ${-3.5 * u} ${-4 * u} 0 ${-1.5 * u} C${3.5 * u} ${-4 * u} ${5 * u} 0 0 ${3.5 * u} Z" fill="${TINTA2}" stroke="${TINTA}" stroke-width="${Math.max(0.6, u * 0.6)}"/>`;
+    case 'estrelas': {
+      const est = (x: number, y: number, r: number) => `<path d="M${x} ${y - r} L${x + r * 0.3} ${y - r * 0.3} L${x + r} ${y} L${x + r * 0.3} ${y + r * 0.3} L${x} ${y + r} L${x - r * 0.3} ${y + r * 0.3} L${x - r} ${y} L${x - r * 0.3} ${y - r * 0.3} Z" fill="${TINTA}"/>`;
+      return est(-1.5 * u, -2 * u, 2.4 * u) + est(2 * u, 2.5 * u, 1.6 * u);
+    }
+  }
+}
+
 export function desenharPessoa(a: Aparencia, o: OpcoesDesenho = {}): string {
+  const id = `ps${seq++}`;
   const humor = o.humor ?? 'neutro';
   const roupa = o.roupa ?? 'casa';
-  const H = a.alturaCm * PX_CM;                                   // altura total em pixels
-  const cab = H * alturaCabeca(a.idadeAnos);                      // altura da cabeça
+  const idade = a.idadeAnos;
+  const H = a.alturaCm * PX_CM;
+  const cab = H * alturaCabeca(idade);
   const imc = a.pesoKg / ((a.alturaCm / 100) ** 2);
-  const W = Math.max(0.8, Math.min(1.7, 0.4 + imc / 36));        // largura pelo peso
-  const crianca = a.idadeAnos < 12;
-  const sentado = a.idadeAnos < 1.5;
+  const W = Math.max(0.8, Math.min(1.7, 0.4 + imc / 36));
+  const crianca = idade < 12;
+  const sentado = idade < 1.5;
   const escalaTronco = crianca ? 0.82 : 1;
   const mus = 1 + a.musculo * 0.35;
   const fem = a.sexo === 'feminino';
+  // Puberdade: de 11 a 16 anos o corpo vai ganhando as formas de adulto.
+  const pub = limitar01((idade - 11) / 5);
+  const formaF = fem ? pub : 0;
+  const formaM = fem ? 0 : pub;
 
-  // Medidas do corpo (de baixo para cima)
+  // ---- Medidas do corpo (de baixo para cima) ----
   const pernaReal = (H - cab) * (crianca ? 0.44 : 0.5);
   const tronco = (H - cab) - pernaReal - 4;
-  // Bebê pequeno fica sentado: as pernas vão para a frente, no chão.
   const perna = sentado ? 9 * escalaTronco * (0.75 + W * 0.3) : pernaReal;
-  const ombro = 18 * W * escalaTronco * (fem ? 0.95 : 1.08) * (a.musculo > 0.3 ? mus * 0.95 : 1);
-  const quadril = 16 * W * escalaTronco * (fem ? 1.12 : 0.98);
+  const ombro = 18 * W * escalaTronco * (1 + formaM * 0.2 - formaF * 0.12) * (a.musculo > 0.3 ? mus * 0.95 : 1);
+  const quadril = 16 * W * escalaTronco * (1 + formaF * 0.3 - formaM * 0.06);
+  const fatorBarriga = Math.max(0.85, Math.min(1.5, 0.7 + (imc - 18) / 26));
+  const cintura = quadril * (1 - formaF * 0.3 - formaM * 0.02) * fatorBarriga;
+  const busto = formaF * (2 + W * 1.6);
   const yQuadril = -perna;
   const yOmbro = yQuadril - tronco;
+  const yBusto = yOmbro + tronco * 0.34;
+  const yCintura = yOmbro + tronco * 0.6;
   const yPescoco = yOmbro - 3;
   const yCabeca = yPescoco - cab * 0.5;
-  // O rosto é desenhado numa cabeça-padrão de 28px e escalado (traços proporcionais).
+  // O rosto é desenhado numa cabeça-padrão de 28px e escalado.
   const CAB = 28;
   const k = cab / CAB;
   const rx = CAB * 0.42 * (a.rosto === 'redondo' ? 1.08 : a.rosto === 'fino' ? 0.9 : a.rosto === 'quadrado' ? 1.04 : 1);
   const ry = CAB * 0.5;
-  const bracoW = 7 * escalaTronco * (0.8 + W * 0.25) * mus;
+  const bracoW = 7 * escalaTronco * (0.8 + W * 0.25) * mus * (1 - formaF * 0.1);
   const pernaW = 9 * escalaTronco * (0.75 + W * 0.3);
 
   const pele = a.pele;
@@ -97,116 +149,167 @@ export function desenharPessoa(a: Aparencia, o: OpcoesDesenho = {}): string {
   const short = (crianca && roupa === 'casa') || roupa === 'esporte';
   const vestido = fem && (roupa === 'festa' || (crianca && roupa === 'escola'));
   const c = contorno();
-  const cabeloCor = a.corCabelo;
+  const cc = a.corCabelo;
+  const modelo = (l: LocalTatuagem): ModeloTatuagem =>
+    a.modelosTatuagem?.[l] ?? MODELOS_TATUAGEM[hash(a.pele + a.olhos + l) % MODELOS_TATUAGEM.length] as ModeloTatuagem;
+  /** Tatuagem recortada dentro de um retângulo de pele. */
+  const tatuar = (l: LocalTatuagem, rx0: number, ry0: number, w: number, h: number, cx: number, cy: number, s: number) => {
+    const cid = `${id}-${l}`;
+    return `<clipPath id="${cid}"><rect x="${rx0}" y="${ry0}" width="${w}" height="${h}" rx="${w / 2}"/></clipPath>
+      <g clip-path="url(#${cid})" opacity="0.9"><g transform="translate(${cx} ${cy})">${desenhoTatuagem(modelo(l), s)}</g></g>`;
+  };
 
   // ---- Pernas e pés ----
+  const pernaDirX = quadril * 0.55 - pernaW / 2;
   const pernas = sentado
     ? `<rect x="${-quadril - 2}" y="${-pernaW}" width="${pernaReal * 0.9}" height="${pernaW}" rx="${pernaW / 2}" fill="${calca}" ${c}/>
        <rect x="${-quadril * 0.2}" y="${-pernaW}" width="${pernaReal * 0.9}" height="${pernaW}" rx="${pernaW / 2}" fill="${tom(calca, -0.12)}" ${c}/>
        <circle cx="${-quadril - 2 + pernaReal * 0.9}" cy="${-pernaW / 2}" r="${pernaW * 0.55}" fill="${pele}" ${c}/><circle cx="${-quadril * 0.2 + pernaReal * 0.9}" cy="${-pernaW / 2}" r="${pernaW * 0.55}" fill="${peleSombra}" ${c}/>`
     : vestido || short
     ? `<rect x="${-quadril * 0.55 - pernaW / 2}" y="${-perna}" width="${pernaW}" height="${perna}" rx="${pernaW / 2}" fill="${pele}" ${c}/>
-       <rect x="${quadril * 0.55 - pernaW / 2}" y="${-perna}" width="${pernaW}" height="${perna}" rx="${pernaW / 2}" fill="${peleSombra}" ${c}/>
+       <rect x="${pernaDirX}" y="${-perna}" width="${pernaW}" height="${perna}" rx="${pernaW / 2}" fill="${peleSombra}" ${c}/>
        ${short ? `<path d="M${-quadril} ${yQuadril - 2} L${quadril} ${yQuadril - 2} L${quadril + 2} ${-perna * 0.55} L2 ${-perna * 0.55} L0 ${-perna * 0.7} L-2 ${-perna * 0.55} L${-quadril - 2} ${-perna * 0.55} Z" fill="${calca}" ${c}/>` : ''}`
     : `<path d="M${-quadril} ${yQuadril - 2} L${-quadril + 1} -6 L-2 -6 L0 ${-perna * 0.8} L2 -6 L${quadril - 1} -6 L${quadril} ${yQuadril - 2} Z" fill="${calca}" ${c}/>
        <path d="M2 ${-perna * 0.78} L2 -6 L${quadril - 1} -6 L${quadril} ${yQuadril}" fill="#000" opacity="0.12"/>`;
+  const pernaTat = a.tatuagens.includes('perna') && (short || vestido) && !sentado && idade >= 16
+    ? tatuar('perna', pernaDirX, -perna * 0.5, pernaW, perna * 0.42, quadril * 0.55, -perna * 0.3, pernaW * 0.9) : '';
   const pes = sentado ? '' : `<path d="M${-quadril + 0.5} -7 h${quadril - 1} v5 q0 3 -3 3 h${-quadril + 6} q-4 0 -4 -4 Z" fill="#3a2e26" ${c}/>
     <path d="M1 -7 h${quadril - 1} v5 q0 3 -3 3 h${-quadril + 6} q-2 0 -2 -3 Z" fill="#3a2e26" ${c}/>`;
 
-  // ---- Tronco (com a roupa) ----
-  // A cintura é o que mais muda com o peso (barriga); o músculo alarga os ombros.
-  const cintura = quadril * (fem ? 0.82 : 0.95) * Math.max(0.85, Math.min(1.5, 0.7 + (imc - 18) / 26));
+  // ---- Tronco (com a roupa): ombro → busto → cintura → quadril ----
+  const lado = (s: 1 | -1, baixo: number, larguraBaixo: number) =>
+    `C${s * (ombro + busto * 0.5)} ${yBusto - tronco * 0.08} ${s * (cintura + busto * 0.9)} ${yBusto + tronco * 0.06} ${s * cintura} ${yCintura} Q${s * larguraBaixo * 1.02} ${baixo - tronco * 0.18} ${s * larguraBaixo} ${baixo}`;
+  const ladoVolta = (baixo: number, larguraBaixo: number) =>
+    `Q${-larguraBaixo * 1.02} ${baixo - tronco * 0.18} ${-cintura} ${yCintura} C${-(cintura + busto * 0.9)} ${yBusto + tronco * 0.06} ${-(ombro + busto * 0.5)} ${yBusto - tronco * 0.08} ${-ombro} ${yOmbro + 3}`;
   const troncoForma = vestido
-    ? `M${-ombro} ${yOmbro + 3} Q0 ${yOmbro - 3} ${ombro} ${yOmbro + 3} L${cintura} ${yOmbro + tronco * 0.55} L${quadril * 1.5} ${-perna * 0.45} L${-quadril * 1.5} ${-perna * 0.45} L${-cintura} ${yOmbro + tronco * 0.55} Z`
-    : `M${-ombro} ${yOmbro + 3} Q0 ${yOmbro - 3} ${ombro} ${yOmbro + 3} L${cintura} ${yOmbro + tronco * 0.6} L${quadril} ${yQuadril + 3} L${-quadril} ${yQuadril + 3} L${-cintura} ${yOmbro + tronco * 0.6} Z`;
+    ? `M${-ombro} ${yOmbro + 3} Q0 ${yOmbro - 3} ${ombro} ${yOmbro + 3} ${lado(1, yQuadril + 3, quadril)} L${quadril * 1.5} ${-perna * 0.45} L${-quadril * 1.5} ${-perna * 0.45} L${-quadril} ${yQuadril + 3} ${ladoVolta(yQuadril + 3, quadril)} Z`
+    : `M${-ombro} ${yOmbro + 3} Q0 ${yOmbro - 3} ${ombro} ${yOmbro + 3} ${lado(1, yQuadril + 3, quadril)} L${-quadril} ${yQuadril + 3} ${ladoVolta(yQuadril + 3, quadril)} Z`;
+  // Duas curvas discretas sob o busto (roupa), só a partir da adolescência.
+  const bustoLinha = busto > 1.5
+    ? `<g fill="none" stroke="${corEscura}" stroke-width="1" stroke-linecap="round" opacity="0.6"><path d="M${-ombro * 0.55} ${yBusto} Q${-ombro * 0.32} ${yBusto + busto * 0.7} ${-2} ${yBusto + 0.5}"/><path d="M${ombro * 0.55} ${yBusto} Q${ombro * 0.32} ${yBusto + busto * 0.7} ${2} ${yBusto + 0.5}"/></g>`
+    : '';
   const jaleco = roupa === 'jaleco' ? `<path d="M0 ${yOmbro} L0 ${yQuadril + 2}" ${c}/><path d="M-6 ${yOmbro} l6 10 l6 -10" fill="none" ${c}/>` : '';
-  const gola = roupa === 'social' ? `<path d="M-6 ${yOmbro - 1} l6 8 l6 -8" fill="#fff" ${c}/>` : `<path d="M-5 ${yOmbro} q5 5 10 0" fill="none" ${contorno(1.4)}/>`;
-  const tronco_ = `<path d="${troncoForma}" fill="${cor}" ${c}/><path d="${troncoForma}" fill="url(#luz)"/>${gola}${jaleco}`;
+  const gola = roupa === 'social' ? `<path d="M-6 ${yOmbro - 1} l6 8 l6 -8" fill="#fff" ${c}/>`
+    : fem && pub > 0.3 ? `<path d="M-6 ${yOmbro} q6 7 12 0" fill="none" ${contorno(1.4)}/>`
+    : `<path d="M-5 ${yOmbro} q5 4 10 0" fill="none" ${contorno(1.4)}/>`;
+  const tronco_ = `<path d="${troncoForma}" fill="${cor}" ${c}/><path d="${troncoForma}" fill="url(#luz)"/>${bustoLinha}${gola}${jaleco}`;
 
-  // ---- Braços (manga e antebraço de pele, onde as tatuagens aparecem) ----
+  // ---- Braços (manga e antebraço de pele, onde as tatuagens ficam) ----
   const bracoComp = tronco * 0.95;
-  const braco = (lado: -1 | 1) => {
-    const x = lado * (ombro + bracoW * 0.25);
+  const braco = (s: -1 | 1) => {
+    const x = s * (ombro + bracoW * 0.25);
     const manga = mangaCurta ? bracoComp * 0.38 : bracoComp * 0.92;
-    const tat = a.tatuagens.includes(lado === -1 ? 'braco-esquerdo' : 'braco-direito') && mangaCurta
-        ? `<path d="M${x - bracoW * 0.3} ${yOmbro + manga + 4} q${bracoW * 0.45} 5 0 10 q${-bracoW * 0.45} 5 0 10" fill="none" stroke="#1d3557" stroke-width="2"/><circle cx="${x + bracoW * 0.15}" cy="${yOmbro + manga + 13}" r="2.2" fill="#b23a48" stroke="#1d3557" stroke-width="0.8"/>` : '';
-    const peleBraco = lado === 1 ? peleSombra : pele;
-    return `<g transform="rotate(${lado * 6} ${x} ${yOmbro + 2})">
-      <rect x="${x - bracoW / 2}" y="${yOmbro + 2}" width="${bracoW}" height="${bracoComp}" rx="${bracoW / 2}" fill="${peleBraco}" ${c}/>
-      <rect x="${x - bracoW / 2 - 0.5}" y="${yOmbro}" width="${bracoW + 1}" height="${manga}" rx="${bracoW / 2}" fill="${lado === 1 ? corEscura : cor}" ${c}/>
+    const local: LocalTatuagem = s === -1 ? 'braco-esquerdo' : 'braco-direito';
+    const peleBraco = s === 1 ? peleSombra : pele;
+    const yTopo = yOmbro + 2;
+    const tat = a.tatuagens.includes(local) && mangaCurta && idade >= 16
+      ? tatuar(local, x - bracoW / 2, yOmbro + manga, bracoW, bracoComp - manga, x, yOmbro + manga + (bracoComp - manga) * 0.45, bracoW * 1.1) : '';
+    return `<g transform="rotate(${s * 6} ${x} ${yTopo})">
+      <rect x="${x - bracoW / 2}" y="${yTopo}" width="${bracoW}" height="${bracoComp}" rx="${bracoW / 2}" fill="${peleBraco}" ${c}/>
       ${tat}
+      <rect x="${x - bracoW / 2 - 0.5}" y="${yOmbro}" width="${bracoW + 1}" height="${manga}" rx="${bracoW / 2}" fill="${s === 1 ? corEscura : cor}" ${c}/>
       <circle cx="${x}" cy="${yOmbro + bracoComp + 2}" r="${bracoW * 0.62}" fill="${peleBraco}" ${c}/>
     </g>`;
   };
 
-  // ---- Pescoço e cabeça ----
-  const pescoco = `<rect x="${-cab * 0.12}" y="${yPescoco - cab * 0.12}" width="${cab * 0.24}" height="${cab * 0.2}" fill="${peleSombra}" ${c}/>
-    ${a.tatuagens.includes('pescoco') ? `<path d="M${cab * 0.04} ${yPescoco - cab * 0.06} l3 3 l-3 3" stroke="#1d3557" stroke-width="1.4" fill="none"/>` : ''}`;
-  const olhoY = ry * 0.02;
-  const olhoDx = rx * 0.4;
-  const olhos = humor === 'cansado'
-    ? `<path d="M${-olhoDx - 3} ${olhoY} h6 M${olhoDx - 3} ${olhoY} h6" ${contorno(1.8)}/>`
-    : `<ellipse cx="${-olhoDx}" cy="${olhoY}" rx="2.4" ry="${humor === 'feliz' ? 2.6 : 3}" fill="${a.olhos}" stroke="${CONTORNO}" stroke-width="0.8"/>
-       <ellipse cx="${olhoDx}" cy="${olhoY}" rx="2.4" ry="${humor === 'feliz' ? 2.6 : 3}" fill="${a.olhos}" stroke="${CONTORNO}" stroke-width="0.8"/>
-       <circle cx="${-olhoDx + 0.8}" cy="${olhoY - 1}" r="0.8" fill="#fff"/><circle cx="${olhoDx + 0.8}" cy="${olhoY - 1}" r="0.8" fill="#fff"/>`;
-  const sobInc = humor === 'bravo' ? 3 : humor === 'triste' ? -2 : 0;
-  const sobrancelhas = `<path d="M${-olhoDx - 4} ${olhoY - 6 + sobInc * 0.3} q4 ${-2 - sobInc * 0.3} 8 ${sobInc * 0.6}" ${contorno(fem ? 1.4 : 2)} stroke="${tom(cabeloCor, -0.2)}"/>
-    <path d="M${olhoDx - 4} ${olhoY - 6 + sobInc * 0.3} q4 ${-2 - sobInc * 0.3} 8 ${-sobInc * 0.6}" ${contorno(fem ? 1.4 : 2)} stroke="${tom(cabeloCor, -0.2)}"/>`;
-  const narizL = a.nariz === 'largo' ? 4 : a.nariz === 'pequeno' ? 2 : 3;
-  const nariz = `<path d="M0 ${olhoY + 3} q${-narizL} ${narizL + 2} 0 ${narizL + 3} q${narizL * 0.6} 0 ${narizL} -1" fill="none" stroke="${peleSombra}" stroke-width="1.4" stroke-linecap="round"/>`;
-  const bocaY = ry * 0.5;
-  const boca = humor === 'feliz' ? `<path d="M-5 ${bocaY - 1} q5 6 10 0" fill="#9b3b31" ${contorno(1.4)}/>`
-    : humor === 'triste' ? `<path d="M-5 ${bocaY + 2} q5 -4 10 0" fill="none" ${contorno(1.6)}/>`
-    : humor === 'bravo' ? `<path d="M-5 ${bocaY + 1} h10" ${contorno(1.8)}/>`
-    : `<path d="M-4 ${bocaY} q4 2 8 0" fill="none" ${contorno(1.5)}/>`;
-  const bochecha = crianca ? `<circle cx="${-rx * 0.6}" cy="${bocaY - 3}" r="3" fill="#e98a7a" opacity="0.4"/><circle cx="${rx * 0.6}" cy="${bocaY - 3}" r="3" fill="#e98a7a" opacity="0.4"/>` : '';
-  const sardas = a.sardas ? [-0.55, -0.4, 0.4, 0.55].map((f, i) => `<circle cx="${rx * f}" cy="${bocaY - 6 + (i % 2) * 2}" r="0.8" fill="#8a4b2d" opacity="0.6"/>`).join('') : '';
-  const rugas = a.idadeAnos >= 55 ? `<path d="M${-rx * 0.8} ${olhoY} l-3 -1 M${rx * 0.8} ${olhoY} l3 -1 M${-rx * 0.35} ${bocaY + 5} q${rx * 0.35} 2 ${rx * 0.7} 0" stroke="${peleSombra}" stroke-width="1" fill="none"/>` : '';
-  const oculos = a.oculos ? `<g fill="#ffffff22" ${contorno(1.4)}><circle cx="${-olhoDx}" cy="${olhoY}" r="${rx * 0.3}"/><circle cx="${olhoDx}" cy="${olhoY}" r="${rx * 0.3}"/><path d="M${-olhoDx + rx * 0.3} ${olhoY} h${2 * olhoDx - rx * 0.6}" fill="none"/></g>` : '';
-  const queixo = a.rosto === 'quadrado' ? `M${-rx} 0 Q${-rx} ${ry * 0.95} 0 ${ry} Q${rx} ${ry * 0.95} ${rx} 0 Q${rx} ${-ry} 0 ${-ry} Q${-rx} ${-ry} ${-rx} 0 Z`
-    : `M${-rx} 0 Q${-rx} ${ry * 0.85} 0 ${ry} Q${rx} ${ry * 0.85} ${rx} 0 Q${rx} ${-ry} 0 ${-ry} Q${-rx} ${-ry} ${-rx} 0 Z`;
-  const orelhas = `<ellipse cx="${-rx - 1}" cy="${olhoY + 2}" rx="3" ry="4.5" fill="${pele}" ${c}/><ellipse cx="${rx + 1}" cy="${olhoY + 2}" rx="3" ry="4.5" fill="${peleSombra}" ${c}/>`;
+  // ---- Pescoço ----
+  const pescW = cab * (formaM > 0.5 ? 0.3 : 0.24);
+  const pescY = yPescoco - cab * 0.14;
+  const pescH = cab * 0.22;
+  const pescoco = `<rect x="${-pescW / 2}" y="${pescY}" width="${pescW}" height="${pescH}" fill="${peleSombra}" ${c}/>
+    ${a.tatuagens.includes('pescoco') && idade >= 16 ? tatuar('pescoco', -pescW / 2, pescY, pescW, pescH, pescW * 0.15, pescY + pescH * 0.55, pescH * 0.9) : ''}`;
 
-  // ---- Cabelo (atrás da cabeça e franja na frente) ----
-  let atras = ''; let frente = '';
-  const cc = cabeloCor;
+  // ---- Rosto (cabeça-padrão: centro em 0, topo em -ry, queixo em +ry) ----
+  const olhoY = ry * 0.04;
+  const olhoDx = rx * 0.4;
+  const corOlho = misturar(a.olhos, '#1a120c', 0.35);
+  const rOlho = crianca ? 2.1 : 1.8;
+  const olho = (x: number) => humor === 'cansado'
+    ? `<path d="M${x - 2.4} ${olhoY + 0.5} q2.4 1.2 4.8 0" fill="none" stroke="${CONTORNO}" stroke-width="1.5" stroke-linecap="round"/>`
+    : `<ellipse cx="${x}" cy="${olhoY}" rx="${rOlho}" ry="${rOlho * (humor === 'feliz' ? 1.1 : 1.3)}" fill="${corOlho}"/><circle cx="${x + 0.6}" cy="${olhoY - 0.8}" r="0.6" fill="#fff"/>`;
+  // Cílios discretos para mulheres adolescentes e adultas.
+  const cilios = fem && pub > 0.4 && humor !== 'cansado'
+    ? `<path d="M${-olhoDx - rOlho} ${olhoY - 1.3} l-1.4 -1 M${olhoDx + rOlho} ${olhoY - 1.3} l1.4 -1" stroke="${CONTORNO}" stroke-width="1" stroke-linecap="round"/>` : '';
+  const olhos = olho(-olhoDx) + olho(olhoDx) + cilios;
+  const sobInc = humor === 'bravo' ? 3 : humor === 'triste' ? -2 : 0;
+  const corSob = tom(misturar(cc, '#3a2e26', 0.3), -0.1);
+  const espSob = fem ? 1.2 : formaM > 0.5 ? 1.8 : 1.4;
+  const sobrancelhas = `<path d="M${-olhoDx - 3.5} ${olhoY - 5 + sobInc * 0.3} q3.5 ${-1.8 - sobInc * 0.3} 7 ${sobInc * 0.6}" fill="none" stroke="${corSob}" stroke-width="${espSob}" stroke-linecap="round"/>
+    <path d="M${olhoDx - 3.5} ${olhoY - 5 + sobInc * 0.3} q3.5 ${-1.8 - sobInc * 0.3} 7 ${-sobInc * 0.6}" fill="none" stroke="${corSob}" stroke-width="${espSob}" stroke-linecap="round"/>`;
+  const narizL = a.nariz === 'largo' ? 3.2 : a.nariz === 'pequeno' ? 1.8 : 2.5;
+  const nariz = `<path d="M0.5 ${olhoY + 3} q${-narizL} ${narizL + 1.5} 0 ${narizL + 2.5} q${narizL * 0.6} 0 ${narizL * 0.9} -0.8" fill="none" stroke="${peleSombra}" stroke-width="1.3" stroke-linecap="round"/>`;
+  const bocaY = ry * 0.52;
+  const labio = fem && pub > 0.4 ? '#b5544a' : '#9b3b31';
+  const boca = humor === 'feliz' ? `<path d="M-4.5 ${bocaY - 1} q4.5 5 9 0 Z" fill="${labio}" ${contorno(1.2)}/>`
+    : humor === 'triste' ? `<path d="M-4 ${bocaY + 1.5} q4 -3 8 0" fill="none" ${contorno(1.4)}/>`
+    : humor === 'bravo' ? `<path d="M-4 ${bocaY + 0.5} h8" ${contorno(1.5)}/>`
+    : `<path d="M-3.5 ${bocaY} q3.5 1.8 7 0" fill="none" stroke="${fem && pub > 0.4 ? labio : CONTORNO}" stroke-width="1.4" stroke-linecap="round"/>`;
+  const bochecha = crianca || (fem && humor === 'feliz') ? `<circle cx="${-rx * 0.62}" cy="${bocaY - 3}" r="2.6" fill="#e98a7a" opacity="0.35"/><circle cx="${rx * 0.62}" cy="${bocaY - 3}" r="2.6" fill="#e98a7a" opacity="0.35"/>` : '';
+  const sardas = a.sardas ? [-0.58, -0.44, -0.3, 0.3, 0.44, 0.58].map((f, i) => `<circle cx="${rx * f}" cy="${bocaY - 5.5 + (i % 2) * 1.6}" r="0.6" fill="#8a4b2d" opacity="0.55"/>`).join('') : '';
+  const rugas = idade >= 55 ? `<path d="M${-rx * 0.78} ${olhoY - 0.5} l-2.5 -1 M${rx * 0.78} ${olhoY - 0.5} l2.5 -1 M${-rx * 0.42} ${bocaY - 3} q-1.5 2.5 -0.5 4.5 M${rx * 0.42} ${bocaY - 3} q1.5 2.5 0.5 4.5" stroke="${peleSombra}" stroke-width="1" fill="none" stroke-linecap="round"/>` : '';
+  const oculos = a.oculos
+    ? `<g fill="#ffffff26" stroke="${CONTORNO}" stroke-width="1.1" vector-effect="non-scaling-stroke"><rect x="${-olhoDx - 3.6}" y="${olhoY - 3}" width="7.2" height="5.8" rx="2.2"/><rect x="${olhoDx - 3.6}" y="${olhoY - 3}" width="7.2" height="5.8" rx="2.2"/><path d="M${-olhoDx + 3.6} ${olhoY - 0.8} Q0 ${olhoY - 2} ${olhoDx - 3.6} ${olhoY - 0.8}" fill="none"/></g>` : '';
+  const queixo = a.rosto === 'quadrado'
+    ? `M${-rx} 0 Q${-rx} ${ry * 0.95} 0 ${ry} Q${rx} ${ry * 0.95} ${rx} 0 Q${rx} ${-ry} 0 ${-ry} Q${-rx} ${-ry} ${-rx} 0 Z`
+    : `M${-rx} 0 Q${-rx} ${ry * 0.85} 0 ${ry} Q${rx} ${ry * 0.85} ${rx} 0 Q${rx} ${-ry} 0 ${-ry} Q${-rx} ${-ry} ${-rx} 0 Z`;
+  const orelhas = `<ellipse cx="${-rx - 0.5}" cy="${olhoY + 2}" rx="2.6" ry="4" fill="${pele}" ${c}/><ellipse cx="${rx + 0.5}" cy="${olhoY + 2}" rx="2.6" ry="4" fill="${peleSombra}" ${c}/>`;
+
+  // ---- Cabelo ----
+  // Calota: cobre o topo da cabeça e desce pelas têmporas até `t`; a borda de baixo
+  // é a linha do cabelo, com uma risca de lado (assimétrica, mais natural).
+  const linha = -ry * 0.58;
+  const calota = (t: number, volume = 0, franja = true) =>
+    `M${-rx * 1.05} ${t} Q${-rx * 1.12} ${-ry * 1.2 - volume} 0 ${-ry * 1.14 - volume} Q${rx * 1.12} ${-ry * 1.2 - volume} ${rx * 1.05} ${t}`
+    + (franja
+      ? ` L${rx * 0.9} ${t} Q${rx * 0.88} ${linha + 2} ${rx * 0.3} ${linha} Q${-rx * 0.35} ${linha - 2.5} ${-rx * 0.9} ${Math.min(t, linha + 5)} L${-rx * 0.9} ${t} Z`
+      : ` L${rx * 0.9} ${t} Q${rx * 0.85} ${linha} 0 ${linha - 0.5} Q${-rx * 0.85} ${linha} ${-rx * 0.9} ${t} Z`);
   const cs = `fill="${cc}" ${c}`;
+  let atras = '';
+  let frente = '';
   switch (a.cabelo) {
-    case 'cacheado':
-      atras = `<g ${cs}>${[-1, -0.5, 0, 0.5, 1].map((f, i) => `<circle cx="${f * rx}" cy="${-ry * 0.45 + (i % 2) * 3}" r="${rx * 0.5}"/>`).join('')}${fem ? `<circle cx="${-rx * 1.05}" cy="${ry * 0.35}" r="${rx * 0.45}"/><circle cx="${rx * 1.05}" cy="${ry * 0.35}" r="${rx * 0.45}"/><circle cx="${-rx * 0.9}" cy="${ry * 0.9}" r="${rx * 0.4}"/><circle cx="${rx * 0.9}" cy="${ry * 0.9}" r="${rx * 0.4}"/>` : ''}</g>`;
-      frente = `<g ${cs}>${[-0.65, -0.2, 0.25, 0.65].map((f) => `<circle cx="${f * rx}" cy="${-ry * 0.8}" r="${rx * 0.36}"/>`).join('')}</g>`;
-      break;
-    case 'crespo':
-      atras = `<ellipse cx="0" cy="${-ry * 0.45}" rx="${rx * 1.45}" ry="${ry * 1.05}" ${cs}/>`;
-      break;
     case 'liso-curto':
-      atras = `<path d="M${-rx * 1.05} ${ry * 0.1} Q${-rx * 1.1} ${-ry * 1.25} 0 ${-ry * 1.12} Q${rx * 1.1} ${-ry * 1.25} ${rx * 1.05} ${ry * 0.1} Z" ${cs}/>`;
-      frente = `<path d="M${-rx * 0.95} ${-ry * 0.25} Q${-rx * 0.3} ${-ry * 1.1} ${rx * 0.95} ${-ry * 0.45} Q${rx * 0.2} ${-ry * 0.65} ${-rx * 0.95} ${-ry * 0.05} Z" ${cs}/>`;
+      atras = `<ellipse cx="0" cy="${-ry * 0.3}" rx="${rx * 1.08}" ry="${ry * 0.92}" ${cs}/>`;
+      frente = `<path d="${calota(-ry * 0.05)}" ${cs}/>`;
       break;
     case 'liso-longo':
-      // Cai por trás dos ombros e aparece dos dois lados do pescoço até o peito.
       atras = `<path d="M${-rx * 1.1} ${-ry * 0.2} Q${-rx * 1.12} ${-ry * 1.25} 0 ${-ry * 1.12} Q${rx * 1.12} ${-ry * 1.25} ${rx * 1.1} ${-ry * 0.2} Q${rx * 1.5} ${ry * 1.4} ${rx * 1.45} ${ry * 2.6} L${-rx * 1.45} ${ry * 2.6} Q${-rx * 1.5} ${ry * 1.4} ${-rx * 1.1} ${-ry * 0.2} Z" ${cs}/>`;
-      frente = `<path d="M${-rx * 0.95} ${-ry * 0.1} Q${-rx * 0.2} ${-ry * 1.15} ${rx * 0.95} ${-ry * 0.3} Q${rx * 0.1} ${-ry * 0.6} ${-rx * 0.95} ${ry * 0.15} Z" ${cs}/>`;
+      frente = `<path d="${calota(ry * 0.45)}" ${cs}/>`;
+      break;
+    case 'cacheado': {
+      const cachos = (pts: number[][], r: number) => pts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join('');
+      atras = `<g ${cs}>${cachos([[-rx, -ry * 0.5], [-rx * 0.5, -ry * 0.95], [0, -ry * 1.08], [rx * 0.5, -ry * 0.95], [rx, -ry * 0.5]], rx * 0.5)}${fem || idade < 3 ? cachos([[-rx * 1.1, ry * 0.2], [rx * 1.1, ry * 0.2], [-rx * 1.0, ry * 0.85], [rx * 1.0, ry * 0.85]], rx * 0.42) : ''}</g>`;
+      frente = `<path d="${calota(-ry * 0.05, 1, false)}" ${cs}/><g ${cs}>${cachos([[-rx * 0.62, linha + 0.5], [-rx * 0.2, linha - 0.8], [rx * 0.22, linha - 0.8], [rx * 0.64, linha + 0.5]], rx * 0.27)}</g>`;
+      break;
+    }
+    case 'crespo':
+      atras = `<ellipse cx="0" cy="${-ry * 0.42}" rx="${rx * 1.45}" ry="${ry * 1.02}" ${cs}/>`;
+      frente = `<path d="${calota(-ry * 0.1, 2, false)}" ${cs}/>`;
       break;
     case 'coque':
-      atras = `<circle cx="0" cy="${-ry * 1.25}" r="${rx * 0.45}" ${cs}/><path d="M${-rx * 1.03} ${ry * 0.05} Q${-rx * 1.05} ${-ry * 1.2} 0 ${-ry * 1.08} Q${rx * 1.05} ${-ry * 1.2} ${rx * 1.03} ${ry * 0.05} Z" ${cs}/>`;
+      atras = `<circle cx="0" cy="${-ry * 1.22}" r="${rx * 0.42}" ${cs}/>`;
+      frente = `<path d="${calota(-ry * 0.08, 0, false)}" ${cs}/>`;
       break;
     case 'tranças':
-      atras = `<path d="M${-rx * 1.03} ${ry * 0.05} Q${-rx * 1.05} ${-ry * 1.2} 0 ${-ry * 1.08} Q${rx * 1.05} ${-ry * 1.2} ${rx * 1.03} ${ry * 0.05} Z" ${cs}/>
-        ${[-1, 1].map((l) => `<path d="M${l * rx * 0.95} ${ry * 0.2} q${l * 4} ${ry * 0.6} 0 ${ry * 1.6}" stroke="${cc}" stroke-width="${rx * 0.32}" stroke-linecap="round" fill="none"/>`).join('')}`;
+      atras = [-1, 1].map((s) => `<g ${cs}>${[0, 1, 2, 3, 4].map((i) => `<ellipse cx="${s * rx * 0.98}" cy="${ry * (0.15 + i * 0.42)}" rx="${rx * 0.2}" ry="${ry * 0.24}"/>`).join('')}</g>`).join('');
+      frente = `<path d="${calota(-ry * 0.08, 0, false)}" ${cs}/>`;
       break;
     case 'raspado':
-      frente = `<path d="M${-rx * 0.98} ${-ry * 0.2} Q0 ${-ry * 1.18} ${rx * 0.98} ${-ry * 0.2} Q0 ${-ry * 0.82} ${-rx * 0.98} ${-ry * 0.2} Z" fill="${cc}" opacity="0.75"/>`;
+      // Cabelo bem baixo: a cor do cabelo misturada à pele, sem volume.
+      frente = `<path d="${calota(-ry * 0.12, -1, false)}" fill="${misturar(cc, pele, 0.4)}" ${contorno(1)}/>`;
       break;
     case 'careca':
-      frente = `<path d="M${-rx * 1.02} ${ry * 0.05} q-2 ${-ry * 0.4} 2 ${-ry * 0.55}" stroke="${cc}" stroke-width="3" fill="none"/><path d="M${rx * 1.02} ${ry * 0.05} q2 ${-ry * 0.4} -2 ${-ry * 0.55}" stroke="${cc}" stroke-width="3" fill="none"/>`;
+      frente = [-1, 1].map((s) => `<path d="M${s * rx * 1.02} ${ry * 0.12} Q${s * rx * 1.12} ${-ry * 0.2} ${s * rx * 0.86} ${-ry * 0.45} L${s * rx * 0.92} ${ry * 0.12} Z" fill="${cc}" ${contorno(1)}/>`).join('');
       break;
   }
-  const barba = a.barba === 'nenhuma' || crianca ? ''
-    : a.barba === 'cheia' ? `<path d="M${-rx * 0.95} ${olhoY + 4} Q${-rx} ${ry * 1.25} 0 ${ry * 1.2} Q${rx} ${ry * 1.25} ${rx * 0.95} ${olhoY + 4} Q${rx * 0.5} ${bocaY + 2} 0 ${bocaY + 1} Q${-rx * 0.5} ${bocaY + 2} ${-rx * 0.95} ${olhoY + 4} Z" fill="${cc}" ${c}/>`
-    : a.barba === 'cavanhaque' ? `<path d="M-5 ${bocaY + 3} q5 ${ry * 0.55} 10 0 Z" fill="${cc}" ${c}/><path d="M-6 ${bocaY - 3} q6 -3 12 0" stroke="${cc}" stroke-width="2.5" fill="none"/>`
-    : a.barba === 'bigode' ? `<path d="M-7 ${bocaY - 2} q7 -5 14 0 q-7 2 -14 0 Z" fill="${cc}" ${c}/>`
-    : `<path d="${queixo}" fill="${cc}" opacity="0.18" transform="translate(0 ${ry * 0.12}) scale(0.95 0.9)"/>`;
+
+  // ---- Barba: segue a linha do queixo; bigode à parte ----
+  const bigode = (grosso: number) => `<path d="M${-5.5} ${bocaY - 1.5} Q0 ${bocaY - 4.5 - grosso} 5.5 ${bocaY - 1.5} Q0 ${bocaY - 2.8} -5.5 ${bocaY - 1.5} Z" fill="${cc}" ${contorno(1)}/>`;
+  const barbaForma = `M${-rx * 0.98} ${olhoY + 3} Q${-rx * 1.02} ${ry * 0.95} 0 ${ry * 1.1} Q${rx * 1.02} ${ry * 0.95} ${rx * 0.98} ${olhoY + 3} L${rx * 0.74} ${olhoY + 4} Q${rx * 0.6} ${bocaY + 4.5} 0 ${bocaY + 4} Q${-rx * 0.6} ${bocaY + 4.5} ${-rx * 0.74} ${olhoY + 4} Z`;
+  const barba = a.barba === 'nenhuma' || idade < 17 || fem ? ''
+    : a.barba === 'cheia' ? `<path d="${barbaForma}" fill="${cc}" ${contorno(1.1)}/>${bigode(0.8)}`
+    : a.barba === 'cavanhaque' ? `<path d="M-3.8 ${bocaY + 3} Q0 ${bocaY + 2} 3.8 ${bocaY + 3} L3 ${ry * 0.98} Q0 ${ry * 1.08} -3 ${ry * 0.98} Z" fill="${cc}" ${contorno(1)}/>${bigode(0)}`
+    : a.barba === 'bigode' ? bigode(1.2)
+    : `<path d="${barbaForma}" fill="${cc}" opacity="0.2"/>`;
 
   const cabeloAtras = `<g transform="translate(0 ${yCabeca}) scale(${k})">${atras}</g>`;
   const cabeca = `<g transform="translate(0 ${yCabeca}) scale(${k})">
@@ -215,9 +318,6 @@ export function desenharPessoa(a: Aparencia, o: OpcoesDesenho = {}): string {
     <path d="${queixo}" fill="url(#luz)"/>
     ${bochecha}${sardas}${barba}${frente}${sobrancelhas}${olhos}${nariz}${boca}${rugas}${oculos}
   </g>`;
-
-  const pernaTat = a.tatuagens.includes('perna') && (short || vestido)
-    ? `<path d="M${quadril * 0.55 - 4} ${-perna * 0.32} l4 -6 l4 6 l-4 6 z" fill="none" stroke="#1d3557" stroke-width="1.8"/><circle cx="${quadril * 0.55}" cy="${-perna * 0.32}" r="1.6" fill="#b23a48"/>` : '';
 
   return `<g transform="scale(${o.virada ?? 1} 1)">
     ${o.semSombra ? '' : sombra(0, 0, quadril * 3.2)}
