@@ -237,8 +237,9 @@ export function desenharPessoa(a: Aparencia, o: OpcoesDesenho = {}): string {
   const sobrancelhas = `<path d="M${-olhoDx - 3.5} ${olhoY - 5 + sobInc * 0.3} q3.5 ${-1.8 - sobInc * 0.3} 7 ${sobInc * 0.6}" fill="none" stroke="${corSob}" stroke-width="${espSob}" stroke-linecap="round"/>
     <path d="M${olhoDx - 3.5} ${olhoY - 5 + sobInc * 0.3} q3.5 ${-1.8 - sobInc * 0.3} 7 ${-sobInc * 0.6}" fill="none" stroke="${corSob}" stroke-width="${espSob}" stroke-linecap="round"/>`;
   const narizL = a.nariz === 'largo' ? 3.2 : a.nariz === 'pequeno' ? 1.8 : 2.5;
-  const nariz = `<path d="M0.5 ${olhoY + 3} q${-narizL} ${narizL + 1.5} 0 ${narizL + 2.5} q${narizL * 0.6} 0 ${narizL * 0.9} -0.8" fill="none" stroke="${peleSombra}" stroke-width="1.3" stroke-linecap="round"/>`;
-  const bocaY = ry * 0.52;
+  // Nariz curto (termina bem acima da boca, deixando lugar para o bigode).
+  const nariz = `<path d="M0.4 ${olhoY + 2} q${-narizL * 0.9} ${narizL * 0.7 + 1} 0 ${narizL * 0.7 + 1.6} q${narizL * 0.5} 0 ${narizL * 0.75} -0.6" fill="none" stroke="${peleSombra}" stroke-width="1.3" stroke-linecap="round"/>`;
+  const bocaY = ry * 0.68;
   const labio = fem && pub > 0.4 ? '#b5544a' : '#9b3b31';
   const boca = humor === 'feliz' ? `<path d="M-4.5 ${bocaY - 1} q4.5 5 9 0 Z" fill="${labio}" ${contorno(1.2)}/>`
     : humor === 'triste' ? `<path d="M-4 ${bocaY + 1.5} q4 -3 8 0" fill="none" ${contorno(1.4)}/>`
@@ -303,13 +304,17 @@ export function desenharPessoa(a: Aparencia, o: OpcoesDesenho = {}): string {
   }
 
   // ---- Barba: segue a linha do queixo; bigode à parte ----
-  const bigode = (grosso: number) => `<path d="M${-5.5} ${bocaY - 1.5} Q0 ${bocaY - 4.5 - grosso} 5.5 ${bocaY - 1.5} Q0 ${bocaY - 2.8} -5.5 ${bocaY - 1.5} Z" fill="${cc}" ${contorno(1)}/>`;
-  const barbaForma = `M${-rx * 0.98} ${olhoY + 3} Q${-rx * 1.02} ${ry * 0.95} 0 ${ry * 1.1} Q${rx * 1.02} ${ry * 0.95} ${rx * 0.98} ${olhoY + 3} L${rx * 0.74} ${olhoY + 4} Q${rx * 0.6} ${bocaY + 4.5} 0 ${bocaY + 4} Q${-rx * 0.6} ${bocaY + 4.5} ${-rx * 0.74} ${olhoY + 4} Z`;
+  // Bigode fino, entre a ponta do nariz e a boca.
+  const bigode = (grosso: number) => `<path d="M-5 ${bocaY - 1} Q-2.5 ${bocaY - 3.4 - grosso} 0 ${bocaY - 2.6 - grosso * 0.6} Q2.5 ${bocaY - 3.4 - grosso} 5 ${bocaY - 1} Q0 ${bocaY - 1.8} -5 ${bocaY - 1} Z" fill="${cc}" ${contorno(0.9)}/>`;
+  // Barba: da costeleta ao queixo, com a abertura da boca; recortada no rosto (nada vaza).
+  const recorte = `${id}-rosto`;
+  const barbaForma = `M${-rx * 1.05} ${olhoY + 2} Q${-rx * 1.08} ${ry} 0 ${ry * 1.12} Q${rx * 1.08} ${ry} ${rx * 1.05} ${olhoY + 2} L${rx * 0.72} ${olhoY + 3} Q${rx * 0.58} ${bocaY + 3} 0 ${bocaY + 2.6} Q${-rx * 0.58} ${bocaY + 3} ${-rx * 0.72} ${olhoY + 3} Z`;
+  const naPele = (svg: string) => `<clipPath id="${recorte}"><path d="${queixo}"/></clipPath><g clip-path="url(#${recorte})">${svg}</g>`;
   const barba = a.barba === 'nenhuma' || idade < 17 || fem ? ''
-    : a.barba === 'cheia' ? `<path d="${barbaForma}" fill="${cc}" ${contorno(1.1)}/>${bigode(0.8)}`
-    : a.barba === 'cavanhaque' ? `<path d="M-3.8 ${bocaY + 3} Q0 ${bocaY + 2} 3.8 ${bocaY + 3} L3 ${ry * 0.98} Q0 ${ry * 1.08} -3 ${ry * 0.98} Z" fill="${cc}" ${contorno(1)}/>${bigode(0)}`
-    : a.barba === 'bigode' ? bigode(1.2)
-    : `<path d="${barbaForma}" fill="${cc}" opacity="0.2"/>`;
+    : a.barba === 'cheia' ? `${naPele(`<path d="${barbaForma}" fill="${cc}"/>`)}<path d="${queixo}" fill="none" ${contorno(1.1)}/>${bigode(0.6)}`
+    : a.barba === 'cavanhaque' ? `${naPele(`<path d="M-3.6 ${bocaY + 2.2} Q0 ${bocaY + 1.4} 3.6 ${bocaY + 2.2} L3 ${ry * 1.1} L-3 ${ry * 1.1} Z" fill="${cc}"/>`)}${bigode(0)}`
+    : a.barba === 'bigode' ? bigode(1)
+    : naPele(`<path d="${barbaForma}" fill="${cc}" opacity="0.22"/>`);
 
   const cabeloAtras = `<g transform="translate(0 ${yCabeca}) scale(${k})">${atras}</g>`;
   const cabeca = `<g transform="translate(0 ${yCabeca}) scale(${k})">
