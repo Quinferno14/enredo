@@ -9,6 +9,7 @@ import { aplicar, atende, lembrar, reais } from './efeitos';
 import {
   alvoAparencia, alvoForma, alvoInteligencia, alvoSaude, chanceMorteAnual, limitar, patamarFelicidade,
 } from './envelhecer';
+import { lembrarGolpe, registrarGolpe } from './diretor';
 import { anosDaJanela, quandoAgora, rotuloPeriodo } from './tempo';
 import { Rng } from './rng';
 import {
@@ -192,11 +193,15 @@ export function rodarPessoas(vida: Vida, anos: number, rng: Rng, resumir = true)
       if (pe.papel === 'ex') continue;
       // De quem já saiu da sua vida, você nem fica sabendo.
       if ((pe.afastado || SOCIAIS.includes(pe.papel)) && pe.afeto < 40) continue;
-      linhas.push(`${capitalizar(papelTexto(pe))}, ${pe.nome}, morreu aos ${Math.floor(idade)} anos, ${causa}.`);
-      const perto = ['mae', 'pai', 'irmao', 'filho', 'parceiro', 'avo', 'neto'].includes(pe.papel);
-      const dor = Math.round((pe.afeto / 5) * (perto ? 1 : 0.6) + (pe.papel === 'filho' || pe.papel === 'parceiro' ? 10 : 0));
-      aplicar(vida, { 'atributos.felicidade': -dor, 'personalidade.estabilidade': -2 });
-      lembrar(vida, `morte_${pe.papel}`, `perdeu ${papelTexto(pe)}, ${pe.nome}`, -Math.round(10 + pe.afeto / 3), { pessoa: pe.nome });
+      // O peso vem do vínculo real e da fase da vida (contexto.ts), não do parentesco.
+      const pts = registrarGolpe(vida, 'morte', pe);
+      // Quem quase não fazia parte da sua vida sai dela em silêncio (sem enxurrada de parentes distantes).
+      if (pts < 20 && !['mae', 'pai', 'filho', 'parceiro', 'irmao'].includes(pe.papel)) continue;
+      const distante = (pe.papel === 'mae' || pe.papel === 'pai') && pts < 25 && idadeJogador >= 18;
+      linhas.push(distante
+        ? `${capitalizar(papelTexto(pe))}, ${pe.nome}, morreu aos ${Math.floor(idade)} anos, ${causa}. Fazia tempo que vocês não eram próximos, e você não sabe bem o que sentir.`
+        : `${capitalizar(papelTexto(pe))}, ${pe.nome}, morreu aos ${Math.floor(idade)} anos, ${causa}.`);
+      lembrarGolpe(vida, `morte_${pe.papel}`, `perdeu ${papelTexto(pe)}, ${pe.nome}`, pts, { pessoa: pe.nome });
       if (pe.papel === 'mae' || pe.papel === 'pai') linhas.push(...talvezHeranca(vida, rng));
     }
   }
@@ -288,8 +293,9 @@ function podeChamarParaSair(v: Vida, pe: Pessoa): boolean {
   if ((i === 'homens' && pe.sexo !== 'masculino') || (i === 'mulheres' && pe.sexo !== 'feminino')) return false;
   const a = anosJ(v);
   const b = idadeAnos(pe);
-  if (a < 14 || b < 14) return false;
-  if (a < 18 || b < 18) return a < 18 && b < 18 && Math.abs(a - b) <= 3;
+  // A partir dos 12, só com gente da mesma faixa: menores só com menores, até 2 anos de diferença.
+  if (a < 12 || b < 12) return false;
+  if (a < 18 || b < 18) return a < 18 && b < 18 && Math.abs(a - b) <= 2;
   return Math.abs(a - b) <= 15;
 }
 
@@ -480,12 +486,10 @@ export function fazerAcaoPessoa(vida: Vida, pessoaId: string, acaoId: string, op
         pe.relacao = 'namoro';
         delete pe.parceiroNome; delete pe.casado; delete pe.longe;
         mudar(10);
-        aplicar(prox, { 'atributos.felicidade': 8 });
-        const primeiro = !prox.memorias.some((x) => x.id === 'namoro');
-        lembrar(prox, 'namoro', `começou a namorar ${Ele}`, primeiro ? 20 : 10, { pessoa: Ele });
+        const comeco = comecarNamoro(prox, pe);
         texto = antigo
-          ? `${Ele} terminou com ${antigo} para ficar com você. Agora vocês namoram.`
-          : `Você chamou ${Ele} para sair, e da amizade veio o namoro. ${Ele} agora é ${papelTexto(pe)}.`;
+          ? `${Ele} terminou com ${antigo} para ficar com você. ${comeco}`
+          : `Você chamou ${Ele} para sair. ${comeco}`;
       } else {
         mudar(-6);
         aplicar(prox, { 'atributos.felicidade': -3 });
@@ -547,7 +551,7 @@ export function fazerAcaoPessoa(vida: Vida, pessoaId: string, acaoId: string, op
       if ((pe.papel === 'mae' || pe.papel === 'pai') && p.moradia === 'pais' && anosJ(prox) >= 16 && pe.afeto < 20 && rng.proximo() < 0.5) {
         p.moradia = 'aluguel';
         lembrar(prox, 'expulso_de_casa', `foi mandad${p.sexo === 'feminino' ? 'a' : 'o'} embora de casa por ${Ele}`, -20, { pessoa: Ele });
-        aplicar(prox, { 'atributos.felicidade': -8 });
+        registrarGolpe(prox, 'briga', pe);
         texto += ` ${Ele} perdeu a paciência e mandou você sair de casa. Você foi para um quartinho alugado.`;
       } else if (pe.papel === 'parceiro' && pe.afeto < 15 && rng.proximo() < 0.6) {
         texto += ` Foi a gota d'água. ${terminar(prox, pe)}`;
@@ -672,12 +676,13 @@ export function fazerAcaoPessoa(vida: Vida, pessoaId: string, acaoId: string, op
 /** Termina namoro ou casamento. No divórcio, os bens se dividem. */
 export function terminar(vida: Vida, pe: Pessoa): string {
   const casados = pe.relacao === 'casamento';
+  // O peso sai do vínculo de antes do fim e da idade (um término aos 15 dói mais).
+  const pts = registrarGolpe(vida, casados ? 'divorcio' : 'termino', pe);
   pe.papel = 'ex';
   delete pe.relacao;
   delete pe.moraJunto;
   pe.afeto = Math.round(limitar(pe.afeto - 25));
-  aplicar(vida, { 'atributos.felicidade': -8 });
-  lembrar(vida, casados ? 'divorcio' : 'termino', casados ? `se divorciou de ${pe.nome}` : `terminou com ${pe.nome}`, -15, { pessoa: pe.nome });
+  lembrarGolpe(vida, casados ? 'divorcio' : 'termino', casados ? `se divorciou de ${pe.nome}` : `terminou com ${pe.nome}`, pts, { pessoa: pe.nome });
   if (casados && vida.personagem.dinheiro > 0) {
     const parte = Math.round(vida.personagem.dinheiro * 0.4);
     vida.personagem.dinheiro -= parte;
@@ -688,14 +693,33 @@ export function terminar(vida: Vida, pe: Pessoa): string {
 
 // ---- Romance ----
 
+/**
+ * Começa um namoro. O jeito muda com a idade: aos 12-14 é namorinho de escola
+ * (bilhete, mão dada no recreio); dos 15 aos 17, namoro de verdade. Nada sexual
+ * antes dos 18. O primeiro amor fica guardado com peso especial.
+ */
+export function comecarNamoro(vida: Vida, pe: Pessoa): string {
+  const idade = vida.relogio.idadeMeses / 12;
+  pe.papel = 'parceiro';
+  pe.relacao = 'namoro';
+  pe.afeto = Math.round(limitar(Math.max(pe.afeto, 60)));
+  const primeiro = !vida.memorias.some((m) => m.id === 'namoro' || m.id === 'primeiro_amor');
+  aplicar(vida, { 'atributos.felicidade': primeiro ? 10 : 7 });
+  if (primeiro && idade < 18) lembrar(vida, 'primeiro_amor', `viveu o primeiro amor com ${pe.nome}`, 25, { pessoa: pe.nome });
+  else lembrar(vida, 'namoro', `começou a namorar ${pe.nome}`, primeiro ? 20 : 10, { pessoa: pe.nome });
+  if (idade < 15) return `Agora vocês são namoradinhos: bilhete na mochila, mão dada no recreio e todo mundo da sala sabendo.`;
+  if (idade < 18) return `Vocês começaram a namorar. ${pe.nome} agora é ${papelTexto(pe)}${primeiro ? ', e é o seu primeiro amor' : ''}.`;
+  return `Vocês começaram a namorar. ${pe.nome} agora é ${papelTexto(pe)}.`;
+}
+
 export function pendentePretendentes(vida: Vida, rng: Rng): Pendente {
   const p = vida.personagem;
   const idade = vida.relogio.idadeMeses / 12;
   const sexos: Sexo[] = p.interesse === 'homens' ? ['masculino'] : p.interesse === 'mulheres' ? ['feminino'] : ['feminino', 'masculino'];
   const candidatos: Pessoa[] = [];
   for (let i = 0; i < 3; i++) {
-    // Menores só conhecem gente da mesma faixa; adultos, só adultos.
-    const [min, max] = idade < 18 ? [Math.max(15, idade - 2), Math.min(17.9, idade + 2)] : [Math.max(18, idade - 8), idade + 8];
+    // Menores só conhecem gente da mesma faixa (até 2 anos, todos menores); adultos, só adultos.
+    const [min, max] = idade < 18 ? [Math.max(12, idade - 2), Math.min(17.9, idade + 2)] : [Math.max(18, idade - 8), idade + 8];
     const c = gerarPessoa(rng, { papel: 'parceiro', sexo: rng.escolher(sexos), idadeMeses: Math.round((min + rng.proximo() * (max - min)) * 12), afeto: [55, 75], ano: vida.relogio.ano, usados: nomesEmUso(vida) });
     candidatos.push(c);
   }
@@ -735,12 +759,8 @@ export function resolverPretendente(vida: Vida, pend: Pendente, indice: number, 
   const c = pend.candidatos?.find((x) => x.id === id);
   if (!c) return 'Você preferiu ficar na sua por enquanto.';
   if (rng.proximo() < chancePretendente(vida, c)) {
-    c.relacao = 'namoro';
     vida.pessoas.push(c);
-    aplicar(vida, { 'atributos.felicidade': 8 });
-    const primeiro = !vida.memorias.some((m) => m.id === 'namoro');
-    lembrar(vida, 'namoro', `começou a namorar ${c.nome}`, primeiro ? 20 : 10, { pessoa: c.nome });
-    return `Vocês saíram, riram muito e começaram a namorar. ${c.nome} agora é ${papelTexto(c)}.`;
+    return `Vocês saíram e riram muito. ${comecarNamoro(vida, c)}`;
   }
   aplicar(vida, { 'atributos.felicidade': -3 });
   const o = fem(c) ? 'a' : 'o';

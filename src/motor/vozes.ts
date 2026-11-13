@@ -549,6 +549,8 @@ export function recontar(vida: Vida, historico: EntradaHistorico[] = vida.histor
     if (h.texto.startsWith('✦')) { bloco.itens.push({ tipo: 'deus', texto: h.texto }); continue; }
     // A frase de abertura da vida é do narrador, não uma mensagem.
     if (i === 1 && !h.fato) { bloco.itens.push({ tipo: 'nota', texto: h.texto, tags: [] }); continue; }
+    // Capítulo novo: nota do narrador, igual em toda fase.
+    if (h.fato?.tipo === 'capitulo') { bloco.itens.push({ tipo: 'nota', texto: h.texto, tags: [] }); continue; }
     // Perguntas do próprio jogo (vagas, cursos, pretendentes) ficam neutras em qualquer fase.
     if (h.fato?.tipo === 'evento' && h.fato.id?.startsWith('@')) {
       const sr = separarResumo(h.texto);

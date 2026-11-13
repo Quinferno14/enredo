@@ -3,6 +3,7 @@
 // trabalhar duro, procurar emprego...) e por decisões (curso, vaga).
 
 import cursosJson from '../conteudo/cursos.json';
+import { lembrarGolpe, registrarGolpe } from './diretor';
 import empregosJson from '../conteudo/empregos.json';
 import estadosJson from '../conteudo/estados.json';
 import { curva } from './curva';
@@ -225,8 +226,8 @@ export function rodarEscola(vida: Vida, anos: number, rng: Rng): string[] {
     linhas.push(e.etapa === 'faculdade'
       ? `Você reprovou em várias matérias e vai ter que refazer o ${ordinal(e.serie)} ano da faculdade.`
       : `Você repetiu o ${ordinal(e.serie)} ano.`);
-    aplicar(vida, { 'atributos.felicidade': -6 });
-    if (e.reprovacoes === 1) lembrar(vida, 'repetiu_ano', `repetiu o ${ordinal(e.serie)} ano`, -12);
+    const pts = registrarGolpe(vida, 'reprovacao');
+    if (e.reprovacoes === 1) lembrarGolpe(vida, 'repetiu_ano', `repetiu o ${ordinal(e.serie)} ano`, pts);
     return linhas;
   }
   e.serie += 1;
@@ -359,8 +360,9 @@ export function rodarTrabalho(vida: Vida, anos: number, rng: Rng): string[] {
     linhas.push(emp.desempenho < 30
       ? `Você foi demitid${p.sexo === 'feminino' ? 'a' : 'o'} do cargo de ${titulo} por desempenho fraco.`
       : `A empresa cortou gente e você perdeu o emprego de ${titulo}.`);
-    lembrar(vida, 'demitido', `perdeu o emprego de ${titulo}`, -18);
-    aplicar(vida, { 'atributos.felicidade': -10 });
+    // Pesa mais com filhos pequenos, dívidas ou pouco dinheiro guardado (contexto.ts).
+    const pts = registrarGolpe(vida, 'demissao');
+    lembrarGolpe(vida, 'demitido', `perdeu o emprego de ${titulo}`, pts);
   }
   return linhas;
 }

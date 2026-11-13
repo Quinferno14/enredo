@@ -2,6 +2,8 @@
 // que é o que se salva, exporta e (no Modo Deus) edita.
 
 import type { Genes, Visual } from './corpo';
+import type { EstadoDiretor } from './diretor';
+import type { Sonho } from './capitulos';
 import type { EstadoRng } from './rng';
 
 export const VERSAO_SAVE = 9;
@@ -86,6 +88,8 @@ export interface Personagem {
   genes?: Genes;
   /** O que você mudou no visual (corte, tintura, tatuagem, peso). */
   visual?: Visual;
+  /** O que a personagem quer da vida (nascem aos 13). */
+  sonhos?: Sonho[];
 }
 
 export type Papel =
@@ -290,7 +294,7 @@ export interface EntradaHistorico {
 export type Linha = string | { texto: string; fato: Fato };
 
 export interface Fato {
-  tipo: 'evento' | 'escolha' | 'acao' | 'pessoa' | 'deus';
+  tipo: 'evento' | 'escolha' | 'acao' | 'pessoa' | 'deus' | 'capitulo' | 'sonho';
   /** Id do evento ou da ação. */
   id?: string;
   /** Id da pessoa envolvida. */
@@ -336,4 +340,6 @@ export interface Vida {
   ultimosTextos?: Record<string, string>;
   /** Quantas vezes cada evento já aconteceu (o que se repete vai perdendo peso). */
   vezes?: Record<string, number>;
+  /** Ritmo da vida por trás (ver diretor.ts): medidor, tempo morno, estado. */
+  diretor?: EstadoDiretor;
 }

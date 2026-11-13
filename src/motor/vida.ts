@@ -8,6 +8,8 @@ import { estudoInicial, rodarDinheiro, rodarEscola, rodarTrabalho, sortearClasse
 import { aplicar, reais } from './efeitos';
 import { atributosNaIdade, envelhecer, limitar, sortearMorte } from './envelhecer';
 import { garantirGenes } from './corpo';
+import { passoDiretor } from './diretor';
+import { rodarCapitulos, rodarSonhos } from './capitulos';
 import { rodarEventos } from './eventos';
 import { criarFamilia, rodarPessoas } from './familia';
 import { amigosDeInicio } from './social';
@@ -147,6 +149,7 @@ function passo(prox: Vida, anos: number, rng: Rng, resumir: boolean): ResultadoP
   const importantesPrevios: Linha[] = [];
 
   prox.relogio = proximoRelogio(prox.relogio, prox.config.turno);
+  passoDiretor(prox, anos);
   const r = prox.relogio;
   const idade = r.idadeMeses / 12;
 
@@ -177,6 +180,9 @@ function passo(prox: Vida, anos: number, rng: Rng, resumir: boolean): ResultadoP
   importantes.push(...rodarTrabalho(prox, anos, rng));
   rotina.push(...rodarDinheiro(prox, anos, resumir));
   importantes.push(...rodarEventos(prox, anos, rng));
+  // Sonhos e capítulos usam um sorteio à parte (não mudam o resto da vida).
+  const rngSonho = Rng.daSeed(`${prox.config.seed}/sonhos/${prox.relogio.idadeMeses}`);
+  importantes.push(...rodarSonhos(prox, () => rngSonho.proximo()), ...rodarCapitulos(prox));
 
   const causa = sortearMorte(p, idadeCorpo, anos, rng);
   if (causa) {

@@ -12,6 +12,7 @@ import { capitalizar, papelTexto, resolverPretendente, terminar } from './famili
 import { quandoAgora } from './tempo';
 import { Rng } from './rng';
 import { afinidade, bonusChance, perfilEscolha, rotuloJeito, type Perfil } from './jeito';
+import { chanceDoDiretor, notarEvento, pesoDoDiretor } from './diretor';
 import type { Linha, Pendente, Vida } from './tipos';
 
 export interface ResultadoDef {
@@ -75,7 +76,8 @@ export function pesoEvento(vida: Vida, e: EventoDef): number {
   if (visto !== undefined && e.recorrente && vida.relogio.idadeMeses - visto < 24) p *= 0.4;
   // Tudo o que já aconteceu fica um pouco mais raro a cada vez.
   p /= 1 + 0.4 * (vida.vezes?.[e.id] ?? 0);
-  return p;
+  // O Diretor dosa: tempo morno depois de um golpe, fome depois de muita calma.
+  return p * pesoDoDiretor(vida, e);
 }
 
 /**
@@ -114,7 +116,7 @@ export function rodarEventos(vida: Vida, anos: number, rng: Rng): Linha[] {
 
   const idade = agora / 12;
   // Na velhice o mundo encolhe, então cada coisa que acontece pesa mais: um pouco mais de eventos.
-  const chance = (idade < 2 ? 0.25 : idade >= 60 ? 0.7 : 0.6) * anos;
+  const chance = (idade < 2 ? 0.25 : idade >= 60 ? 0.7 : 0.6) * anos * chanceDoDiretor(vida);
   const usados = new Set<string>();
   for (let tentativa = 0; tentativa < 3; tentativa++) {
     if (rng.proximo() >= chance) continue;
@@ -168,6 +170,7 @@ export function disparar(vida: Vida, e: EventoDef, varsGancho: Record<string, st
   }
 
   vida.vistos[e.id] = vida.relogio.idadeMeses;
+  notarEvento(vida, e);
   vida.vezes = { ...vida.vezes, [e.id]: (vida.vezes?.[e.id] ?? 0) + 1 };
   texto = preencher(texto, vida, vars);
 
