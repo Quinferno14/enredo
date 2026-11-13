@@ -14,6 +14,7 @@ import { TelaPessoas } from './telas/TelaPessoas';
 import { TelaVida } from './telas/TelaVida';
 import { PainelDeus } from './telas/PainelDeus';
 import { novoId } from './textos';
+import { faseArte } from './cena/cenaDaVida';
 
 type Aba = 'vida' | 'pessoas' | 'eu' | 'mais';
 const ABAS: { id: Aba; nome: string }[] = [
@@ -61,7 +62,7 @@ export function App() {
   }
 
   return (
-    <div class="app">
+    <div class="app" data-fase={faseArte((vida.personagem.idadeBiologicaMeses ?? vida.relogio.idadeMeses) / 12)}>
       {semSave && (
         <div class="aviso" role="status">
           O navegador não deixou salvar. Exporte um backup em Mais para não perder esta vida.

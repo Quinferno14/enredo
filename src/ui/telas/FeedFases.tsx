@@ -63,6 +63,8 @@ function ItemFeed({ it }: { it: Item }) {
     case 'corrente':
       return <div class="bolha minha corrente"><span class="autor">↪ Encaminhada</span><p>{it.texto}</p></div>;
     case 'nota':
+      // Capítulo novo: título de capítulo, não nota de rodapé.
+      if (it.texto.startsWith('Capítulo: ')) return <h3 class="capitulo"><span>Capítulo</span>{it.texto.slice(10)}</h3>;
       return <p class="nota-linha">{it.texto} <Tags tags={it.tags} /></p>;
     case 'deus':
       return <p class="deus-linha">{it.texto}</p>;

@@ -510,3 +510,57 @@ details.cartao summary { cursor: pointer; font-weight: 600; }
 .dock-botoes button:disabled, .dock button:disabled { opacity: 0.4; cursor: not-allowed; }
 .deus-grade label.inteira { grid-column: 1 / -1; }
 .deus-grade label.inteira .numero-edit { width: 140px; }
+
+/* Segunda rodada · etapa 2a: cena e história */
+
+/* Identidade por fase: cores do Brasil de cada idade (claro); no escuro, só o acento muda. */
+.app[data-fase='bebe'] { --fundo: #fbf3e4; --superficie: #fffaf1; --borda: #ead9bd; --acento: #c8645a; --acento-fraco: #f8e0d9; }
+.app[data-fase='crianca'] { --fundo: #fdf6dc; --superficie: #fffcef; --borda: #ecdca6; --acento: #2f6db5; --acento-fraco: #dde8f7; }
+.app[data-fase='adolescente'] { --fundo: #f1eefb; --superficie: #fbfaff; --borda: #d9d2f0; --acento: #b03a7a; --acento-fraco: #f5dcea; }
+.app[data-fase='adulto'] { --fundo: #f4f1ec; --superficie: #fffdf9; --borda: #ddd5c9; --acento: #3e5c76; --acento-fraco: #e0e8ef; }
+.app[data-fase='idoso'] { --fundo: #f3ece0; --superficie: #fbf6ec; --borda: #dfd1b9; --acento: #8a5a3b; --acento-fraco: #efe1d0; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .app[data-fase] { --fundo: #141412; --superficie: #1e1d1b; --borda: #3a3834; --acento-fraco: #2a2622; }
+  :root:not([data-theme='light']) .app[data-fase='bebe'] { --acento: #e8958b; }
+  :root:not([data-theme='light']) .app[data-fase='crianca'] { --acento: #7fb0ec; }
+  :root:not([data-theme='light']) .app[data-fase='adolescente'] { --acento: #e57fb6; }
+  :root:not([data-theme='light']) .app[data-fase='adulto'] { --acento: #8fb0cc; }
+  :root:not([data-theme='light']) .app[data-fase='idoso'] { --acento: #d4a27c; }
+}
+.app[data-fase] { background: var(--fundo); }
+.app[data-fase='idoso'] .tela-vida .feed { font-family: Georgia, 'Times New Roman', serif; }
+
+/* O palco: a cena em cima, menor; o chão sempre à vista. */
+.palco {
+  position: relative;
+  height: clamp(170px, 31dvh, 270px);
+  margin: -10px -16px 0;
+  overflow: hidden;
+  border-bottom: 1px solid var(--borda);
+}
+.palco-desenho, .palco-desenho svg { display: block; width: 100%; height: 100%; }
+.palco.falecido .palco-desenho { filter: grayscale(0.85) brightness(0.9); }
+.palco-info {
+  position: absolute; left: 10px; top: 10px; max-width: calc(100% - 70px);
+  display: flex; flex-direction: column; align-items: flex-start; gap: 0;
+  padding: 6px 10px; border-radius: 12px; border: 0; cursor: pointer; text-align: left;
+  background: color-mix(in srgb, var(--superficie) 86%, transparent);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+  font-size: 0.8125rem; color: var(--sutil);
+}
+.palco-info strong { color: var(--texto); font-size: 0.9375rem; line-height: 1.25; }
+.palco-deus { position: absolute; right: 10px; top: 10px; }
+.folha.numeros .hud { margin-top: 4px; }
+
+/* Capítulo novo: título no meio da história. */
+.capitulo {
+  margin: 10px 0 4px; padding: 6px 0 2px;
+  font: 600 1.05rem/1.2 Georgia, 'Times New Roman', serif;
+  color: var(--texto); text-align: center;
+  border-top: 1px solid var(--borda);
+}
+.capitulo span {
+  display: block; margin-bottom: 2px;
+  font: 600 0.6875rem/1 system-ui, sans-serif; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--acento);
+}

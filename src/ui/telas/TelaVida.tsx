@@ -11,6 +11,7 @@ import { NOME_ATRIBUTO, tagRuim } from '../textos';
 import { PainelAtividades } from './PainelAtividades';
 import { FeedFases } from './FeedFases';
 import { recontar } from '../../motor/vozes';
+import { CenaVida } from './CenaVida';
 
 const VISIVEIS: Atributo[] = ['saude', 'felicidade', 'inteligencia', 'aparencia', 'forma', 'carisma'];
 const CURTO: Record<string, string> = {
@@ -65,6 +66,7 @@ export function TelaVida(props: Props) {
   const [habitoAberto, setHabitoAberto] = useState<string | null>(null);
   const [painel, setPainel] = useState(false);
   const [verTudo, setVerTudo] = useState(false);
+  const [numeros, setNumeros] = useState(false);
   const feed = useRef<HTMLElement>(null);
 
   // Só o feed rola, e ele desce sozinho até o fato mais recente.
@@ -93,29 +95,16 @@ export function TelaVida(props: Props) {
   const blocos = useMemo(() => (simples ? [] : recontar(vida)), [simples, vida.id, vida.historico.length, vida.pessoas.length]);
   const blocosMostrados = verTudo ? blocos : blocos.slice(-GRUPOS_VISIVEIS);
   const atributos = deus ? [...VISIVEIS, 'sorte' as Atributo] : VISIVEIS;
-  const iniciais = `${p.nome[0] ?? ''}${p.sobrenome[0] ?? ''}`;
 
-  return (
-    <>
-      <header class="topo">
-        <div class={morte ? 'retrato falecido' : 'retrato'} aria-hidden="true">{iniciais}</div>
-        <div>
-          <h1>{nomeCompleto(vida)}</h1>
-          <p class="sutil">
-            {morte ? `† ${textoIdade(morte.idadeMeses)} · ${morte.ano}` : `${textoIdade(vida.relogio.idadeMeses, p.sexo)} · ${quandoAgora(vida)}`}
-            {' · '}<span class={p.dinheiro < 0 ? 'desce' : ''}>{reais(p.dinheiro)}</span>
-          </p>
-          {status && !morte && <p class="sutil status">{status}</p>}
+  // Os números ficam a um toque (folha), não no meio da tela.
+  const folhaNumeros = numeros && (
+    <div class="folha-fundo" onClick={(e) => { if (e.target === e.currentTarget) setNumeros(false); }}>
+      <div class="folha numeros" role="dialog" aria-label="Seus números">
+        <div class="folha-topo">
+          <h2>{nomeCompleto(vida)}</h2>
+          <button class="link" onClick={() => setNumeros(false)}>Fechar</button>
         </div>
-        <button
-          class={deus ? 'botao-deus ativo' : 'botao-deus'}
-          aria-pressed={deus}
-          title="Modo Deus"
-          aria-label="Abrir o Modo Deus"
-          onClick={onDeus}
-        >✦</button>
-      </header>
-
+        {status && !morte && <p class="sutil status">{status}</p>}
       <section class="hud" aria-label="Atributos">
         {[...atributos, 'desgaste' as const].map((a) => {
           const cansaco = a === 'desgaste';
@@ -179,6 +168,30 @@ export function TelaVida(props: Props) {
           })()}
         </section>
       )}
+      </div>
+    </div>
+  );
+
+  return (
+    <>
+      <section class={`palco${morte ? ' falecido' : ''}`} aria-label="Cena da sua vida">
+        <CenaVida vida={vida} />
+        <button class="palco-info" onClick={() => setNumeros(true)} aria-label="Ver seus números e hábitos">
+          <strong>{nomeCompleto(vida)}</strong>
+          <span>
+            {morte ? `† ${textoIdade(morte.idadeMeses)} · ${morte.ano}` : `${textoIdade(vida.relogio.idadeMeses, p.sexo)} · ${quandoAgora(vida)}`}
+            {' · '}<span class={p.dinheiro < 0 ? 'desce' : ''}>{reais(p.dinheiro)}</span>
+          </span>
+        </button>
+        <button
+          class={deus ? 'botao-deus palco-deus ativo' : 'botao-deus palco-deus'}
+          aria-pressed={deus}
+          title="Modo Deus"
+          aria-label="Abrir o Modo Deus"
+          onClick={onDeus}
+        >✦</button>
+      </section>
+      {folhaNumeros}
 
       {painel && !morte ? (
         <PainelAtividades vida={vida} aviso={aviso} onFechar={() => setPainel(false)} onAcao={onAcao} onHabito={onHabito} />

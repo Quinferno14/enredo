@@ -60,7 +60,7 @@ function plantaDoLugar(c: Cena): Planta {
         naParede.push({ x: 78, y: 46, svg: o.poster(46, 58, '<rect width="100" height="130" fill="#2f6db5"/><circle cx="50" cy="60" r="28" fill="#f2c14e"/>') });
       } else if (c.fase === 'adolescente') {
         noChao.push({ z: 0.02, x: 92, svg: o.cama(p, '#d9d0f5', '#e6457f') }, { z: 0.1, x: 300, svg: o.escrivaninha(p, o.notebook() + o.abajur('#4dd0a1')) });
-        naParede.push({ x: 0, y: 26, svg: o.luzinhas(PALCO.largura, 0) }, { x: 70, y: 54, svg: o.poster(44, 60, '<rect width="100" height="130" fill="#111"/><path d="M15 100 L50 20 L85 100 Z" fill="#e6457f"/>', -6) }, { x: 130, y: 70, svg: o.poster(36, 44, '<rect width="100" height="130" fill="#4dd0a1"/><circle cx="50" cy="65" r="30" fill="#fff"/>', 5) });
+        naParede.push({ x: 0, y: 58, svg: o.luzinhas(PALCO.largura, 0) }, { x: 70, y: 54, svg: o.poster(44, 60, '<rect width="100" height="130" fill="#111"/><path d="M15 100 L50 20 L85 100 Z" fill="#e6457f"/>', -6) }, { x: 130, y: 70, svg: o.poster(36, 44, '<rect width="100" height="130" fill="#4dd0a1"/><circle cx="50" cy="65" r="30" fill="#fff"/>', 5) });
       } else {
         noChao.push({ z: 0.02, x: 100, svg: o.cama(p, '#ffffff', p.tecido) }, { z: 0.05, x: 300, svg: o.estante(p) });
         naParede.push({ x: 100, y: 52, svg: o.quadro(70, 50, '<rect width="100" height="100" fill="#d9e4ef"/><path d="M0 70 Q30 40 60 65 T100 55 V100 H0Z" fill="#7a9e7e"/>') });
@@ -77,7 +77,7 @@ function plantaDoLugar(c: Cena): Planta {
     case 'cozinha': {
       const naParede: NaParede[] = [jan(150, 50, 96, 80), { x: 0, y: 150, svg: azulejos(PALCO.largura, CHAO - 150) }];
       const noChao: NoChao[] = [{ z: 0.0, x: 90, svg: balcao(p, 150) }, { z: 0.0, x: 330, svg: geladeira() }, { z: 0.5, x: 200, svg: o.mesa(p, `<circle cx="-20" cy="-6" r="8" fill="#fff" ${contorno(1.2)}/><rect x="16" y="-14" width="10" height="14" fill="#c0392b" ${contorno(1.2)}/>`) }];
-      if (c.epoca === 'junina') naParede.push({ x: 0, y: 18, svg: o.bandeirinhas(0, PALCO.largura, 0) });
+      if (c.epoca === 'junina') naParede.push({ x: 0, y: 60, svg: o.bandeirinhas(0, PALCO.largura, 0) });
       return { ...base, parede: '#f4efe6', naParede, noChao };
     }
     case 'escola': {
@@ -118,7 +118,7 @@ function plantaDoLugar(c: Cena): Planta {
     case 'parque': {
       const noChao: NoChao[] = [{ z: 0.0, x: 70, svg: arvoreGrande() }, { z: 0.0, x: 330, svg: arvoreGrande(0.85) }, { z: 0.25, x: 200, svg: banco() }];
       if (c.epoca === 'junina') noChao.push({ z: 0.3, x: 95, svg: fogueira() });
-      return { fundo: 'ceu', chao: c.hora === 'noite' ? '#2f5a3a' : '#7cc06a', chaoLinha: c.hora === 'noite' ? '#284d31' : '#6aae59', naParede: c.epoca === 'junina' ? [{ x: 0, y: 40, svg: o.bandeirinhas(0, PALCO.largura, 0) }] : [], noChao };
+      return { fundo: 'ceu', chao: c.hora === 'noite' ? '#2f5a3a' : '#7cc06a', chaoLinha: c.hora === 'noite' ? '#284d31' : '#6aae59', naParede: c.epoca === 'junina' ? [{ x: 0, y: 64, svg: o.bandeirinhas(0, PALCO.largura, 0) }] : [], noChao };
     }
   }
 }
