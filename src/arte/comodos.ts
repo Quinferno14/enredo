@@ -27,8 +27,10 @@ export interface Cena {
   epoca?: 'natal' | 'junina' | 'aniversario';
 }
 
-interface NoChao { z: number; x: number; svg: string; pessoa?: PessoaEmCena }
-interface NaParede { x: number; y: number; svg: string }
+/** Âncora de um ponto de toque: id do objeto e altura (acima da base) onde o ponto fica. */
+interface Ancora { id: string; alto: number }
+interface NoChao { z: number; x: number; svg: string; pessoa?: PessoaEmCena; ponto?: Ancora }
+interface NaParede { x: number; y: number; svg: string; ponto?: { id: string; dx: number; dy: number } }
 interface Planta { fundo: 'parede' | 'ceu'; parede?: string; rodape?: string; chao: string; chaoLinha: string; naParede: NaParede[]; noChao: NoChao[] }
 
 // Ids únicos no documento inteiro: várias cenas na mesma página não podem
@@ -57,74 +59,94 @@ function plantaDoLugar(c: Cena): Planta {
       const naParede: NaParede[] = [jan(206, 52, 120, 100)];
       const noChao: NoChao[] = [];
       if (c.fase === 'bebe') {
-        noChao.push({ z: 0.05, x: 90, svg: berco(p) }, { z: 0.6, x: 300, svg: o.bola() });
+        noChao.push({ z: 0.05, x: 90, svg: berco(p), ponto: { id: 'berco', alto: 70 } }, { z: 0.6, x: 300, svg: o.bola(), ponto: { id: 'bola', alto: 26 } });
         naParede.push({ x: 90, y: 40, svg: o.quadro(56, 46, '<rect width="100" height="100" fill="#a9dcef"/><circle cx="50" cy="45" r="22" fill="#ffd166"/>') });
       } else if (c.fase === 'crianca') {
-        noChao.push({ z: 0.02, x: 92, svg: o.cama(p, '#fffaf0', '#e8553d') }, { z: 0.1, x: 300, svg: o.escrivaninha(p, o.caderno() + o.abajur()) }, { z: 0.75, x: 200, svg: o.bola() });
+        noChao.push({ z: 0.02, x: 92, svg: o.cama(p, '#fffaf0', '#e8553d'), ponto: { id: 'cama', alto: 48 } }, { z: 0.1, x: 300, svg: o.escrivaninha(p, o.caderno() + o.abajur()), ponto: { id: 'escrivaninha', alto: 76 } }, { z: 0.75, x: 268, svg: o.bola(), ponto: { id: 'bola', alto: 26 } });
         naParede.push({ x: 78, y: 46, svg: o.poster(46, 58, '<rect width="100" height="130" fill="#2f6db5"/><circle cx="50" cy="60" r="28" fill="#f2c14e"/>') });
       } else if (c.fase === 'adolescente') {
-        noChao.push({ z: 0.02, x: 92, svg: o.cama(p, '#d9d0f5', '#e6457f') }, { z: 0.1, x: 300, svg: o.escrivaninha(p, o.notebook() + o.abajur('#4dd0a1')) });
+        noChao.push({ z: 0.02, x: 92, svg: o.cama(p, '#d9d0f5', '#e6457f'), ponto: { id: 'cama', alto: 48 } }, { z: 0.1, x: 300, svg: o.escrivaninha(p, o.notebook() + o.abajur('#4dd0a1')), ponto: { id: 'computador', alto: 84 } });
         naParede.push({ x: 0, y: 58, svg: o.luzinhas(PALCO.largura, 0) }, { x: 70, y: 54, svg: o.poster(44, 60, '<rect width="100" height="130" fill="#111"/><path d="M15 100 L50 20 L85 100 Z" fill="#e6457f"/>', -6) }, { x: 130, y: 70, svg: o.poster(36, 44, '<rect width="100" height="130" fill="#4dd0a1"/><circle cx="50" cy="65" r="30" fill="#fff"/>', 5) });
       } else {
-        noChao.push({ z: 0.02, x: 100, svg: o.cama(p, '#ffffff', p.tecido) }, { z: 0.05, x: 300, svg: o.estante(p) });
+        noChao.push({ z: 0.02, x: 100, svg: o.cama(p, '#ffffff', p.tecido), ponto: { id: 'cama', alto: 48 } }, { z: 0.05, x: 300, svg: o.estante(p), ponto: { id: 'estante', alto: 100 } });
         naParede.push({ x: 100, y: 52, svg: o.quadro(70, 50, '<rect width="100" height="100" fill="#d9e4ef"/><path d="M0 70 Q30 40 60 65 T100 55 V100 H0Z" fill="#7a9e7e"/>') });
       }
       return { ...base, naParede, noChao };
     }
     case 'sala': {
       const naParede: NaParede[] = [jan(36, 52, 110, 96), { x: 268, y: 66, svg: o.quadro(64, 46, '<rect width="100" height="100" fill="#f2e6c9"/><circle cx="35" cy="45" r="20" fill="#c9483b"/><rect x="55" y="30" width="30" height="40" fill="#3e5c76"/>') }];
-      const noChao: NoChao[] = [{ z: 0.0, x: 250, svg: o.sofa(p.tecido) }, { z: 0.55, x: 210, svg: o.tapete(tom(p.destaque, 0.35), 200) }, { z: 0.08, x: 70, svg: o.planta() }];
-      if (c.epoca === 'natal') noChao.push({ z: 0.15, x: 350, svg: o.arvoreNatal() });
-      if (c.epoca === 'aniversario') noChao.push({ z: 0.45, x: 120, svg: o.mesa(p, bolo()) });
+      const noChao: NoChao[] = [{ z: 0.0, x: 250, svg: o.sofa(p.tecido), ponto: { id: 'sofa', alto: 60 } }, { z: 0.55, x: 210, svg: o.tapete(tom(p.destaque, 0.35), 200) }, { z: 0.08, x: 70, svg: o.planta() }];
+      if (c.epoca === 'natal') noChao.push({ z: 0.15, x: 350, svg: o.arvoreNatal(), ponto: { id: 'arvore', alto: 70 } });
+      if (c.epoca === 'aniversario') noChao.push({ z: 0.45, x: 120, svg: o.mesa(p, bolo()), ponto: { id: 'bolo', alto: 80 } });
       return { ...base, naParede, noChao };
     }
     case 'cozinha': {
       const naParede: NaParede[] = [jan(150, 50, 96, 80), { x: 0, y: 150, svg: azulejos(PALCO.largura, CHAO - 150) }];
-      const noChao: NoChao[] = [{ z: 0.0, x: 90, svg: balcao(p, 150) }, { z: 0.0, x: 330, svg: geladeira() }, { z: 0.5, x: 200, svg: o.mesa(p, `<circle cx="-20" cy="-6" r="8" fill="#fff" ${contorno(1.2)}/><rect x="16" y="-14" width="10" height="14" fill="#c0392b" ${contorno(1.2)}/>`) }];
+      const noChao: NoChao[] = [{ z: 0.0, x: 90, svg: balcao(p, 150), ponto: { id: 'fogao', alto: 96 } }, { z: 0.0, x: 330, svg: geladeira() }, { z: 0.5, x: 200, svg: o.mesa(p, `<circle cx="-20" cy="-6" r="8" fill="#fff" ${contorno(1.2)}/><rect x="16" y="-14" width="10" height="14" fill="#c0392b" ${contorno(1.2)}/>`) }];
       if (c.epoca === 'junina') naParede.push({ x: 0, y: 60, svg: o.bandeirinhas(0, PALCO.largura, 0) });
       return { ...base, parede: '#f4efe6', naParede, noChao };
     }
     case 'escola': {
-      const naParede: NaParede[] = [{ x: 70, y: 50, svg: lousa(250, 110, c.fase === 'crianca' ? 'A B C  1+1=2' : 'f(x) = 2x + 1') }, jan(330, 60, 52, 90)];
+      const naParede: NaParede[] = [{ x: 70, y: 50, svg: lousa(250, 110, c.fase === 'crianca' ? 'A B C  1+1=2' : 'f(x) = 2x + 1'), ponto: { id: 'lugar', dx: 60, dy: 80 } }, jan(330, 60, 52, 90)];
       const noChao: NoChao[] = [{ z: 0.55, x: 110, svg: carteira(p) }, { z: 0.55, x: 280, svg: carteira(p) }];
       return { ...base, parede: '#e7efe1', rodape: '#b9c7ad', chao: '#cbb08a', chaoLinha: '#b39468', naParede, noChao };
     }
     case 'clinica': {
       const naParede: NaParede[] = [{ x: 50, y: 60, svg: placa('CLÍNICA', '#d98aa5') }, { x: 230, y: 50, svg: espelho(110, 140) }];
-      const noChao: NoChao[] = [{ z: 0.05, x: 120, svg: maca('#f6e3ea') }, { z: 0.1, x: 330, svg: o.planta('#5a9e6f', '#ffffff') }];
+      const noChao: NoChao[] = [{ z: 0.05, x: 120, svg: maca('#f6e3ea'), ponto: { id: 'lugar', alto: 70 } }, { z: 0.1, x: 330, svg: o.planta('#5a9e6f', '#ffffff') }];
       return { ...base, parede: '#fbf1f4', rodape: '#e8cdd7', chao: '#e9e2dc', chaoLinha: '#d8cfc6', naParede, noChao };
     }
     case 'hospital': {
       const naParede: NaParede[] = [{ x: 40, y: 50, svg: cruz() }, jan(250, 50, 100, 90)];
-      const noChao: NoChao[] = [{ z: 0.05, x: 160, svg: leito() }, { z: 0.1, x: 330, svg: soro() }];
+      const noChao: NoChao[] = [{ z: 0.05, x: 160, svg: leito(), ponto: { id: 'lugar', alto: 76 } }, { z: 0.1, x: 330, svg: soro() }];
       return { ...base, parede: '#e3eff0', rodape: '#b8d0d3', chao: '#d3dfdf', chaoLinha: '#bfcfcf', naParede, noChao };
     }
     case 'imobiliaria': {
       const fotos = [0, 1, 2].map((i) => ({ x: 70 + i * 90, y: 84, svg: o.quadro(70, 54, `<rect width="100" height="100" fill="#cfe6f5"/><rect x="20" y="45" width="60" height="45" fill="${['#f2c14e', '#e8553d', '#3aa26b'][i]}"/><path d="M12 48 L50 16 L88 48 Z" fill="#7a4f33"/>`, '#3a2e26') }));
-      const noChao: NoChao[] = [{ z: 0.4, x: 195, svg: balcaoAtendimento('#2f6db5', o.notebook()) }, { z: 0.05, x: 350, svg: o.planta() }];
+      const noChao: NoChao[] = [{ z: 0.4, x: 195, svg: balcaoAtendimento('#2f6db5', o.notebook()), ponto: { id: 'lugar', alto: 60 } }, { z: 0.05, x: 350, svg: o.planta() }];
       return { ...base, parede: '#eef0f3', rodape: '#c9ced6', chao: '#b7a790', chaoLinha: '#a08f76', naParede: [{ x: 110, y: 22, svg: placa('ALUGA · VENDE', '#2f6db5') }, ...fotos], noChao };
     }
     case 'banco': {
       const naParede: NaParede[] = [{ x: 120, y: 44, svg: placa('BANCO', '#1f7a5a') }, { x: 260, y: 56, svg: relogio() }];
-      const noChao: NoChao[] = [{ z: 0.35, x: 140, svg: balcaoAtendimento('#1f7a5a', '') }, { z: 0.0, x: 340, svg: caixaEletronico() }];
+      const noChao: NoChao[] = [{ z: 0.35, x: 140, svg: balcaoAtendimento('#1f7a5a', ''), ponto: { id: 'lugar', alto: 60 } }, { z: 0.0, x: 340, svg: caixaEletronico() }];
       return { ...base, parede: '#e9ece6', rodape: '#c4cbbd', chao: '#9fa69a', chaoLinha: '#8a9185', naParede, noChao };
     }
     case 'academia': {
       const naParede: NaParede[] = [{ x: 30, y: 50, svg: espelho(160, 150) }, { x: 230, y: 60, svg: placa('FOCO', '#e8553d') }];
-      const noChao: NoChao[] = [{ z: 0.1, x: 300, svg: esteira() }, { z: 0.65, x: 80, svg: halteres() }];
+      const noChao: NoChao[] = [{ z: 0.1, x: 300, svg: esteira(), ponto: { id: 'lugar', alto: 90 } }, { z: 0.65, x: 80, svg: halteres() }];
       return { ...base, parede: '#d9d6d2', rodape: '#4a4744', chao: '#3f3c3a', chaoLinha: '#33302e', naParede, noChao };
     }
     case 'escritorio': {
       const naParede: NaParede[] = [jan(200, 40, 160, 110), { x: 60, y: 70, svg: o.quadro(60, 44, '<rect width="100" height="100" fill="#fff"/><path d="M10 80 L35 55 L55 65 L90 20" stroke="#2f6db5" stroke-width="6" fill="none"/>', '#3a2e26') }];
-      const noChao: NoChao[] = [{ z: 0.3, x: 150, svg: o.escrivaninha(PALETAS.adulto, o.notebook()) }, { z: 0.38, x: 220, svg: o.cadeira(PALETAS.adulto) }, { z: 0.05, x: 350, svg: o.planta() }];
+      const noChao: NoChao[] = [{ z: 0.3, x: 150, svg: o.escrivaninha(PALETAS.adulto, o.notebook()), ponto: { id: 'lugar', alto: 84 } }, { z: 0.38, x: 220, svg: o.cadeira(PALETAS.adulto) }, { z: 0.05, x: 350, svg: o.planta() }];
       return { ...base, parede: '#eceae6', rodape: '#c8c4bd', chao: '#8d8a86', chaoLinha: '#7b7874', naParede, noChao };
     }
     case 'parque': {
-      const noChao: NoChao[] = [{ z: 0.0, x: 70, svg: arvoreGrande() }, { z: 0.0, x: 330, svg: arvoreGrande(0.85) }, { z: 0.25, x: 200, svg: banco() }];
+      const noChao: NoChao[] = [{ z: 0.0, x: 70, svg: arvoreGrande() }, { z: 0.0, x: 330, svg: arvoreGrande(0.85) }, { z: 0.25, x: 200, svg: banco(), ponto: { id: 'lugar', alto: 60 } }];
       if (c.epoca === 'junina') noChao.push({ z: 0.3, x: 95, svg: fogueira() });
       return { fundo: 'ceu', chao: c.hora === 'noite' ? '#2f5a3a' : '#7cc06a', chaoLinha: c.hora === 'noite' ? '#284d31' : '#6aae59', naParede: c.epoca === 'junina' ? [{ x: 0, y: 64, svg: o.bandeirinhas(0, PALCO.largura, 0) }] : [], noChao };
     }
   }
+}
+
+/** Pontos de toque da cena, no espaço do palco (390 × 352): móveis com âncora e pessoas com alvo. */
+export function ancorasDaCena(c: Cena): { id: string; x: number; y: number }[] {
+  const planta = plantaDoLugar(c);
+  const r: { id: string; x: number; y: number }[] = [];
+  for (const n of planta.naParede) if (n.ponto) r.push({ id: n.ponto.id, x: n.x + n.ponto.dx, y: n.y + n.ponto.dy });
+  for (const n of planta.noChao) {
+    if (!n.ponto) continue;
+    const { base, escala } = profundidade(n.z);
+    r.push({ id: n.ponto.id, x: n.x, y: base - n.ponto.alto * escala });
+  }
+  for (const pe of c.pessoas ?? []) {
+    if (!pe.alvo) continue;
+    const { base, escala } = profundidade(pe.z);
+    const sentado = pe.aparencia.idadeAnos < 1.5;
+    const altura = sentado ? 40 : pe.aparencia.alturaCm * 0.95 * 0.55;
+    r.push({ id: pe.alvo, x: pe.x, y: base - altura * escala });
+  }
+  return r;
 }
 
 /** Desenha a cena inteira (SVG pronto para o palco). */

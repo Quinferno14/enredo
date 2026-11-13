@@ -13,7 +13,7 @@ function Tags({ tags }: { tags: string[] }) {
   );
 }
 
-function ItemFeed({ it }: { it: Item }) {
+export function ItemFeed({ it }: { it: Item }) {
   switch (it.tipo) {
     case 'msg':
       return (

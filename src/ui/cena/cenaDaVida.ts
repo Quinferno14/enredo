@@ -23,9 +23,9 @@ export function faseArte(idadeAnos: number): FaseArte {
   return 'idoso';
 }
 
-/** A hora muda a cada passo, sem sorteio: o dia anda junto com a história. */
+/** A hora vem do calendário (muda quando o tempo anda, não a cada ação). */
 export function horaDe(vida: Vida): Hora {
-  return (['manha', 'tarde', 'noite'] as const)[((vida.relogio.mes ?? 1) + vida.historico.length) % 3]!;
+  return (['manha', 'tarde', 'noite'] as const)[((vida.relogio.mes ?? 1) * 7 + vida.relogio.ano) % 3]!;
 }
 
 export function epocaDe(vida: Vida): Cena['epoca'] {

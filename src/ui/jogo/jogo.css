@@ -1,0 +1,251 @@
+/* O jogo, refeito a partir do protótipo aprovado (Revisão 3, protótipo 2):
+   a cena grande em cima (onde você está), a história embaixo (o que está
+   acontecendo) e a base com o objeto da fase, o Avançar e a cidade. */
+
+.jogo {
+  --display: 'Baloo 2', 'Trebuchet MS', system-ui, sans-serif;
+  --corpo: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+  --mao: 'Caveat', 'Segoe Print', 'Comic Sans MS', cursive;
+  --palco: #121418;
+  --acento: #e8553d; --tinta: #2b2620; --papel: #fff8e8; --fundo-hist: #fffdf5; --linha: #b9cde6;
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(120% 80% at 50% 0%, color-mix(in srgb, var(--acento) 16%, var(--palco)) 0%, var(--palco) 60%);
+  font-family: var(--corpo); color: var(--tinta);
+}
+.jogo[data-fase='bebe'] { --acento: #d9776b; --tinta: #2b2620; --papel: #fff6ee; --fundo-hist: #fffaf4; }
+.jogo[data-fase='crianca'] { --acento: #e8553d; --tinta: #2b2620; --papel: #fff8e8; --fundo-hist: #fffdf5; }
+.jogo[data-fase='adolescente'] { --acento: #e6457f; --tinta: #1b1d23; --papel: #fff4f8; --fundo-hist: #f3f2f8; }
+.jogo[data-fase='adulto'] { --acento: #c9483b; --tinta: #26231f; --papel: #fbf8f2; --fundo-hist: #efeae2; }
+.jogo[data-fase='idoso'] { --acento: #9a6233; --tinta: #2e2620; --papel: #f8f1e3; --fundo-hist: #f3ecdf; }
+.jogo button { font-family: inherit; color: inherit; }
+.jogo button:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
+
+/* O celular: no telefone ocupa tudo; no computador, um aparelho no palco escuro. */
+.jogo .j-tela {
+  position: relative; width: 100%; height: 100%;
+  overflow: hidden; background: var(--fundo-hist); isolation: isolate;
+  display: grid; grid-template-rows: 44% minmax(0, 1fr) auto;
+}
+@media (min-width: 520px) {
+  .jogo .j-tela { width: 390px; height: min(820px, calc(100dvh - 32px)); border-radius: 34px; box-shadow: 0 0 0 10px #050608, 0 30px 80px #000a; }
+}
+
+/* Cena */
+.jogo .j-cena { position: relative; overflow: hidden; background: #ddd; }
+.jogo .j-cena-desenho, .jogo .j-cena-desenho svg { display: block; width: 100%; height: 100%; }
+.jogo .j-cena.j-falecido .j-cena-desenho { filter: grayscale(0.85) brightness(0.9); }
+.jogo .j-topo {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 3;
+  padding: 12px 14px 26px; display: flex; justify-content: space-between; align-items: flex-start;
+  background: linear-gradient(#0009, #0000); color: #fff; pointer-events: none;
+}
+.jogo .j-topo-nome { pointer-events: auto; border: 0; background: none; padding: 0; text-align: left; cursor: pointer; color: #fff; }
+.jogo .j-topo .j-nome { display: block; font: 800 1.25rem/1 var(--display); text-shadow: 0 1px 2px #0006; }
+.jogo .j-topo .j-quando { display: block; font-size: 0.8rem; opacity: 0.92; margin-top: 2px; }
+.jogo .j-topo .j-dir { display: flex; align-items: center; gap: 6px; pointer-events: auto; }
+.jogo .j-topo .j-dinheiro { font: 700 0.95rem var(--display); background: #0006; padding: 2px 10px; border-radius: 999px; }
+.jogo .j-topo .j-dinheiro.j-negativo { background: #b0413ecc; }
+.jogo .j-deus { width: 34px; height: 34px; border-radius: 50%; border: 0; background: #0006; color: #fff; font-size: 1rem; cursor: pointer; }
+.jogo .j-deus.j-ativo { background: var(--acento); }
+.jogo .j-lugar-nome {
+  position: absolute; left: 14px; bottom: 10px; z-index: 3;
+  font: 800 0.8rem var(--corpo); color: #fff; background: #0008; padding: 3px 10px; border-radius: 999px; letter-spacing: 0.04em;
+}
+
+/* Pontos de toque */
+.jogo .j-ponto {
+  position: absolute; z-index: 2; transform: translate(-50%, -50%);
+  width: 44px; height: 44px; border: 0; padding: 0; background: none; cursor: pointer;
+}
+.jogo .j-ponto::after {
+  content: ''; position: absolute; inset: 14px; border-radius: 50%;
+  background: #fffd; box-shadow: 0 0 0 2px #0003; animation: pulso 2.4s infinite;
+}
+.jogo .j-ponto span {
+  position: absolute; left: 50%; top: 82%; transform: translateX(-50%);
+  white-space: nowrap; font: 800 0.7rem var(--corpo); color: #fff; background: #000b;
+  padding: 2px 7px; border-radius: 999px; pointer-events: none;
+}
+@keyframes pulso { 0% { box-shadow: 0 0 0 0 #fff9; } 70% { box-shadow: 0 0 0 11px #fff0; } 100% { box-shadow: 0 0 0 0 #fff0; } }
+
+/* História */
+.jogo .j-historia {
+  overflow: auto; padding: 12px 16px 14px; background: var(--fundo-hist); color: var(--tinta);
+  border-top: 3px solid color-mix(in srgb, var(--acento) 60%, transparent);
+  display: flex; flex-direction: column; gap: 8px; overscroll-behavior: contain;
+}
+.jogo .j-historia .j-cab { font: 800 0.78rem var(--corpo); text-transform: uppercase; letter-spacing: 0.08em; color: color-mix(in srgb, var(--tinta) 55%, transparent); margin: 0; }
+.jogo .j-historia .j-mais-antiga { align-self: center; border: 0; background: #0001; border-radius: 999px; padding: 4px 12px; font: 700 0.78rem var(--corpo); cursor: pointer; }
+.jogo .j-bloco { display: flex; flex-direction: column; gap: 8px; animation: entra 0.35s ease-out; }
+.jogo .j-bloco-quando { font: 700 0.74rem var(--corpo); color: color-mix(in srgb, var(--tinta) 50%, transparent); }
+.jogo .j-bloco p { margin: 0; line-height: 1.45; font-size: 0.97rem; }
+@keyframes entra { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+/* "O que mudou": uma linha pequena de texto, não etiquetas. */
+.jogo .j-historia .tags { display: block; margin-top: 2px; font: 700 0.76rem var(--corpo); color: color-mix(in srgb, var(--tinta) 55%, transparent); }
+.jogo .j-historia .tag { background: none; border: 0; padding: 0; color: inherit; font: inherit; border-radius: 0; }
+.jogo .j-historia .tag + .tag::before { content: ' · '; }
+.jogo .j-historia .tag.menos { color: #b0413e; }
+.jogo .j-historia .tag.nota { font-style: italic; }
+/* Vozes */
+.jogo .balao, .jogo .j-historia .bolha { max-width: 84%; padding: 7px 11px; border-radius: 4px 14px 14px 14px; background: #fff; font-size: 0.95rem; box-shadow: 0 1px 1px #0002; border: 0; align-self: flex-start; }
+.jogo .j-historia .bolha.minha { align-self: flex-end; margin-left: auto; border-radius: 14px 4px 14px 14px; background: #d6f5e3; }
+.jogo .j-historia .bolha .autor { display: block; font-size: 0.72rem; font-weight: 800; color: #2e7d5b; }
+.jogo .j-historia .bolha .audio { display: block; font-size: 0.8rem; color: #666; letter-spacing: 1px; }
+.jogo .j-historia .bolha .foto { display: flex; align-items: center; justify-content: center; height: 64px; margin: 4px 0; border-radius: 10px; background: #0000000d; color: #777; font-size: 0.8rem; }
+.jogo .j-historia .post { background: #fff; border-radius: 14px; padding: 9px 12px; box-shadow: 0 1px 3px #0002; border: 0; }
+.jogo .j-historia .curtidas { font-size: 0.78rem; color: #e0245e; font-weight: 800; }
+.jogo .j-historia .comentarios { font-size: 0.8rem; color: #4a4d57; list-style: none; margin: 0; padding: 0; }
+.jogo .j-historia .story { font-size: 0.9rem; color: #555; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.jogo .j-historia .nota-linha, .jogo .j-historia .app-linha, .jogo .j-historia .banco { font-size: 0.85rem; color: #666; font-style: italic; background: none; padding: 0; }
+.jogo .j-historia .email, .jogo .j-historia .carta { background: #fff; border-radius: 12px; padding: 8px 11px; box-shadow: 0 1px 2px #0002; border: 0; }
+.jogo .j-historia .carta { font-family: Georgia, 'Times New Roman', serif; }
+.jogo .j-historia .deus-linha { color: var(--acento); font-size: 0.85rem; }
+.jogo .j-historia .capitulo { margin: 10px 0 2px; text-align: center; font: 800 1.15rem/1.15 var(--display); color: var(--tinta); border: 0; padding: 0; }
+.jogo .j-historia .capitulo span { display: block; font: 800 0.68rem var(--corpo); letter-spacing: 0.14em; text-transform: uppercase; color: var(--acento); margin-bottom: 2px; }
+/* Diário (criança): a história inteira é a página do caderno. */
+.jogo .j-historia.j-voz-diario {
+  font-family: var(--mao); gap: 0;
+  background-image: repeating-linear-gradient(transparent 0 27px, var(--linha) 27px 28px);
+  background-attachment: local; border-left: 3px solid #e57373;
+}
+.jogo .j-voz-diario .j-bloco { gap: 0; }
+.jogo .j-voz-diario .j-bloco-quando { font: 500 1.05rem/28px var(--mao); color: #7a8aa6; }
+.jogo .j-historia.j-voz-diario .fase-corpo { background: none; border: 0; padding: 0; font-family: var(--mao); }
+.jogo .j-voz-diario p, .jogo .j-voz-diario .diario-linha { font-size: 1.32rem; line-height: 28px; }
+.jogo .j-voz-diario .tags { font-family: var(--corpo); line-height: 18px; margin: 0 0 10px; }
+.jogo .j-voz-diario .capitulo, .jogo .j-voz-diario .j-cab { font-family: var(--display); }
+/* Velhice: papel antigo e letra de carta. */
+.jogo[data-fase='idoso'] .j-historia { font-family: Georgia, 'Times New Roman', serif; }
+.jogo .j-aviso-curto {
+  position: sticky; top: 0; z-index: 2; align-self: center;
+  background: var(--tinta); color: var(--papel); font: 700 0.82rem var(--corpo);
+  padding: 6px 12px; border-radius: 999px; box-shadow: 0 4px 12px #0003;
+}
+
+/* Base: objeto da fase · Avançar · cidade */
+.jogo .j-base {
+  display: grid; grid-template-columns: 52px 1fr 52px; gap: 10px; align-items: center;
+  padding: 10px 14px calc(14px + env(safe-area-inset-bottom)); background: var(--fundo-hist); border-top: 1px solid #0001;
+}
+.jogo .j-qd {
+  width: 52px; height: 52px; border-radius: 16px; border: 0; cursor: pointer; position: relative;
+  background: #fff; box-shadow: 0 3px 10px #0003; display: grid; place-items: center; padding: 0;
+}
+.jogo .j-qd svg { width: 28px; height: 28px; margin-top: -8px; }
+.jogo .j-qd small { position: absolute; bottom: 3px; left: 0; right: 0; font: 800 0.58rem var(--corpo); color: var(--tinta); }
+.jogo .j-qd .j-badge { position: absolute; top: -6px; right: -6px; background: var(--acento); color: #fff; font: 800 0.72rem var(--corpo); border-radius: 999px; padding: 1px 6px; }
+.jogo .j-avancar-grupo { display: flex; height: 52px; border-radius: 16px; box-shadow: 0 4px 0 color-mix(in srgb, var(--acento) 60%, #000); overflow: hidden; }
+.jogo .j-avancar {
+  flex: 1; border: 0; cursor: pointer; font: 800 1.15rem var(--display); background: var(--acento); color: #fff;
+}
+.jogo .j-pular {
+  width: 44px; border: 0; border-left: 1px solid #fff4; cursor: pointer; background: color-mix(in srgb, var(--acento) 85%, #000);
+  color: #fff; font: 800 0.9rem var(--display);
+}
+.jogo .j-avancar-grupo:active { transform: translateY(2px); box-shadow: 0 2px 0 color-mix(in srgb, var(--acento) 60%, #000); }
+.jogo .j-avancar:disabled, .jogo .j-pular:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* Camadas por cima da tela: menu do ponto, folhas, momento */
+.jogo .j-camadas { position: absolute; inset: 0; z-index: 10; }
+.jogo .j-veu { position: absolute; inset: 0; background: #0006; }
+.jogo .j-veu.j-leve { background: #0003; }
+.jogo .j-menu {
+  position: absolute; width: 230px; max-height: 60%; overflow: auto;
+  background: var(--papel); color: var(--tinta); border-radius: 18px; padding: 10px;
+  box-shadow: 0 12px 30px #0006; display: flex; flex-direction: column; gap: 6px; animation: abrir 0.18s ease-out;
+}
+.jogo .j-menu h3 { margin: 2px 6px 4px; font: 800 1rem var(--display); }
+.jogo .j-menu .j-acao-botao, .jogo .j-lista-acoes .j-acao-botao {
+  text-align: left; border: 0; background: color-mix(in srgb, var(--acento) 10%, var(--papel)); color: var(--tinta);
+  border-radius: 12px; padding: 9px 12px; font: 700 0.9rem var(--corpo); cursor: pointer; width: 100%;
+}
+.jogo .j-acao-botao small { display: block; font-weight: 600; opacity: 0.65; font-size: 0.76rem; }
+.jogo .j-menu .j-voltar { border: 0; background: none; font: 700 0.8rem var(--corpo); color: var(--acento); cursor: pointer; text-align: left; padding: 2px 6px; }
+.jogo .j-escolha { display: flex; flex-wrap: wrap; gap: 4px; }
+.jogo .j-escolha button { border: 0; border-radius: 999px; padding: 4px 10px; background: #0001; font: 700 0.78rem var(--corpo); cursor: pointer; }
+.jogo .j-escolha button[aria-pressed='true'] { background: var(--acento); color: #fff; }
+.jogo .j-rotulo-mini { font: 800 0.68rem var(--corpo); text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.6; margin: 4px 6px 0; }
+@keyframes abrir { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.jogo .j-folha {
+  position: absolute; left: 0; right: 0; bottom: 0; max-height: 86%; overflow: auto;
+  border-radius: 24px 24px 0 0; padding: 16px 16px 22px; background: var(--papel); color: var(--tinta);
+  animation: sobe 0.25s ease-out; display: flex; flex-direction: column; gap: 10px;
+}
+.jogo .j-folha h2 { font: 800 1.3rem/1.15 var(--display); margin: 0; padding-right: 40px; }
+.jogo .j-folha .j-sub { margin: -6px 0 0; opacity: 0.7; font-size: 0.9rem; }
+.jogo .j-fechar { position: absolute; top: 12px; right: 12px; border: 0; background: #0001; border-radius: 999px; width: 34px; height: 34px; cursor: pointer; font-size: 1rem; }
+@keyframes sobe { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+.jogo .j-lista-acoes { display: flex; flex-direction: column; gap: 6px; }
+.jogo .j-secao { font: 800 0.76rem var(--corpo); text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.6; margin: 6px 0 0; }
+.jogo .j-linha-app { display: flex; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid #0001; align-items: center; }
+.jogo .j-linha-app b { display: block; }
+.jogo .j-linha-app small { color: #666; }
+.jogo .j-btn { border: 0; border-radius: 12px; padding: 8px 12px; font: 800 0.85rem var(--corpo); background: var(--acento); color: #fff; cursor: pointer; white-space: nowrap; }
+.jogo .j-btn.j-claro { background: #0001; color: var(--tinta); }
+.jogo .j-apps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 4px; }
+.jogo .j-app { border: 0; background: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; font: 700 0.8rem var(--corpo); }
+.jogo .j-app span { width: 58px; height: 58px; border-radius: 16px; display: grid; place-items: center; color: #fff; box-shadow: 0 3px 8px #0003; }
+.jogo .j-app span svg { width: 30px; height: 30px; }
+.jogo .j-grande { font: 800 1.8rem var(--display); margin: 0; }
+.jogo .j-barra-mini { height: 6px; border-radius: 99px; background: #0001; overflow: hidden; }
+.jogo .j-barra-mini span { display: block; height: 100%; background: var(--acento); border-radius: 99px; }
+.jogo .j-numeros { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 14px; }
+.jogo .j-numeros label { display: flex; flex-direction: column; gap: 3px; font: 700 0.82rem var(--corpo); }
+.jogo .j-numeros label b { display: flex; justify-content: space-between; }
+.jogo .j-ficha-topo { display: grid; grid-template-columns: 96px 1fr; gap: 12px; align-items: center; }
+.jogo .j-retrato { height: 130px; border-radius: 16px; background: color-mix(in srgb, var(--acento) 10%, var(--papel)); overflow: hidden; }
+.jogo .j-retrato svg { width: 100%; height: 100%; display: block; }
+.jogo .j-texto-pequeno { font-size: 0.88rem; opacity: 0.8; margin: 0; }
+.jogo .j-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.jogo .j-chip { border: 0; border-radius: 999px; padding: 6px 12px; background: color-mix(in srgb, var(--acento) 12%, var(--papel)); font: 700 0.85rem var(--corpo); cursor: pointer; }
+.jogo .j-chip[aria-pressed='true'] { background: var(--acento); color: #fff; }
+
+/* Mapa da cidade */
+.jogo .j-mapa-grade { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.jogo .j-lugar-cartao {
+  display: flex; flex-direction: column; gap: 6px; padding: 6px 6px 10px; text-align: left;
+  border-radius: 16px; border: 0; background: #fff; box-shadow: 0 2px 8px #0002; cursor: pointer;
+}
+.jogo .j-lugar-cartao strong { font: 800 0.92rem var(--display); padding: 0 4px; }
+.jogo .j-lugar-cartao .j-mini { display: block; height: 80px; border-radius: 12px; overflow: hidden; }
+.jogo .j-lugar-cartao .j-mini svg { display: block; width: 100%; height: 100%; }
+.jogo .j-lugar-cartao.j-casa { box-shadow: 0 0 0 2px var(--acento); }
+
+/* Momento: o acontecimento ocupa a tela */
+.jogo .j-momento {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  background: var(--papel); color: var(--tinta); animation: sobe 0.3s ease-out;
+}
+.jogo .j-momento .j-faixa { flex: 0 0 26%; overflow: hidden; position: relative; }
+.jogo .j-momento .j-faixa svg { width: 100%; height: 100%; display: block; }
+.jogo .j-momento .j-texto { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 10px; flex: 1; overflow: auto; }
+.jogo .j-momento .j-rotulo { font: 800 0.76rem var(--corpo); text-transform: uppercase; letter-spacing: 0.08em; color: var(--acento); }
+.jogo .j-momento h2 { font: 800 1.4rem/1.15 var(--display); margin: 0; text-wrap: balance; }
+.jogo .j-momento p { margin: 0; line-height: 1.5; font-size: 1.02rem; }
+.jogo .j-opcao {
+  border: 2px solid color-mix(in srgb, var(--tinta) 16%, transparent); background: #fff9; color: var(--tinta);
+  border-radius: 14px; padding: 10px 12px; text-align: left; cursor: pointer; font: 700 0.97rem var(--corpo);
+}
+.jogo .j-opcao em { display: block; font-style: normal; font-weight: 600; font-size: 0.78rem; margin-top: 2px; color: #2e7d5b; }
+.jogo .j-opcao em.j-contra { color: #b0413e; }
+.jogo .j-opcao:disabled { opacity: 0.5; cursor: not-allowed; }
+.jogo .j-opcao:hover:not(:disabled), .jogo .j-opcao:focus-visible { border-color: var(--acento); outline: none; }
+.jogo .j-opcao.j-forte { background: var(--acento); color: #fff; border-color: var(--acento); }
+
+/* Telas antigas (pessoas, você, opções) dentro de uma folha, até serem refeitas */
+.jogo .j-folha .j-antiga { font-family: var(--corpo); }
+
+@media (prefers-reduced-motion: reduce) { .jogo *, .jogo *::before, .jogo *::after { animation: none !important; transition: none !important; } }
+
+/* Linha de ação no menu: o botão grande faz; o ⋯ abre outro jeito ou hábito. */
+.jogo .j-acao-linha { display: flex; gap: 4px; align-items: stretch; }
+.jogo .j-acao-linha .j-acao-botao { flex: 1; }
+.jogo .j-mais-opcoes {
+  flex: none; width: 34px; border: 0; border-radius: 12px; cursor: pointer;
+  background: color-mix(in srgb, var(--acento) 6%, var(--papel)); color: var(--tinta); font: 800 1rem var(--corpo);
+}
+/* Story: a bolinha na frente do texto, na mesma linha. */
+.jogo .j-historia .story { display: block; font-size: 0.95rem; color: #555; }
+.jogo .j-historia .story-bolinha { display: inline-block; width: 10px; height: 10px; margin-right: 8px; vertical-align: 1px; border-radius: 50%; background: linear-gradient(45deg, #f9a825, #e91e63, #7b1fa2); }

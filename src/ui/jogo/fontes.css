@@ -1,0 +1,9 @@
+/* Fontes do protótipo, embutidas no arquivo (o jogo abre offline). Só latin e só woff2. */
+@font-face { font-family: 'Baloo 2'; font-style: normal; font-display: swap; font-weight: 700; src: url('../../../node_modules/@fontsource/baloo-2/files/baloo-2-latin-700-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Baloo 2'; font-style: normal; font-display: swap; font-weight: 800; src: url('../../../node_modules/@fontsource/baloo-2/files/baloo-2-latin-800-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Nunito'; font-style: normal; font-display: swap; font-weight: 400; src: url('../../../node_modules/@fontsource/nunito/files/nunito-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Nunito'; font-style: normal; font-display: swap; font-weight: 600; src: url('../../../node_modules/@fontsource/nunito/files/nunito-latin-600-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Nunito'; font-style: normal; font-display: swap; font-weight: 700; src: url('../../../node_modules/@fontsource/nunito/files/nunito-latin-700-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Nunito'; font-style: normal; font-display: swap; font-weight: 800; src: url('../../../node_modules/@fontsource/nunito/files/nunito-latin-800-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Caveat'; font-style: normal; font-display: swap; font-weight: 500; src: url('../../../node_modules/@fontsource/caveat/files/caveat-latin-500-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Caveat'; font-style: normal; font-display: swap; font-weight: 700; src: url('../../../node_modules/@fontsource/caveat/files/caveat-latin-700-normal.woff2') format('woff2'); }

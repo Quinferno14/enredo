@@ -11,7 +11,7 @@ import { NovaVida } from './telas/NovaVida';
 import { TelaEu } from './telas/TelaEu';
 import { TelaMais } from './telas/TelaMais';
 import { TelaPessoas } from './telas/TelaPessoas';
-import { TelaVida } from './telas/TelaVida';
+import { Jogo } from './jogo/Jogo';
 import { PainelDeus } from './telas/PainelDeus';
 import { novoId } from './textos';
 import { faseArte } from './cena/cenaDaVida';
@@ -76,83 +76,49 @@ export function App() {
     );
   }
 
+  // As telas antigas (pessoas, ficha completa, vidas e opções) abrem dentro de uma folha do jogo.
+  const antiga = (qual: 'pessoas' | 'eu' | 'mais') => {
+    if (qual === 'pessoas') {
+      return (
+        <TelaPessoas
+          vida={vida}
+          aviso={aviso}
+          deus={deus}
+          onEditar={(pid, campo, valor) => { setAviso(''); usarVida(editarPessoa(vida, pid, campo, valor)); }}
+          onCriar={(papel, sexo, idade, nome) => { setAviso(''); usarVida(criarPessoaDeus(vida, papel, sexo, idade, nome)); }}
+          onAcao={acaoPessoa}
+        />
+      );
+    }
+    if (qual === 'eu') {
+      return <TelaEu vida={vida} deus={deus} onSairEmprego={(id) => usarVida(sairDoEmprego(vida, id))} onEixo={(e, valor) => usarVida(editarEixo(vida, e, valor))} onInteresse={(i) => usarVida({ ...vida, personagem: { ...vida.personagem, interesse: i } })} />;
+    }
+    return (
+      <TelaMais
+        vida={vida}
+        salvas={armazem.vidas}
+        onNovaVida={() => setCriando(true)}
+        onMudar={usarVida}
+        onTrocar={usarVida}
+        onImportar={usarVida}
+      />
+    );
+  };
+
   return (
-    <div class="app" data-fase={faseArte((vida.personagem.idadeBiologicaMeses ?? vida.relogio.idadeMeses) / 12)}>
-      {semSave && (
-        <div class="aviso" role="status">
-          O navegador não deixou salvar. Exporte um backup em Mais para não perder esta vida.
-        </div>
-      )}
-      <main class={aba === 'vida' ? 'tela tela-vida' : 'tela'}>
-        {aba === 'vida' && (
-          <TelaVida
-            vida={vida}
-            aviso={aviso}
-            onAvancar={(pular) => { setAviso(''); usarVida(avancarPeriodo(vida, pular)); }}
-            onPessoas={() => setAba('pessoas')}
-            onNovaVida={() => setCriando(true)}
-            deus={deus}
-            onDeus={() => setPainel(true)}
-            onEditar={(a, valor) => usarVida(editarAtributo(vida, a, valor))}
-            onMudar={usarVida}
-            onContinuarComo={(filhoId) => usarVida(continuarComoFilho(vida, filhoId, novoId(), new Date().toISOString()))}
-            onAcao={(id, opcoes) => {
-              const r = fazerAcao(vida, id, opcoes);
-              setAviso(r.aviso ?? '');
-              if (r.ok) usarVida(r.vida);
-            }}
-            onHabito={(id, n, variante) => usarVida(definirHabito(vida, id, n, variante))}
-            onSairHabito={(id) => usarVida(pedirParaSair(vida, id))}
-            onEscolha={(i) => usarVida(escolher(vida, i))}
-            onAcaoPessoa={acaoPessoa}
-          />
-        )}
-        {aba === 'pessoas' && (
-          <TelaPessoas
-            vida={vida}
-            aviso={aviso}
-            deus={deus}
-            onEditar={(pid, campo, valor) => { setAviso(''); usarVida(editarPessoa(vida, pid, campo, valor)); }}
-            onCriar={(papel, sexo, idade, nome) => { setAviso(''); usarVida(criarPessoaDeus(vida, papel, sexo, idade, nome)); }}
-            onAcao={acaoPessoa}
-          />
-        )}
-        {aba === 'eu' && <TelaEu vida={vida} deus={deus} onSairEmprego={(id) => usarVida(sairDoEmprego(vida, id))} onEixo={(e, valor) => usarVida(editarEixo(vida, e, valor))} onInteresse={(i) => usarVida({ ...vida, personagem: { ...vida.personagem, interesse: i } })} />}
-        {aba === 'mais' && (
-          <TelaMais
-            vida={vida}
-            salvas={armazem.vidas}
-            onNovaVida={() => setCriando(true)}
-            onMudar={usarVida}
-            onTrocar={(v) => {
-              usarVida(v);
-              setAba('vida');
-            }}
-            onImportar={(v) => {
-              usarVida(v);
-              setAba('vida');
-            }}
-          />
-        )}
-      </main>
-      {aba !== 'vida' && (
-        <button class={deus ? 'botao-deus fixo ativo' : 'botao-deus fixo'} title="Modo Deus" aria-label="Abrir o Modo Deus" onClick={() => setPainel(true)}>✦</button>
-      )}
+    <>
+      <Jogo
+        vida={vida}
+        deus={deus}
+        semSave={semSave}
+        onMudar={usarVida}
+        onDeus={() => setPainel(true)}
+        onNovaVida={() => setCriando(true)}
+        antiga={antiga}
+      />
       {painel && (
         <PainelDeus vida={vida} onMudar={usarVida} noLugar={deus} onNoLugar={setDeus} onFechar={() => setPainel(false)} />
       )}
-      <nav class="abas" aria-label="Abas">
-        {ABAS.map((a) => (
-          <button
-            key={a.id}
-            class={aba === a.id ? 'aba ativa' : 'aba'}
-            aria-current={aba === a.id ? 'page' : undefined}
-            onClick={() => { setAba(a.id); setAviso(''); }}
-          >
-            {a.nome}
-          </button>
-        ))}
-      </nav>
-    </div>
+    </>
   );
 }
