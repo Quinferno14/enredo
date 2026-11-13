@@ -13,7 +13,11 @@ export type Lugar =
 
 export const LUGARES: Lugar[] = ['quarto', 'sala', 'cozinha', 'escola', 'clinica', 'hospital', 'imobiliaria', 'banco', 'academia', 'parque', 'escritorio'];
 
-export interface PessoaEmCena extends OpcoesDesenho { aparencia: Aparencia; x: number; z: number }
+export interface PessoaEmCena extends OpcoesDesenho {
+  aparencia: Aparencia; x: number; z: number;
+  /** Para a tela saber em quem tocaram (vira data-alvo no desenho). */
+  alvo?: string;
+}
 export interface Cena {
   lugar: Lugar;
   fase: FaseArte;
@@ -148,7 +152,10 @@ export function desenharCena(c: Cena): string {
   coisas.sort((a, b) => a.z - b.z);
   const chaoSvg = coisas.map((n) => {
     const { base, escala } = profundidade(n.z);
-    if (n.pessoa) return pessoaNaCena(n.pessoa.aparencia, n.x, base, escala, n.pessoa);
+    if (n.pessoa) {
+      const desenho = pessoaNaCena(n.pessoa.aparencia, n.x, base, escala, n.pessoa);
+      return n.pessoa.alvo ? `<g data-alvo="${n.pessoa.alvo}" style="cursor:pointer">${desenho}</g>` : desenho;
+    }
     return `<g transform="translate(${n.x} ${base}) scale(${escala})">${n.svg}</g>`;
   }).join('');
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${DEFS}${fundo}${chao}${paredeSvg}${chaoSvg}${veuDaHora(c.hora)}</svg>`;

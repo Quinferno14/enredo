@@ -10,6 +10,7 @@ import { importancia } from '../../motor/contexto';
 import { aparenciaDaPessoa, aparenciaDoPersonagem } from '../../motor/corpo';
 import { mesDeNascimento } from '../../motor/efeitos';
 import type { Pessoa, Vida } from '../../motor/tipos';
+import { lugarPorId, type IdLugar } from './lugares';
 
 const CORES = ['#2f6db5', '#e8553d', '#3aa26b', '#8e44ad', '#f2a93b', '#16a085', '#c0392b', '#5d6d7e', '#d35400', '#7d3c98'];
 const corDe = (id: string) => { let h = 7; for (const c of id) h = (h * 31 + c.charCodeAt(0)) >>> 0; return CORES[h % CORES.length]!; };
@@ -93,11 +94,30 @@ export function cenaDaVida(vida: Vida): Cena {
   const mes = vida.relogio.mes ?? 1;
   const pessoas: PessoaEmCena[] = [];
   const eu = vida.morte ? null : aparenciaDoPersonagem(vida);
-  if (eu) pessoas.push({ aparencia: { ...eu, corRoupa: corDe(vida.id) }, x: 178, z: 0.64, humor: humorDe(vida), roupa: roupaDe(idade, hora, mes) });
+  if (eu) pessoas.push({ aparencia: { ...eu, corRoupa: corDe(vida.id) }, x: 178, z: 0.64, humor: humorDe(vida), roupa: roupaDe(idade, hora, mes), alvo: 'eu' });
   presentes(vida).forEach((pe, i) => {
     const a = aparenciaDaPessoa(pe);
     const pos = POSICOES[i]!;
-    if (a) pessoas.push({ aparencia: { ...a, corRoupa: corDe(pe.id) }, x: pos.x, z: pos.z, humor: humorPessoa(pe), roupa: roupaDe(pe.idadeMeses / 12, hora, mes), virada: pos.x > 178 ? -1 : 1 });
+    if (a) pessoas.push({ aparencia: { ...a, corRoupa: corDe(pe.id) }, x: pos.x, z: pos.z, humor: humorPessoa(pe), roupa: roupaDe(pe.idadeMeses / 12, hora, mes), virada: pos.x > 178 ? -1 : 1, alvo: `pessoa:${pe.id}` });
   });
   return { lugar, fase, hora, ...(epoca ? { epoca } : {}), pessoas };
+}
+
+/** Roupa de cada lugar (trabalho social, academia de esporte, escola de uniforme). */
+const ROUPA_DO_LUGAR: Partial<Record<IdLugar, Roupa>> = { trabalho: 'social', academia: 'esporte', escola: 'escola' };
+
+/** A cena de um lugar fora de casa: o cenário do lugar, com você nele. Em casa, a cena da vida. */
+export function cenaNoLugar(vida: Vida, id: IdLugar): Cena {
+  if (id === 'casa') return cenaDaVida(vida);
+  const idade = (vida.personagem.idadeBiologicaMeses ?? vida.relogio.idadeMeses) / 12;
+  const l = lugarPorId(id);
+  const hora = horaDe(vida);
+  const eu = aparenciaDoPersonagem(vida);
+  const roupa = ROUPA_DO_LUGAR[id] === 'escola' && idade >= 18 ? 'casa' : ROUPA_DO_LUGAR[id] ?? 'casa';
+  const epoca = epocaDe(vida);
+  return {
+    lugar: l.arte, fase: faseArte(idade), hora: hora === 'noite' && id !== 'praca' ? 'tarde' : hora,
+    ...(epoca === 'junina' && id === 'praca' ? { epoca } : {}),
+    pessoas: eu ? [{ aparencia: { ...eu, corRoupa: corDe(vida.id) }, x: 196, z: 0.68, humor: humorDe(vida), roupa, alvo: 'eu' }] : [],
+  };
 }

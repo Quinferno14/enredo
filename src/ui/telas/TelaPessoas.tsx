@@ -30,7 +30,7 @@ const GRUPOS: { titulo: string; filtro: (p: Pessoa) => boolean }[] = [
   { titulo: 'Ex', filtro: (p) => p.papel === 'ex' },
 ];
 
-const NOME_GRUPO: Record<GrupoAcaoPessoa, string> = {
+export const NOME_GRUPO: Record<GrupoAcaoPessoa, string> = {
   juntos: 'Juntos', conversa: 'Conversa', amor: 'Amor', conflito: 'Conflito', dinheiro: 'Dinheiro', contato: 'Contato',
 };
 
@@ -45,7 +45,7 @@ function idadeTexto(p: Pessoa) {
 }
 
 /** "Professora · casada com Carlos · 2 filhos" */
-function vidaPropria(p: Pessoa): string {
+export function vidaPropria(p: Pessoa): string {
   const a = p.sexo === 'feminino' ? 'a' : 'o';
   return [
     p.ocupacao ? capitalizar(p.ocupacao) : '',

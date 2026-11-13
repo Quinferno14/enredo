@@ -13,6 +13,10 @@ interface Props {
   onFechar: () => void;
   onAcao: (id: string, opcoes: OpcoesAcao) => void;
   onHabito: (id: string, porSemana: number, variante?: string) => void;
+  /** Só estas ações, na ordem (o menu de um lugar). Sem isto, todas, com categorias e busca. */
+  filtro?: string[];
+  /** Frase de chegada no lugar (no lugar da última linha da história). */
+  chegada?: string;
 }
 
 const normalizar = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
@@ -21,8 +25,9 @@ const normalizar = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toL
  * Painel de atividades que ocupa o lugar do feed: o status continua visível em cima
  * e muda na hora. Categorias em blocos, busca, e cada ação mostra o que mexe.
  */
-export function PainelAtividades({ vida, aviso, onFechar, onAcao, onHabito }: Props) {
-  const lista = acoesDisponiveis(vida);
+export function PainelAtividades({ vida, aviso, onFechar, onAcao, onHabito, filtro, chegada }: Props) {
+  const todas = acoesDisponiveis(vida);
+  const lista = filtro ? filtro.map((id) => todas.find((a) => a.id === id)).filter((a): a is AcaoDef => !!a) : todas;
   const categorias = CATEGORIAS
     .map((c) => ({ ...c, n: lista.filter((a) => a.categoria === c.id).length }))
     .filter((c) => c.n > 0);
@@ -36,7 +41,7 @@ export function PainelAtividades({ vida, aviso, onFechar, onAcao, onHabito }: Pr
   const q = normalizar(busca.trim());
   const mostradas = q
     ? lista.filter((a) => normalizar(a.nome).includes(q) || a.busca.some((b) => normalizar(b).includes(q)))
-    : categoria ? lista.filter((a) => a.categoria === categoria) : [];
+    : filtro ? lista : categoria ? lista.filter((a) => a.categoria === categoria) : [];
   const ultima = vida.historico.at(-1)?.texto ?? '';
   const pessoas = companhias(vida);
   const opcoesDe = (a: AcaoDef): OpcoesAcao => ({
@@ -46,16 +51,18 @@ export function PainelAtividades({ vida, aviso, onFechar, onAcao, onHabito }: Pr
 
   return (
     <section class="painel" aria-label="Atividades">
-      <div class="painel-topo">
-        <button class="link" onClick={() => (categoria && !q ? setCategoria(null) : onFechar())}>
-          ← {categoria && !q ? 'Categorias' : 'Voltar à história'}
-        </button>
-      </div>
-      <p class={aviso ? 'aviso-acao' : 'folha-ultima'} role="status">{aviso || ultima}</p>
-      <input class="busca" type="search" value={busca} onInput={(e) => setBusca(e.currentTarget.value)}
-        placeholder="O que você quer fazer?" aria-label="Buscar atividade" />
+      {!filtro && categoria && !q && (
+        <div class="painel-topo">
+          <button class="link" onClick={() => setCategoria(null)}>← Categorias</button>
+        </div>
+      )}
+      <p class={aviso ? 'aviso-acao' : 'folha-ultima'} role="status">{aviso || chegada || ultima}</p>
+      {!filtro && (
+        <input class="busca" type="search" value={busca} onInput={(e) => setBusca(e.currentTarget.value)}
+          placeholder="O que você quer fazer?" aria-label="Buscar atividade" />
+      )}
 
-      {!q && !categoria && (
+      {!filtro && !q && !categoria && (
         <div class="blocos">
           {categorias.map((c) => (
             <button key={c.id} class="bloco" onClick={() => setCategoria(c.id)}>
@@ -81,7 +88,8 @@ export function PainelAtividades({ vida, aviso, onFechar, onAcao, onHabito }: Pr
                   <span class="acao-nome">{a.nome}</span>
                   <span class="acao-info">
                     <span class="tags">{previaEfeitos(vida, a, vSel).map((t) => <span key={t} class={tagRuim(t) ? 'tag menos' : 'tag'}>{t}</span>)}</span>
-                    {' '}{rotuloEfeito(rendimentoProximo(vida, a.id)).replace('efeito: ', 'efeito ')}
+                    {/* O "efeito" fala de repetição: só para o que vira hábito. */}
+                    {!a.semHabito && <>{' '}{rotuloEfeito(rendimentoProximo(vida, a.id)).replace('efeito: ', 'efeito ')}</>}
                     {h && ` · hábito ${h.porSemana}x`}
                   </span>
                 </button>
@@ -135,6 +143,7 @@ export function PainelAtividades({ vida, aviso, onFechar, onAcao, onHabito }: Pr
           );
         })}
         {q && mostradas.length === 0 && <li class="dica">Nada com esse nome para a sua idade.</li>}
+        {filtro && mostradas.length === 0 && <li class="dica">Nada para fazer aqui agora.</li>}
       </ul>
     </section>
   );

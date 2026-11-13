@@ -35,6 +35,21 @@ export function App() {
 
   const vida = armazem.vidas.find((v) => v.id === armazem.atual) ?? null;
 
+  /** Ação com uma pessoa (na aba Pessoas ou tocando nela na cena). */
+  function acaoPessoa(pid: string, acao: string, opcao?: string) {
+    if (!vida) return;
+    // Convidar é fazer a atividade com essa pessoa, do jeito de sempre.
+    const r = acao === 'convidar' && opcao
+      ? fazerAcao(vida, opcao, { com: pid, variante: vida.ultimas?.[opcao]?.variante })
+      : fazerAcaoPessoa(vida, pid, acao, opcao);
+    if (r.ok) {
+      // O resultado aparece ali mesmo, sem precisar trocar de tela.
+      setAviso(r.vida.historico.slice(vida.historico.length).map((h) => h.texto).join(' '));
+      usarVida(r.vida);
+      if (r.vida.pendente && !vida.pendente) setAba('vida');
+    } else setAviso(r.aviso ?? '');
+  }
+
   function usarVida(v: Vida) {
     const { armazem: novo, gravou } = salvarVida(armazem, v);
     setArmazem(novo);
@@ -89,6 +104,7 @@ export function App() {
             onHabito={(id, n, variante) => usarVida(definirHabito(vida, id, n, variante))}
             onSairHabito={(id) => usarVida(pedirParaSair(vida, id))}
             onEscolha={(i) => usarVida(escolher(vida, i))}
+            onAcaoPessoa={acaoPessoa}
           />
         )}
         {aba === 'pessoas' && (
@@ -98,18 +114,7 @@ export function App() {
             deus={deus}
             onEditar={(pid, campo, valor) => { setAviso(''); usarVida(editarPessoa(vida, pid, campo, valor)); }}
             onCriar={(papel, sexo, idade, nome) => { setAviso(''); usarVida(criarPessoaDeus(vida, papel, sexo, idade, nome)); }}
-            onAcao={(pid, acao, opcao) => {
-              // Convidar é fazer a atividade com essa pessoa, do jeito de sempre.
-              const r = acao === 'convidar' && opcao
-                ? fazerAcao(vida, opcao, { com: pid, variante: vida.ultimas?.[opcao]?.variante })
-                : fazerAcaoPessoa(vida, pid, acao, opcao);
-              if (r.ok) {
-                // O resultado aparece aqui mesmo, sem precisar voltar para a Vida.
-                setAviso(r.vida.historico.slice(vida.historico.length).map((h) => h.texto).join(' '));
-                usarVida(r.vida);
-                if (r.vida.pendente && !vida.pendente) setAba('vida');
-              } else setAviso(r.aviso ?? '');
-            }}
+            onAcao={acaoPessoa}
           />
         )}
         {aba === 'eu' && <TelaEu vida={vida} deus={deus} onSairEmprego={(id) => usarVida(sairDoEmprego(vida, id))} onEixo={(e, valor) => usarVida(editarEixo(vida, e, valor))} onInteresse={(i) => usarVida({ ...vida, personagem: { ...vida.personagem, interesse: i } })} />}

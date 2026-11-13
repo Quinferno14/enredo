@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
-import { acaoPorId, companhias, horasAgenda, horasSemana, previaEfeitos, sugestoes, variantesPossiveis, type OpcoesAcao } from '../../motor/acoes';
+import { acaoPorId, horasAgenda, horasSemana, type OpcoesAcao } from '../../motor/acoes';
 import { biografia } from '../../motor/biografia';
 import { horasObrigacoes, textoEstudo, tituloEmprego } from '../../motor/carreira';
 import { voltarPeriodo } from '../../motor/deus';
@@ -7,11 +7,13 @@ import { reais } from '../../motor/efeitos';
 import { filhosQuePodemContinuar } from '../../motor/familia';
 import type { Atributo, EntradaHistorico, Vida } from '../../motor/tipos';
 import { nomeCompleto, quandoAgora, textoIdade } from '../../motor/vida';
-import { NOME_ATRIBUTO, tagRuim } from '../textos';
+import { NOME_ATRIBUTO } from '../textos';
 import { PainelAtividades } from './PainelAtividades';
 import { FeedFases } from './FeedFases';
 import { recontar } from '../../motor/vozes';
 import { CenaVida } from './CenaVida';
+import { Folha, FolhaPessoa, MapaCidade } from './Folhas';
+import { acoesDoLugar, lugaresDisponiveis, lugarPorId, type IdLugar } from '../cena/lugares';
 
 const VISIVEIS: Atributo[] = ['saude', 'felicidade', 'inteligencia', 'aparencia', 'forma', 'carisma'];
 const CURTO: Record<string, string> = {
@@ -35,7 +37,10 @@ interface Props {
   onHabito: (id: string, porSemana: number, variante?: string) => void;
   onSairHabito: (id: string) => void;
   onEscolha: (indice: number) => void;
+  onAcaoPessoa: (pessoaId: string, acaoId: string, opcao?: string) => void;
 }
+
+type FolhaAberta = null | 'lugar' | 'mapa' | 'busca' | { pessoa: string };
 
 /** Junta as linhas da história por período, do mais antigo para o mais recente. */
 function agruparPorPeriodo(historico: EntradaHistorico[]) {
@@ -58,15 +63,29 @@ function rotuloRotina(horas: number) {
 export function TelaVida(props: Props) {
   const {
     vida, aviso, onAvancar, onNovaVida, onContinuarComo, onPessoas, onAcao, onHabito, onSairHabito, onEscolha,
-    deus, onDeus, onEditar, onMudar,
+    deus, onDeus, onEditar, onMudar, onAcaoPessoa,
   } = props;
   const p = vida.personagem;
   const morte = vida.morte;
   const herdeiros = filhosQuePodemContinuar(vida);
   const [habitoAberto, setHabitoAberto] = useState<string | null>(null);
-  const [painel, setPainel] = useState(false);
   const [verTudo, setVerTudo] = useState(false);
   const [numeros, setNumeros] = useState(false);
+  // Onde você está agora (casa ou um lugar da cidade) e que folha está aberta.
+  const [onde, setOnde] = useState<IdLugar>('casa');
+  const [folha, setFolha] = useState<FolhaAberta>(null);
+  // Uma decisão nova ou o fim da vida fecham as folhas (a decisão precisa ser vista).
+  useEffect(() => { if (vida.pendente || vida.morte) setFolha(null); }, [!!vida.pendente, !!vida.morte]);
+  const ir = (id: IdLugar) => { setOnde(id); setFolha(id === 'casa' ? null : 'lugar'); };
+  const tocar = (alvo: string) => {
+    if (morte) return;
+    if (alvo.startsWith('pessoa:')) setFolha({ pessoa: alvo.slice(7) });
+    else setFolha('lugar');
+  };
+  const avancar = (pular: boolean) => { setFolha(null); setOnde('casa'); onAvancar(pular); };
+  const podeSair = lugaresDisponiveis(vida).length > 0;
+  const lugar = lugarPorId(onde);
+  const pessoaAberta = folha && typeof folha === 'object' ? vida.pessoas.find((x) => x.id === folha.pessoa) : undefined;
   const feed = useRef<HTMLElement>(null);
 
   // Só o feed rola, e ele desce sozinho até o fato mais recente.
@@ -175,7 +194,12 @@ export function TelaVida(props: Props) {
   return (
     <>
       <section class={`palco${morte ? ' falecido' : ''}`} aria-label="Cena da sua vida">
-        <CenaVida vida={vida} />
+        <CenaVida vida={vida} onde={onde} onToque={tocar} />
+        {!morte && (
+          <button class="palco-lugar" onClick={() => setFolha('lugar')}>
+            {onde === 'casa' ? '⌂' : '◉'} {lugar.nome(vida)} <span>· toque para agir</span>
+          </button>
+        )}
         <button class="palco-info" onClick={() => setNumeros(true)} aria-label="Ver seus números e hábitos">
           <strong>{nomeCompleto(vida)}</strong>
           <span>
@@ -193,9 +217,22 @@ export function TelaVida(props: Props) {
       </section>
       {folhaNumeros}
 
-      {painel && !morte ? (
-        <PainelAtividades vida={vida} aviso={aviso} onFechar={() => setPainel(false)} onAcao={onAcao} onHabito={onHabito} />
-      ) : (
+      {folha === 'lugar' && (
+        <Folha titulo={lugar.nome(vida)} onFechar={() => setFolha(null)} classe="folha-lugar">
+          <PainelAtividades vida={vida} aviso={aviso} onFechar={() => setFolha(null)} onAcao={onAcao} onHabito={onHabito}
+            filtro={acoesDoLugar(vida, onde).map((a) => a.id)} chegada={lugar.chegada(vida)} />
+          {podeSair && <button class="secundario" onClick={() => setFolha('mapa')}>{onde === 'casa' ? 'Sair de casa…' : 'Ir para outro lugar…'}</button>}
+        </Folha>
+      )}
+      {folha === 'busca' && (
+        <Folha titulo="O que você quer fazer?" onFechar={() => setFolha(null)}>
+          <PainelAtividades vida={vida} aviso={aviso} onFechar={() => setFolha(null)} onAcao={onAcao} onHabito={onHabito} />
+        </Folha>
+      )}
+      {folha === 'mapa' && <MapaCidade vida={vida} onde={onde} onIr={ir} onFechar={() => setFolha(null)} />}
+      {pessoaAberta && <FolhaPessoa vida={vida} pessoa={pessoaAberta} aviso={aviso} onAcao={onAcaoPessoa} onFechar={() => setFolha(null)} />}
+
+      {(
         <section class="feed" ref={feed} aria-label="Sua história" aria-live="polite">
           {!verTudo && (simples ? grupos.length : blocos.length) > GRUPOS_VISIVEIS && (
             <button class="link" onClick={() => setVerTudo(true)}>Mostrar a história anterior</button>
@@ -247,33 +284,24 @@ export function TelaVida(props: Props) {
       </div>
 
       {!morte && (
-        <div class="dock">
-          {aviso && !painel && <p class="aviso-acao" role="status">{aviso}</p>}
-          <div class="sugestoes" aria-label="Sugestões">
-            {sugestoes(vida).map((a) => {
-              const ult = vida.ultimas?.[a.id];
-              const v = variantesPossiveis(vida, a).find((x) => x.id === ult?.variante) ?? variantesPossiveis(vida, a)[0];
-              const pessoa = ult?.com && ult.com !== 'turma' ? companhias(vida).find((x) => x.id === ult.com) : undefined;
-              const nome = a.id === 'amigos' && v ? `${v.nome.replace(' · grátis', '')}${pessoa ? ` com ${pessoa.nome}` : ''}` : a.nome;
-              return (
-                <button key={a.id} class="sugestao" onClick={() => onAcao(a.id, { variante: v?.id, com: ult?.com ?? 'turma' })}>
-                  <span class="acao-nome">{nome}</span>
-                  <span class="tags">{previaEfeitos(vida, a, v).slice(0, 2).map((t) => <span key={t} class={tagRuim(t) ? 'tag menos' : 'tag'}>{t}</span>)}</span>
-                </button>
-              );
-            })}
-            <button class={painel ? 'sugestao mais ativo' : 'sugestao mais'} onClick={() => setPainel(!painel)}>
-              <span class="acao-nome">{painel ? 'História' : 'Mais'}</span>
-              <span class="tags"><span class="tag">{painel ? '◂' : '▸'}</span></span>
+        <div class="dock dock-novo">
+          {aviso && !folha && <p class="aviso-acao" role="status">{aviso}</p>}
+          <div class="dock-linha">
+            {podeSair && (
+              <button class="redondo" onClick={() => setFolha('mapa')} aria-label="Sair: mapa da cidade" title="Mapa da cidade">
+                <span aria-hidden="true">⇱</span><small>Sair</small>
+              </button>
+            )}
+            <button class="redondo" onClick={() => setFolha('busca')} aria-label="Buscar o que fazer" title="Buscar">
+              <span aria-hidden="true">⌕</span><small>Buscar</small>
             </button>
-          </div>
-          <div class="dock-botoes">
-            <button class="secundario" onClick={onPessoas}>Pessoas</button>
-            <button class="primario" onClick={() => { setPainel(false); onAvancar(false); }} disabled={!!vida.pendente}>
+            <button class="primario avancar" onClick={() => avancar(false)} disabled={!!vida.pendente}>
               {vida.pendente ? 'Decida acima' : 'Avançar ▶'}
             </button>
-            <button class="secundario pular" onClick={() => { setPainel(false); onAvancar(true); }} disabled={!!vida.pendente}
-              title="Pular o ano: só para nas decisões" aria-label="Pular o ano">⏭</button>
+            <button class="redondo" onClick={() => avancar(true)} disabled={!!vida.pendente}
+              title="Pular o ano: só para nas decisões" aria-label="Pular o ano">
+              <span aria-hidden="true">⏭</span><small>Ano</small>
+            </button>
           </div>
         </div>
       )}
