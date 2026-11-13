@@ -255,3 +255,8 @@
 .jogo .j-historia.j-voz-diario .j-bloco:not(.j-diario) { font-family: var(--corpo); background: var(--fundo-hist); border-radius: 12px; padding: 6px 4px; }
 .jogo .j-historia.j-voz-diario .j-bloco:not(.j-diario) p { font-size: 0.95rem; line-height: 1.45; }
 .jogo .j-historia.j-voz-diario .j-bloco:not(.j-diario) .j-bloco-quando { font: 700 0.74rem var(--corpo); }
+
+/* "O que mudou" quebra linha dentro do balão (o estilo antigo das etiquetas não deixava e vazava para fora). */
+.jogo .j-historia .tags { display: block; white-space: normal; overflow-wrap: anywhere; max-width: 100%; }
+.jogo .j-historia .tag { display: inline; white-space: normal; margin: 0; }
+.jogo .j-historia .bolha, .jogo .j-historia .post, .jogo .j-historia .email { min-width: 0; overflow-wrap: anywhere; }
