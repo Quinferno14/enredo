@@ -70,7 +70,8 @@ export function presentes(vida: Vida, max = 2): Pessoa[] {
 
 function lugarDe(fase: FaseArte, hora: Hora, epoca: Cena['epoca']): Lugar {
   if (epoca === 'natal' || epoca === 'aniversario') return 'sala';
-  if (epoca === 'junina' && (fase === 'crianca' || fase === 'idoso')) return hora === 'noite' ? 'parque' : 'cozinha';
+  // Na infância a festa junina aparece pela janela do quarto (lá estão as coisas da criança).
+  if (epoca === 'junina' && fase === 'idoso') return hora === 'noite' ? 'parque' : 'cozinha';
   if (fase === 'adulto' || fase === 'idoso') return hora === 'manha' ? 'cozinha' : 'sala';
   return 'quarto';
 }
