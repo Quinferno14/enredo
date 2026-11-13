@@ -104,6 +104,9 @@ export function cenaDaVida(vida: Vida): Cena {
   return { lugar, fase, hora, ...(epoca ? { epoca } : {}), pessoas };
 }
 
+/** Onde você fica em cada lugar: longe do objeto principal (o ponto dele não cobre o seu rosto). */
+const X_NO_LUGAR: Partial<Record<IdLugar, number>> = { escola: 312, trabalho: 290, praca: 292, academia: 130, saude: 305, clinica: 280, banco: 290, imobiliaria: 318 };
+
 /** Roupa de cada lugar (trabalho social, academia de esporte, escola de uniforme). */
 const ROUPA_DO_LUGAR: Partial<Record<IdLugar, Roupa>> = { trabalho: 'social', academia: 'esporte', escola: 'escola' };
 
@@ -119,6 +122,6 @@ export function cenaNoLugar(vida: Vida, id: IdLugar): Cena {
   return {
     lugar: l.arte, fase: faseArte(idade), hora: hora === 'noite' && id !== 'praca' ? 'tarde' : hora,
     ...(epoca === 'junina' && id === 'praca' ? { epoca } : {}),
-    pessoas: eu ? [{ aparencia: { ...eu, corRoupa: corDe(vida.id) }, x: 196, z: 0.68, humor: humorDe(vida), roupa, alvo: 'eu' }] : [],
+    pessoas: eu ? [{ aparencia: { ...eu, corRoupa: corDe(vida.id) }, x: X_NO_LUGAR[id] ?? 196, z: 0.68, humor: humorDe(vida), roupa, alvo: 'eu' }] : [],
   };
 }

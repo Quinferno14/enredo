@@ -285,7 +285,7 @@ const handle = (vida: Vida) => `@${vida.personagem.nome}${vida.personagem.sobren
 type Tom = 'bom' | 'ruim' | 'luto' | 'neutro';
 function tomDe(corpo: string, tags: string[]): Tom {
   if (/\bmorreu\b|\bfaleceu\b|\bvelório\b/i.test(corpo)) return 'luto';
-  if (/febre|doente|hospital|pronto-socorro|internad|infarto|dengue|gripe|assalt|roub|demiti|separar|brig|chorou/i.test(corpo)) return 'ruim';
+  if (/febre|doente|hospital|pronto-socorro|internad|infarto|dengue|gripe|assalt|roub|demiti|separar|\bbrig(a|as|ou|aram|ar|ando|uei)\b|chorou/i.test(corpo)) return 'ruim';
   const f = tags.find((t) => t.startsWith('Felicidade'));
   if (f) return /\+/.test(f) ? 'bom' : 'ruim';
   if (tags.some((t) => /^Saúde [−-]/.test(t))) return 'ruim';
@@ -338,7 +338,8 @@ function linhaBebe(vida: Vida, h: EntradaHistorico, s: string, autor: string, it
     : paraTerceira(corpo, p.nome, p.sexo);
   const emoji = escolher(EMOJI[tom], s);
   const marco = MARCO.test(corpo);
-  const final = marco && tom !== 'luto' ? texto.replace(/\.$/, '!!') : texto;
+  // Marco ganha "!!" no fim, mas não depois de aspas.
+  const final = marco && tom !== 'luto' && !/["”]\.$/.test(texto) ? texto.replace(/\.$/, '!!') : texto.replace(/(["”])\.$/, '$1');
   itens.push({ tipo: 'msg', autor, texto: `${final}${emoji ? ` ${emoji}` : ''}`, tags, foto: marco && tom !== 'luto' });
   // A família responde nos momentos que importam (e às vezes do nada).
   if ((marco || sorte(s + 'r') < 0.18) && tom !== 'neutro') {
@@ -349,7 +350,14 @@ function linhaBebe(vida: Vida, h: EntradaHistorico, s: string, autor: string, it
       if (quem.papel === 'avo' && sorte(s + 'a') < 0.5) {
         itens.push({ tipo: 'msg', autor: nomeQuem, texto: '', tags: [], audio: `0:${String(20 + (hash(s) % 39)).padStart(2, '0')}` });
       } else {
-        const respostas = tom === 'luto' ? ['Força, família 🙏', 'Meus sentimentos ❤️'] : tom === 'ruim' ? ['Coitadinh' + (p.sexo === 'feminino' ? 'a' : 'o') + ' 🥺', 'Melhoras!!', 'Vai passar 🙏'] : ['Que lindo!! 😍', `A cara ${p.sexo === 'feminino' ? 'da mãe' : 'do pai'} kkkk`, 'Deus abençoe 🙏', 'Manda mais foto!!', 'Saudade desse pacotinho ❤️'];
+        // A resposta combina com o que foi dito (nada de "melhoras" para quem não está doente).
+        const doente = /febre|doente|hospital|pronto-socorro|internad|gripe|dengue|vacina|tombo|machucou/i.test(corpo);
+        const respostas = tom === 'luto' ? ['Força, família 🙏', 'Meus sentimentos ❤️']
+          : /aniversário/i.test(corpo) ? ['Parabéns, meu amor!! 🎂', 'Feliz aniversário!! 🎉', 'Deus abençoe esse novo aninho 🙏']
+          : /primeiros passos|primeira palavra|primeiras frases/i.test(corpo) ? ['Que orgulho!! 👏', 'Já já tá correndo pela casa kkk', 'Manda vídeo!!']
+          : tom === 'ruim' ? (doente ? ['Melhoras!! 🙏', 'Coitadinh' + (p.sexo === 'feminino' ? 'a' : 'o') + ' 🥺', 'Já levou no médico?'] : ['Coitadinh' + (p.sexo === 'feminino' ? 'a' : 'o') + ' 🥺', 'Vai passar 🙏', 'Dá um cheiro por mim ❤️'])
+          : marco ? ['Que lindo!! 😍', `A cara ${p.sexo === 'feminino' ? 'da mãe' : 'do pai'} kkkk`, 'Manda mais foto!!']
+          : ['Que lindo!! 😍', 'Deus abençoe 🙏', 'Saudade desse pacotinho ❤️'];
         itens.push({ tipo: 'msg', autor: nomeQuem, texto: escolher(respostas, s + 't'), tags: [] });
       }
     }

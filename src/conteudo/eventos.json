@@ -6859,7 +6859,7 @@
       "aniversario": true
     },
     "texto": [
-      "Seu aniversário: bolo de padaria, brigadeiro em forminha e a família inteira cantando \"com quem será\".",
+      "Seu aniversário: bolo de padaria, brigadeiro em forminha e a família inteira cantando parabéns, com palma e tudo.",
       "Festinha de aniversário no quintal, com cachorro-quente e bexiga colorida no portão."
     ],
     "efeitos": {
@@ -8908,6 +8908,7 @@
     "id": "convite_casamento",
     "soGancho": true,
     "quando": {
+      "idade": [16, 120],
       "pessoa": {
         "papel": [
           "amigo",

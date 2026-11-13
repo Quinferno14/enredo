@@ -162,7 +162,7 @@ export function Jogo({ vida, deus, semSave, onMudar, onDeus, onNovaVida, antiga 
           {!morte && <span class="j-lugar-nome">{onde === 'casa' ? 'Em casa' : lugar.nome(vida)}</span>}
         </section>
 
-        <section class={`j-historia${fase === 'crianca' && vida.config.feed !== 'simples' ? ' j-voz-diario' : ''}`} ref={histRef} aria-label="Sua história" aria-live="polite">
+        <section class={`j-historia${blocos.at(-1)?.fase === 'crianca' && vida.config.feed !== 'simples' ? ' j-voz-diario' : ''}`} ref={histRef} aria-label="Sua história" aria-live="polite">
           {aviso && <p class="j-aviso-curto" role="status">{aviso}</p>}
           {semSave && <p class="j-aviso-curto">O navegador não deixou salvar. Exporte um backup no menu do jogo.</p>}
           <p class="j-cab">{cab}</p>
@@ -170,7 +170,8 @@ export function Jogo({ vida, deus, semSave, onMudar, onDeus, onNovaVida, antiga 
           {vida.config.feed === 'simples'
             ? vida.historico.slice(-60).map((h, i) => <p key={i} class="j-bloco">{h.texto}</p>)
             : mostrados.map((b, i) => (
-              <article key={`${b.quando}-${i}`} class="j-bloco">
+              // O estilo segue quem conta cada trecho: diário só quando é a criança escrevendo.
+              <article key={`${b.quando}-${i}`} class={b.fase === 'crianca' ? 'j-bloco j-diario' : 'j-bloco'}>
                 <span class="j-bloco-quando">{b.quando}</span>
                 {b.itens.map((it, j) => <ItemFeed key={j} it={it} />)}
               </article>

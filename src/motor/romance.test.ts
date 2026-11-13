@@ -60,6 +60,17 @@ describe('namoro a partir dos 12, só na mesma faixa', () => {
     for (const id of ['morar_junto', 'casar', 'filho']) expect(pode(id, v, pe), id).toBe(false);
   });
 
+  it('criança pequena não ouve sobre namoro nem "com quem será" (antes dos 12)', () => {
+    const proibido = /com quem será|namorad|com quem (você|vai) casar/i;
+    for (const e of EVENTOS) {
+      const min = e.quando?.idade?.[0] ?? 0;
+      if (min >= 12) continue;
+      const textos = [...e.texto, ...(e.textos ?? []).filter((t) => t.idade[0] < 12).flatMap((t) => t.texto)];
+      // Eventos sobre outra pessoa (tio que casa) só valem quando a criança é citada no casamento dela.
+      for (const t of textos) if (!/\{pessoa\}|\{Papel\}/.test(t)) expect(proibido.test(t), `${e.id}: ${t}`).toBe(false);
+    }
+  });
+
   it('regra fixa: nenhum evento possível antes dos 18 tem conteúdo sexual', () => {
     const proibido = /\b(transa\w*|sexo|sexual\w*|camisinha|nud(ez|es)|motel)\b/i;
     for (const e of EVENTOS) {

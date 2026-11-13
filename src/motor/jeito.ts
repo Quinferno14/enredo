@@ -90,7 +90,8 @@ export function pesoDoJeito(vida: Vida, a: { id: string; categoria: string; comQ
   else if (a.categoria === 'corpo') { eixo = 'disciplina'; d = p.disciplina / 300; }
   else if (a.id === 'curso' || a.id === 'estudar_sozinho') { eixo = 'curiosidade'; d = p.curiosidade / 300; }
   else if (a.categoria === 'estudo' || a.id === 'estudar_concurso') { eixo = 'disciplina'; d = (p.disciplina + p.curiosidade / 2) / 400; }
-  if (!eixo || Math.abs(d) < 0.12) return { mult: 1 + d, nota: '' };
+  // Bebê e criança pequena ainda não têm "jeito" para comentar (o efeito vale, a nota não aparece).
+  if (!eixo || Math.abs(d) < 0.12 || vida.relogio.idadeMeses < 6 * 12) return { mult: 1 + d, nota: '' };
   const adj = adjetivo(vida, eixo, p[eixo] >= 0);
   return { mult: 1 + d, nota: d > 0 ? `rendeu mais: você é ${adj}` : `rendeu menos: você é ${adj}` };
 }

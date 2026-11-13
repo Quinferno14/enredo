@@ -249,3 +249,9 @@
 /* Story: a bolinha na frente do texto, na mesma linha. */
 .jogo .j-historia .story { display: block; font-size: 0.95rem; color: #555; }
 .jogo .j-historia .story-bolinha { display: inline-block; width: 10px; height: 10px; margin-right: 8px; vertical-align: 1px; border-radius: 50%; background: linear-gradient(45deg, #f9a825, #e91e63, #7b1fa2); }
+
+/* Diário por trecho: a página pautada e a letra à mão só onde a criança escreve;
+   o grupo da família (bebê) continua em balões, mesmo no meio da página. */
+.jogo .j-historia.j-voz-diario .j-bloco:not(.j-diario) { font-family: var(--corpo); background: var(--fundo-hist); border-radius: 12px; padding: 6px 4px; }
+.jogo .j-historia.j-voz-diario .j-bloco:not(.j-diario) p { font-size: 0.95rem; line-height: 1.45; }
+.jogo .j-historia.j-voz-diario .j-bloco:not(.j-diario) .j-bloco-quando { font: 700 0.74rem var(--corpo); }
