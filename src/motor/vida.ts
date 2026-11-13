@@ -10,6 +10,7 @@ import { atributosNaIdade, envelhecer, limitar, sortearMorte } from './envelhece
 import { garantirGenes } from './corpo';
 import { passoDiretor } from './diretor';
 import { rodarCapitulos, rodarSonhos } from './capitulos';
+import { rodarObjetivos } from './objetivos';
 import { rodarEventos } from './eventos';
 import { criarFamilia, rodarPessoas } from './familia';
 import { amigosDeInicio } from './social';
@@ -183,6 +184,8 @@ function passo(prox: Vida, anos: number, rng: Rng, resumir: boolean): ResultadoP
   // Sonhos e capítulos usam um sorteio à parte (não mudam o resto da vida).
   const rngSonho = Rng.daSeed(`${prox.config.seed}/sonhos/${prox.relogio.idadeMeses}`);
   importantes.push(...rodarSonhos(prox, () => rngSonho.proximo()), ...rodarCapitulos(prox));
+  // Os objetivos das pessoas próximas (sorteio à parte, para não mudar o resto da vida).
+  importantes.push(...rodarObjetivos(prox, anos, Rng.daSeed(`${prox.config.seed}/objetivos/${prox.relogio.idadeMeses}`)));
 
   const causa = sortearMorte(p, idadeCorpo, anos, rng);
   if (causa) {

@@ -13,6 +13,7 @@ import { quandoAgora } from './tempo';
 import { Rng } from './rng';
 import { afinidade, bonusChance, perfilEscolha, rotuloJeito, type Perfil } from './jeito';
 import { chanceDoDiretor, notarEvento, pesoDoDiretor } from './diretor';
+import { resolverObjetivo } from './objetivos';
 import type { Linha, Pendente, Vida } from './tipos';
 
 export interface ResultadoDef {
@@ -287,6 +288,7 @@ export function escolher(vida: Vida, indice: number): Vida {
     const antes = foto(prox);
     const texto = pend.sistema === 'pretendentes' ? resolverPretendente(prox, pend, indice, rng)
       : pend.sistema === 'habito18' ? resolverHabito18(prox, pend, indice)
+      : pend.sistema === 'objetivo' ? resolverObjetivo(prox, pend, indice)
       : resolverSistema(prox, pend, indice, rng);
     const r = resumo(diferenca(antes, foto(prox)));
     prox.historico.push({ quando, texto: pend.texto, fato: { tipo: 'evento', id: pend.evento } });

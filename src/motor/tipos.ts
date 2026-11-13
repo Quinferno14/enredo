@@ -4,6 +4,7 @@
 import type { Genes, Visual } from './corpo';
 import type { EstadoDiretor } from './diretor';
 import type { Sonho } from './capitulos';
+import type { Objetivo } from './objetivos';
 import type { EstadoRng } from './rng';
 
 export const VERSAO_SAVE = 9;
@@ -150,6 +151,10 @@ export interface Pessoa {
   /** Rosto e corpo herdados (ver corpo.ts). */
   genes?: Genes;
   visual?: Visual;
+  /** O que a pessoa está correndo atrás agora (ver objetivos.ts). */
+  objetivo?: Objetivo;
+  /** Objetivos que já tiveram fim (não repetem). */
+  objetivosFeitos?: string[];
   casado?: boolean;
   /** Quantos filhos tem (os da família viram pessoas de verdade). */
   filhos?: number;
@@ -267,7 +272,7 @@ export interface Gancho {
 export interface Pendente {
   evento: string;
   /** Decisões do próprio jogo (vagas de emprego, escolha de curso), fora dos eventos. */
-  sistema?: 'vagas' | 'curso' | 'pretendentes' | 'habito18';
+  sistema?: 'vagas' | 'curso' | 'pretendentes' | 'habito18' | 'objetivo';
   /** Vagas: que tipo de trabalho a busca procurou. */
   tipoVaga?: 'fixo' | 'extra' | 'estagio';
   /** Candidatos de "Procurar alguém". */
