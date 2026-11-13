@@ -25,11 +25,14 @@ import { NOME_ATRIBUTO } from '../textos';
 import { Icone } from './icones';
 import type { PontoJogo } from './pontos';
 import { resumoAcao } from './Jogo';
+import { FichaBicho, Todos, camadas, humorDaPessoa, intimidade } from './Gente';
+import type { AcaoBicho } from '../../motor/bichos';
 
 export type QualCamada =
   | { tipo: 'menu'; ponto: PontoJogo; sub?: string }
   | { tipo: 'objeto' } | { tipo: 'app'; id: IdApp } | { tipo: 'cidade' } | { tipo: 'busca' }
-  | { tipo: 'pessoa'; id: string } | { tipo: 'voce' } | { tipo: 'jogo' } | { tipo: 'antiga'; qual: 'pessoas' | 'eu' | 'mais' };
+  | { tipo: 'pessoa'; id: string } | { tipo: 'voce' } | { tipo: 'jogo' } | { tipo: 'antiga'; qual: 'pessoas' | 'eu' | 'mais' }
+  | { tipo: 'bicho'; id: string } | { tipo: 'todos' };
 
 type IdApp = 'mensagens' | 'rede' | 'amor' | 'estudos' | 'vagas' | 'banco' | 'imoveis' | 'saude' | 'tudo';
 
@@ -41,6 +44,7 @@ interface Props {
   onHabito: (id: string, n: number, variante?: string) => void;
   onIr: (id: IdLugar) => void;
   onNovaVida: () => void;
+  onBicho: (id: string, acao: AcaoBicho) => void;
   antiga: (qual: 'pessoas' | 'eu' | 'mais') => ComponentChildren;
 }
 
@@ -98,6 +102,15 @@ export function Camada(props: Props) {
       return pe ? <FichaPessoa vida={vida} pessoa={pe} onPessoa={onPessoa} onFechar={onFechar} /> : null;
     }
     case 'voce': return <Voce vida={vida} onHabito={onHabito} onFechar={onFechar} onAbrir={onAbrir} />;
+    case 'bicho': {
+      const b = vida.bichos?.find((x) => x.id === qual.id);
+      return b ? <Folha titulo={b.nome} onFechar={onFechar}><FichaBicho vida={vida} bicho={b} onAcao={props.onBicho} /></Folha> : null;
+    }
+    case 'todos': return (
+      <Folha titulo="Sua gente" onFechar={onFechar}>
+        <Todos vida={vida} onPessoa={(id) => onAbrir({ tipo: 'pessoa', id })} onBicho={(id) => onAbrir({ tipo: 'bicho', id })} />
+      </Folha>
+    );
     case 'jogo': return (
       <Folha titulo={nomeCompleto(vida)} sub="Menu do jogo" onFechar={onFechar}>
         <div class="j-lista-acoes">
@@ -382,13 +395,36 @@ function FichaPessoa({ vida, pessoa: pe, onPessoa, onFechar }: { vida: Vida; pes
       <div class="j-ficha-topo">
         <Retrato a={aparenciaDaPessoa(pe)} />
         <div>
-          <p class="j-texto-pequeno"><b>{capitalizar(papelTexto(pe))}</b>, {anos < 1 ? 'bebê' : `${anos} anos`}</p>
-          {vidaPropria(pe) && <p class="j-texto-pequeno">{vidaPropria(pe)}</p>}
-          <p class="j-texto-pequeno">{capitalizar(rotuloCompat(compatCom(vida, pe)))}.{(pe.conhecidos ?? []).length ? ` Gosta de falar de ${(pe.conhecidos ?? []).map(nomeAssunto).join(' e ')}.` : ''}</p>
-          <p class="j-secao">Afeto {pe.afeto}</p>
-          <div class="j-barra-mini"><span style={{ width: `${pe.afeto}%` }} /></div>
+          <p class="j-texto-pequeno"><b>{capitalizar(papelTexto(pe))}</b>, {pe.vivo ? (anos < 1 ? 'bebê' : `${anos} anos`) : `partiu aos ${anos}`}</p>
+          {humorDaPessoa(vida, pe) && <p class="j-texto-pequeno"><i>{humorDaPessoa(vida, pe)}</i></p>}
+          {pe.vivo && (() => {
+            const c = camadas(vida, pe);
+            return (
+              <div class="j-camadas-rel">
+                {([['Carinho', c.carinho, ''], ['Confiança', c.confianca, ''], ['Tensão', c.tensao, 'tensao']] as const).map(([n, v, cls]) => (
+                  <label key={n}><span>{n}</span><span class={`j-barra-mini ${cls}`}><span style={{ width: `${v}%` }} /></span></label>
+                ))}
+              </div>
+            );
+          })()}
         </div>
       </div>
+      {(() => {
+        // O que você sabe dela depende da intimidade (público, pessoal, íntimo).
+        const nivel = intimidade(pe);
+        const pessoal = nivel !== 'publico';
+        const intimo = nivel === 'intimo';
+        const lembrancas = (pe.lembrancas ?? []).filter((l) => l.peso > 0).slice(-3).reverse();
+        return (
+          <div class="j-saber">
+            {vidaPropria(pe) && <p class="j-texto-pequeno">{vidaPropria(pe)}</p>}
+            <p class="j-texto-pequeno">{capitalizar(rotuloCompat(compatCom(vida, pe)))}.</p>
+            {pessoal && (pe.conhecidos ?? []).length > 0 && <p class="j-texto-pequeno">Gosta de falar de {(pe.conhecidos ?? []).map(nomeAssunto).join(' e ')}.</p>}
+            {intimo && lembrancas.length > 0 && <p class="j-texto-pequeno">Vocês já: {lembrancas.map((l) => l.texto).join('; ')}.</p>}
+            {!intimo && pe.vivo && <p class="j-texto-pequeno j-trancado">{pessoal ? 'Fiquem mais próximos para ela se abrir de verdade.'.replace('ela', pe.sexo === 'feminino' ? 'ela' : 'ele') : 'Vocês ainda não são próximos: só se sabe o básico.'}</p>}
+          </div>
+        );
+      })()}
       {sub ? (
         <>
           <p class="j-secao">{sub.abre === 'assuntos' ? 'Conversar sobre…' : 'Convidar para…'}</p>

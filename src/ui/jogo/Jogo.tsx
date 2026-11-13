@@ -21,6 +21,8 @@ import { novoId } from '../textos';
 import { Camada, type QualCamada } from './Camadas';
 import { Icone } from './icones';
 import { pontosDaCena, type PontoJogo } from './pontos';
+import { FaixaGente } from './Gente';
+import { fazerAcaoBicho, type AcaoBicho } from '../../motor/bichos';
 import './fontes.css';
 import './jogo.css';
 
@@ -68,6 +70,9 @@ export function Jogo({ vida, deus, semSave, onMudar, onDeus, onNovaVida, antiga 
   const cenaRef = useRef<HTMLDivElement>(null);
   const histRef = useRef<HTMLElement>(null);
   const [tam, setTam] = useState({ w: 390, h: 340 });
+  // Balão de fala na cena: a reação de alguém (ou a sua) ao que acabou de acontecer.
+  const [balao, setBalao] = useState<{ alvo: string; texto: string } | null>(null);
+  const ultimoTam = useRef(vida.historico.length);
 
   // Mede a cena para pôr os pontos em cima dos móveis certos.
   useLayoutEffect(() => {
@@ -83,6 +88,33 @@ export function Jogo({ vida, deus, semSave, onMudar, onDeus, onNovaVida, antiga 
   useEffect(() => { const el = histRef.current; if (el) el.scrollTop = el.scrollHeight; }, [vida.historico.length]);
   // Decisão nova ou fim da vida fecham o que estiver aberto.
   useEffect(() => { if (vida.pendente || morte) setCamada(null); }, [!!vida.pendente, !!morte]);
+  // Cada coisa nova na história faz alguém reagir na cena (como no balão de fala dos jogos de vida).
+  useEffect(() => {
+    if (vida.historico.length <= ultimoTam.current) { ultimoTam.current = vida.historico.length; return; }
+    const h = vida.historico.at(-1)!;
+    ultimoTam.current = vida.historico.length;
+    const t = h.texto;
+    const afetoMenos = /Afeto de [^·]*[−-]\d/.test(t);
+    const feliz = /Felicidade \+/.test(t), triste = /Felicidade [−-]/.test(t);
+    let alvo = 'eu', texto = feliz ? '😊' : triste ? '😓' : /Cansaço \+([5-9]|\d\d)/.test(t) ? '😮‍💨' : /Inteligência \+|Inglês \+|Escrita \+/.test(t) ? '🤓' : '🙂';
+    if (h.fato?.tipo === 'pessoa' && h.fato.pessoa) { alvo = `pessoa:${h.fato.pessoa}`; texto = afetoMenos ? '😠' : '❤️'; }
+    if (h.fato?.id?.startsWith('bicho_')) { const b = vida.bichos?.find((x) => x.vivo); if (b) { alvo = `bicho:${b.id}`; texto = '❤️'; } }
+    setBalao({ alvo, texto });
+    const tm = setTimeout(() => setBalao(null), 2600);
+    return () => clearTimeout(tm);
+  }, [vida.historico.length]);
+  // De vez em quando alguém da casa solta um balãozinho (a cena fica viva).
+  useEffect(() => {
+    const tm = setInterval(() => {
+      if (camada || balao) return;
+      const gente = pontos.filter((p) => p.tipo === 'pessoa' || p.tipo === 'bicho');
+      if (!gente.length) return;
+      const quem = gente[Math.floor(Math.random() * gente.length)]!;
+      setBalao({ alvo: quem.id, texto: quem.tipo === 'bicho' ? '💤' : ['😊', '👋', '🙂', '❤️', '😄'][Math.floor(Math.random() * 5)]! });
+      setTimeout(() => setBalao(null), 2200);
+    }, 11000);
+    return () => clearInterval(tm);
+  });
   // Aviso curto some sozinho.
   useEffect(() => { if (!aviso) return; const t = setTimeout(() => setAviso(''), 3200); return () => clearTimeout(t); }, [aviso]);
   // Outra vida: volta para casa.
@@ -110,6 +142,11 @@ export function Jogo({ vida, deus, semSave, onMudar, onDeus, onNovaVida, antiga 
     fechar();
     if (r.ok) onMudar(r.vida); else setAviso(r.aviso ?? 'Não deu agora.');
   }
+  function bicho(id: string, acao: AcaoBicho) {
+    const r = fazerAcaoBicho(vida, id, acao);
+    fechar();
+    if (r.ok) onMudar(r.vida); else setAviso(r.aviso ?? 'Agora não dá.');
+  }
   function habito(id: string, n: number, variante?: string) { onMudar(definirHabito(vida, id, n, variante)); fechar(); }
   function avancar(pular: boolean) { fechar(); setOnde('casa'); onMudar(avancarPeriodo(vida, pular)); }
   function ir(id: IdLugar) {
@@ -119,6 +156,7 @@ export function Jogo({ vida, deus, semSave, onMudar, onDeus, onNovaVida, antiga 
   const tocar = (pt: PontoJogo) => {
     if (pt.tipo === 'voce') setCamada({ tipo: 'voce' });
     else if (pt.tipo === 'pessoa') setCamada({ tipo: 'pessoa', id: pt.pessoaId! });
+    else if (pt.tipo === 'bicho') setCamada({ tipo: 'bicho', id: pt.bichoId! });
     else setCamada({ tipo: 'menu', ponto: pt });
   };
 
@@ -159,8 +197,15 @@ export function Jogo({ vida, deus, semSave, onMudar, onDeus, onNovaVida, antiga 
               </button>
             );
           })}
-          {!morte && <span class="j-lugar-nome">{onde === 'casa' ? 'Em casa' : lugar.nome(vida)}</span>}
+          {!morte && <span class="j-lugar-nome">{onde !== 'casa' ? lugar.nome(vida) : cena.epoca === 'aniversario' ? 'Seu aniversário' : cena.epoca === 'natal' ? 'Natal em família' : cena.epoca === 'junina' ? 'Festa junina' : 'Em casa'}</span>}
+          {balao && (() => {
+            const pt = pontos.find((p) => p.id === balao.alvo);
+            if (!pt) return null;
+            const pos = naTela(pt.x, pt.y, tam.w, tam.h);
+            return <span class="j-balao-cena" style={{ left: `${pos.left}px`, top: `${Math.max(46, pos.top - 64)}px` }} aria-hidden="true">{balao.texto}</span>;
+          })()}
         </section>
+        {!morte && <FaixaGente vida={vida} onPessoa={(id) => setCamada({ tipo: 'pessoa', id })} onBicho={(id) => setCamada({ tipo: 'bicho', id })} onTodos={() => setCamada({ tipo: 'todos' })} />}
 
         <section class={`j-historia${blocos.at(-1)?.fase === 'crianca' && vida.config.feed !== 'simples' ? ' j-voz-diario' : ''}`} ref={histRef} aria-label="Sua história" aria-live="polite">
           {aviso && <p class="j-aviso-curto" role="status">{aviso}</p>}
@@ -199,7 +244,7 @@ export function Jogo({ vida, deus, semSave, onMudar, onDeus, onNovaVida, antiga 
           <Camada
             qual={camada} vida={vida} onde={onde} tam={tam} fase={fase}
             onFechar={fechar} onAbrir={setCamada} onFazer={fazer} onPessoa={acaoPessoa} onHabito={habito} onIr={ir}
-            onNovaVida={onNovaVida} antiga={antiga}
+            onNovaVida={onNovaVida} antiga={antiga} onBicho={bicho}
           />
         )}
         {vida.pendente && !morte && (

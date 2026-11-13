@@ -25,6 +25,8 @@ export interface Cena {
   pessoas?: PessoaEmCena[];
   /** Enfeites da época: natal, festa junina, aniversário. */
   epoca?: 'natal' | 'junina' | 'aniversario';
+  /** Bichos de estimação no chão da cena. */
+  bichos?: { especie: 'cachorro' | 'gato'; cor: string; x: number; z: number; velho?: boolean; alvo?: string; virado?: boolean }[];
 }
 
 /** Âncora de um ponto de toque: id do objeto e altura (acima da base) onde o ponto fica. */
@@ -62,7 +64,7 @@ function plantaDoLugar(c: Cena): Planta {
         noChao.push({ z: 0.05, x: 90, svg: berco(p), ponto: { id: 'berco', alto: 70 } }, { z: 0.6, x: 300, svg: o.bola(), ponto: { id: 'bola', alto: 26 } });
         naParede.push({ x: 90, y: 40, svg: o.quadro(56, 46, '<rect width="100" height="100" fill="#a9dcef"/><circle cx="50" cy="45" r="22" fill="#ffd166"/>') });
       } else if (c.fase === 'crianca') {
-        noChao.push({ z: 0.02, x: 92, svg: o.cama(p, '#fffaf0', '#e8553d'), ponto: { id: 'cama', alto: 48 } }, { z: 0.1, x: 300, svg: o.escrivaninha(p, o.caderno() + o.abajur()), ponto: { id: 'escrivaninha', alto: 76 } }, { z: 0.75, x: 268, svg: o.bola(), ponto: { id: 'bola', alto: 26 } });
+        noChao.push({ z: 0.02, x: 92, svg: o.cama(p, '#fffaf0', '#e8553d'), ponto: { id: 'cama', alto: 48 } }, { z: 0.1, x: 300, svg: o.escrivaninha(p, o.caderno() + o.abajur()), ponto: { id: 'escrivaninha', alto: 76 } }, { z: 0.75, x: 338, svg: o.bola(), ponto: { id: 'bola', alto: 26 } });
         naParede.push({ x: 78, y: 46, svg: o.poster(46, 58, '<rect width="100" height="130" fill="#2f6db5"/><circle cx="50" cy="60" r="28" fill="#f2c14e"/>') });
       } else if (c.fase === 'adolescente') {
         noChao.push({ z: 0.02, x: 92, svg: o.cama(p, '#d9d0f5', '#e6457f'), ponto: { id: 'cama', alto: 48 } }, { z: 0.1, x: 300, svg: o.escrivaninha(p, o.notebook() + o.abajur('#4dd0a1')), ponto: { id: 'computador', alto: 84 } });
@@ -146,6 +148,11 @@ export function ancorasDaCena(c: Cena): { id: string; x: number; y: number }[] {
     const altura = sentado ? 40 : pe.aparencia.alturaCm * 0.95 * 0.55;
     r.push({ id: pe.alvo, x: pe.x, y: base - altura * escala });
   }
+  for (const b of c.bichos ?? []) {
+    if (!b.alvo) continue;
+    const { base, escala } = profundidade(b.z);
+    r.push({ id: b.alvo, x: b.x, y: base - 30 * escala });
+  }
   return r;
 }
 
@@ -171,6 +178,10 @@ export function desenharCena(c: Cena): string {
   const paredeSvg = planta.naParede.map((n) => `<g transform="translate(${n.x} ${n.y})">${n.svg}</g>`).join('');
   const coisas: NoChao[] = [...planta.noChao];
   for (const pe of c.pessoas ?? []) coisas.push({ z: pe.z, x: pe.x, svg: '', pessoa: pe });
+  for (const b of c.bichos ?? []) {
+    const desenho = `<g transform="scale(${b.virado ? -1 : 1} 1)">${o.bichoDesenho(b.especie, b.cor, b.velho)}</g>`;
+    coisas.push({ z: b.z, x: b.x, svg: b.alvo ? `<g data-alvo="${b.alvo}" style="cursor:pointer">${desenho}</g>` : desenho });
+  }
   coisas.sort((a, b) => a.z - b.z);
   const chaoSvg = coisas.map((n) => {
     const { base, escala } = profundidade(n.z);

@@ -13,9 +13,10 @@ export interface PontoJogo {
   x: number;
   y: number;
   rotulo: string;
-  tipo: 'acoes' | 'pessoa' | 'voce';
+  tipo: 'acoes' | 'pessoa' | 'voce' | 'bicho';
   acoes: AcaoDef[];
   pessoaId?: string;
+  bichoId?: string;
 }
 
 /** Cada móvel da casa e o que dá para fazer nele. */
@@ -42,6 +43,9 @@ export function pontosDaCena(vida: Vida, cena: Cena, onde: IdLugar): PontoJogo[]
     } else if (a.id.startsWith('pessoa:')) {
       const pe = vida.pessoas.find((x) => x.id === a.id.slice(7));
       if (pe) r.push({ id: a.id, x: a.x, y: a.y, rotulo: ROTULO_PAPEL[pe.papel] ?? pe.nome, tipo: 'pessoa', acoes: [], pessoaId: pe.id });
+    } else if (a.id.startsWith('bicho:')) {
+      const b = vida.bichos?.find((x) => x.id === a.id.slice(6));
+      if (b) r.push({ id: a.id, x: a.x, y: a.y, rotulo: b.nome, tipo: 'bicho', acoes: [], bichoId: b.id });
     } else if (a.id === 'lugar') {
       const acoes = acoesDoLugar(vida, onde);
       if (acoes.length) r.push({ id: 'lugar', x: a.x, y: a.y, rotulo: lugarPorId(onde).nome(vida), tipo: 'acoes', acoes });

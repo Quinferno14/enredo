@@ -11,6 +11,7 @@ import { aparenciaDaPessoa, aparenciaDoPersonagem } from '../../motor/corpo';
 import { mesDeNascimento } from '../../motor/efeitos';
 import type { Pessoa, Vida } from '../../motor/tipos';
 import { lugarPorId, type IdLugar } from './lugares';
+import { bichosVivos, idadeBicho } from '../../motor/bichos';
 
 const CORES = ['#2f6db5', '#e8553d', '#3aa26b', '#8e44ad', '#f2a93b', '#16a085', '#c0392b', '#5d6d7e', '#d35400', '#7d3c98'];
 const corDe = (id: string) => { let h = 7; for (const c of id) h = (h * 31 + c.charCodeAt(0)) >>> 0; return CORES[h % CORES.length]!; };
@@ -49,8 +50,11 @@ export function humorDe(vida: Vida): Humor {
 
 const humorPessoa = (pe: Pessoa): Humor => (pe.rival || pe.afeto < 25 ? 'bravo' : pe.afeto >= 60 ? 'feliz' : 'neutro');
 
-/** Quem está com você: quem mora junto, por ordem de importância; sem ninguém, a última pessoa com quem você fez algo. */
-export function presentes(vida: Vida, max = 2): Pessoa[] {
+/**
+ * Quem está com você: quem mora junto (por importância). Visita só quando faz
+ * sentido: no aniversário e no Natal a família vem; e quem você acabou de ver.
+ */
+export function presentes(vida: Vida, max = 4): Pessoa[] {
   const p = vida.personagem;
   const idade = vida.relogio.idadeMeses / 12;
   const emCasa = vida.pessoas.filter((x) => x.vivo && !x.afastado && (
@@ -60,10 +64,20 @@ export function presentes(vida: Vida, max = 2): Pessoa[] {
     || (x.papel === 'parceiro' && x.relacao === 'casamento')
   ));
   const lista = emCasa.sort((a, b) => importancia(vida, b) - importancia(vida, a));
-  if (lista.length === 0 && idade >= 12) {
-    const ultima = [...vida.historico].reverse().find((h) => h.fato?.pessoa);
-    const pe = ultima && vida.pessoas.find((x) => x.id === ultima.fato!.pessoa && x.vivo);
-    if (pe) lista.push(pe);
+  const epoca = epocaDe(vida);
+  // Data de família reunida: avós e tios vêm (os mais próximos).
+  if ((epoca === 'aniversario' || epoca === 'natal') && lista.length < max) {
+    const familia = vida.pessoas
+      .filter((x) => x.vivo && !x.afastado && !x.rival && !x.longe && !lista.includes(x) && ['avo', 'tio', 'primo', 'irmao', 'filho', 'neto'].includes(x.papel))
+      .sort((a, b) => importancia(vida, b) - importancia(vida, a));
+    lista.push(...familia.slice(0, max - lista.length));
+  }
+  // Quem você acabou de ver (a última coisa da história foi com essa pessoa) está por perto.
+  const ultima = vida.historico.at(-1);
+  const recente = ultima?.fato?.pessoa ? vida.pessoas.find((x) => x.id === ultima.fato!.pessoa && x.vivo) : undefined;
+  if (recente && !lista.includes(recente) && (idade >= 3 || recente.papel === 'avo')) {
+    if (lista.length >= max) lista.pop();
+    lista.push(recente);
   }
   return lista.slice(0, max);
 }
@@ -84,7 +98,7 @@ function roupaDe(idade: number, hora: Hora, mes: number): Roupa {
 }
 
 /** Lugares no palco: você no meio, um pouco à frente; os outros em volta, olhando para você. */
-const POSICOES = [{ x: 268, z: 0.42 }, { x: 92, z: 0.5 }];
+const POSICOES = [{ x: 268, z: 0.4 }, { x: 98, z: 0.46 }, { x: 322, z: 0.6 }, { x: 52, z: 0.64 }];
 
 export function cenaDaVida(vida: Vida): Cena {
   const idade = (vida.personagem.idadeBiologicaMeses ?? vida.relogio.idadeMeses) / 12;
@@ -101,7 +115,11 @@ export function cenaDaVida(vida: Vida): Cena {
     const pos = POSICOES[i]!;
     if (a) pessoas.push({ aparencia: { ...a, corRoupa: corDe(pe.id) }, x: pos.x, z: pos.z, humor: humorPessoa(pe), roupa: roupaDe(pe.idadeMeses / 12, hora, mes), virada: pos.x > 178 ? -1 : 1, alvo: `pessoa:${pe.id}` });
   });
-  return { lugar, fase, hora, ...(epoca ? { epoca } : {}), pessoas };
+  // O bicho fica no chão, na frente, do lado com mais espaço.
+  const bichos = bichosVivos(vida).slice(0, 1).map((b, i) => ({
+    especie: b.especie, cor: b.cor, x: i ? 300 : 238, z: 0.86, velho: idadeBicho(vida, b) >= 10 * 12, alvo: `bicho:${b.id}`, virado: true,
+  }));
+  return { lugar, fase, hora, ...(epoca ? { epoca } : {}), pessoas, ...(bichos.length ? { bichos } : {}) };
 }
 
 /** Onde você fica em cada lugar: longe do objeto principal (o ponto dele não cobre o seu rosto). */

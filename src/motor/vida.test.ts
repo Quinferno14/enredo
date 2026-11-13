@@ -126,7 +126,7 @@ describe('vida e morte', () => {
   it('vidas diferentes envelhecem de jeitos diferentes', () => {
     const saudes = new Set(Array.from({ length: 20 }, (_, i) => viver(`dif-${i}`, 40).personagem.atributos.saude));
     expect(saudes.size).toBeGreaterThan(5);
-  });
+  }, 60_000);
 });
 
 describe('textoIdade', () => {

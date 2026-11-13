@@ -20,7 +20,10 @@ describe('cena da vida', () => {
     const v = nova(8);
     const quem = presentes(v).map((x) => x.papel);
     expect(quem.length).toBeGreaterThan(0);
-    for (const q of quem) expect(['mae', 'pai', 'irmao']).toContain(q);
+    expect(quem.length).toBeLessThanOrEqual(4);
+    // Primeiro quem mora junto; as vagas que sobram vão para quem mais importa (avós, tios).
+    const primeiroDeFora = quem.findIndex((q) => !['mae', 'pai', 'irmao'].includes(q));
+    if (primeiroDeFora >= 0) for (const q of quem.slice(0, primeiroDeFora)) expect(['mae', 'pai', 'irmao']).toContain(q);
     const c = cenaDaVida(v);
     expect(c.pessoas?.[0]?.aparencia.idadeAnos).toBe(8);
   });

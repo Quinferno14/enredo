@@ -14,6 +14,7 @@ import { Rng } from './rng';
 import { afinidade, bonusChance, perfilEscolha, rotuloJeito, type Perfil } from './jeito';
 import { chanceDoDiretor, notarEvento, pesoDoDiretor } from './diretor';
 import { resolverObjetivo } from './objetivos';
+import { sincronizarBichos } from './bichos';
 import type { Linha, Pendente, Vida } from './tipos';
 
 export interface ResultadoDef {
@@ -278,6 +279,12 @@ function resolverHabito18(vida: Vida, pend: Pendente, indice: number): string {
 
 /** Resolve o evento pendente com a escolha `indice`. */
 export function escolher(vida: Vida, indice: number): Vida {
+  const r = escolherSemBicho(vida, indice);
+  if (r !== vida) sincronizarBichos(r);
+  return r;
+}
+
+function escolherSemBicho(vida: Vida, indice: number): Vida {
   const pend = vida.pendente;
   if (!pend) return vida;
   if (pend.sistema) {

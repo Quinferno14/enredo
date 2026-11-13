@@ -258,7 +258,7 @@ export function aparenciaDe(s: Sujeito): Aparencia {
   if (careca && !v.cabelo) cabelo = 'careca';
   else if (ralo && !v.cabelo && cabelo !== 'raspado') cabelo = 'liso-curto';
   // Os brancos começam poucos anos antes da idade do gene e tomam conta ao longo de uns 14 anos.
-  const brancos = Math.max(0, Math.min(1, (idade - (g.grisalhoAos - 4)) / 14));
+  const brancos = Math.max(0, Math.min(1, (idade - g.grisalhoAos) / 16));
   const corBase = v.corCabelo ?? g.corCabelo;
   const corCabelo = v.corCabelo ? corBase : hexMisturar(corBase, BRANCO, brancos);
   const tatuagens = v.tatuagens ?? (s.idadeAnos >= 20 && g.tatuada ? (['braco-direito'] as LocalTatuagem[]) : []);

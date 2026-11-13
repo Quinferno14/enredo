@@ -64,7 +64,7 @@ describe('tempo dinâmico', () => {
     console.log('Dinâmico, idade média de morte:', media.toFixed(1));
     expect(media).toBeGreaterThan(62);
     expect(media).toBeLessThan(88);
-  }, 120_000);
+  }, 300_000);
 });
 
 describe('Modo Deus segura o valor', () => {

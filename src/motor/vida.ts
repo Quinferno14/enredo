@@ -11,6 +11,7 @@ import { garantirGenes } from './corpo';
 import { passoDiretor } from './diretor';
 import { rodarCapitulos, rodarSonhos } from './capitulos';
 import { rodarObjetivos } from './objetivos';
+import { sincronizarBichos } from './bichos';
 import { rodarEventos } from './eventos';
 import { criarFamilia, rodarPessoas } from './familia';
 import { amigosDeInicio } from './social';
@@ -270,6 +271,7 @@ export function avancarPeriodo(vida: Vida, pularAno = false): Vida {
     prox.historico.push({ quando: quandoAgora(prox), texto });
   }
   garantirGenes(prox);
+  sincronizarBichos(prox);
   prox.rng = rng.estado();
   return prox;
 }

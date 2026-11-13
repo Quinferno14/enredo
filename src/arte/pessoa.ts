@@ -10,7 +10,7 @@
 // - a tatuagem é desenhada recortada na pele (clipPath do braço, do pescoço ou da
 //   perna), então nunca sai do corpo.
 
-import { CONTORNO, contorno, sombra, tom } from './estilo';
+import { CONTORNO, DEFS, contorno, sombra, tom } from './estilo';
 
 export type TipoCabelo = 'cacheado' | 'crespo' | 'liso-curto' | 'liso-longo' | 'coque' | 'raspado' | 'careca' | 'tranças'
   | 'franja' | 'chanel' | 'rabo' | 'dreads' | 'moicano';
@@ -430,4 +430,18 @@ export function desenharPessoa(a: Aparencia, o: OpcoesDesenho = {}): string {
 /** Posiciona uma pessoa na cena: x no palco, z na profundidade do chão. */
 export function pessoaNaCena(a: Aparencia, x: number, base: number, escala: number, o: OpcoesDesenho = {}): string {
   return `<g transform="translate(${x} ${base}) scale(${escala})">${desenharPessoa(a, o)}</g>`;
+}
+
+/** Onde fica o rosto no desenho (para recortar retratos pequenos): centro e raio. */
+export function centroDoRosto(a: Aparencia): { cy: number; r: number } {
+  const H = a.alturaCm * PX_CM;
+  const cab = H * alturaCabeca(a.idadeAnos);
+  const cy = a.idadeAnos < 1.5 ? -cab * 1.234 : -H + cab * 0.5 + 1;
+  return { cy, r: cab * 0.78 };
+}
+
+/** Retrato redondo só do rosto (SVG pronto). */
+export function retratoRosto(a: Aparencia, humor: Humor = 'feliz'): string {
+  const { cy, r } = centroDoRosto(a);
+  return `<svg viewBox="${-r} ${cy - r * 0.92} ${2 * r} ${2 * r}" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">${DEFS}${desenharPessoa(a, { humor, semSombra: true })}</svg>`;
 }

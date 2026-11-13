@@ -141,3 +141,36 @@ export const pipa = (x: number, y: number, cor: string) => `<g transform="transl
   <path d="M0 18 q-6 8 1 15 q7 7 -1 15 q-7 7 1 14" stroke="#2b2620" stroke-width="0.9" fill="none"/>
   ${[24, 35, 46, 57].map((yy, i) => `<path d="M${i % 2 ? 1 : -1} ${yy} l5 -2 l0 4 z" fill="${['#f2c14e', '#2f6db5'][i % 2]}"/>`).join('')}
   <path d="M0 0 Q-40 60 -90 120" stroke="#2b262099" stroke-width="0.7" fill="none"/></g>`;
+
+// ---------- Bichos ----------
+
+/** Bicho de estimação sentado, de lado, olhando para a direita; base em (0,0). */
+export function bichoDesenho(especie: 'cachorro' | 'gato', cor: string, velho = false): string {
+  const esc = tom(cor, -0.22);
+  const c1 = contorno(1.6);
+  const branco = velho ? `<circle cx="17" cy="-30" r="4" fill="#e8e3da" opacity="0.8"/>` : '';
+  if (especie === 'gato') {
+    return `${sombra(0, 0, 44)}
+      <path d="M-14 -4 Q-30 -20 -22 -40 Q-20 -46 -16 -40 Q-22 -22 -10 -8 Z" fill="${esc}" ${c1}/>
+      <ellipse cx="0" cy="-14" rx="16" ry="14" fill="${cor}" ${c1}/>
+      <ellipse cx="0" cy="-14" rx="16" ry="14" fill="url(#luz)"/>
+      <rect x="2" y="-6" width="5" height="6" rx="2" fill="${cor}" ${contorno(1.2)}/><rect x="9" y="-6" width="5" height="6" rx="2" fill="${esc}" ${contorno(1.2)}/>
+      <circle cx="10" cy="-32" r="10" fill="${cor}" ${c1}/>
+      <path d="M2 -38 L4 -48 L10 -41 Z M12 -41 L18 -48 L19 -37 Z" fill="${cor}" ${contorno(1.2)}/>
+      <circle cx="14" cy="-33" r="1.4" fill="#2b2620"/><circle cx="7" cy="-33" r="1.4" fill="#2b2620"/>
+      <path d="M10 -29 l1.5 1.5 l1.5 -1.5" fill="none" ${contorno(1)}/>`;
+  }
+  return `${sombra(0, 0, 50)}
+    <path d="M-16 -16 Q-30 -26 -26 -36" fill="none" stroke="${CONTORNO_COR}" stroke-width="5" stroke-linecap="round"/>
+    <path d="M-16 -16 Q-30 -26 -26 -36" fill="none" stroke="${cor}" stroke-width="3" stroke-linecap="round"/>
+    <ellipse cx="-2" cy="-14" rx="18" ry="13" fill="${cor}" ${c1}/>
+    <ellipse cx="-2" cy="-14" rx="18" ry="13" fill="url(#luz)"/>
+    <rect x="4" y="-8" width="6" height="8" rx="2.5" fill="${cor}" ${contorno(1.2)}/><rect x="11" y="-8" width="6" height="8" rx="2.5" fill="${esc}" ${contorno(1.2)}/>
+    <circle cx="14" cy="-30" r="11" fill="${cor}" ${c1}/>
+    <ellipse cx="24" cy="-27" rx="7" ry="5" fill="${tom(cor, 0.15)}" ${contorno(1.2)}/>
+    <circle cx="29" cy="-28" r="2" fill="#2b2620"/>
+    <path d="M6 -38 Q0 -30 4 -22 Q9 -28 10 -36 Z" fill="${esc}" ${contorno(1.2)}/>
+    <circle cx="16" cy="-32" r="1.5" fill="#2b2620"/>
+    ${branco}`;
+}
+const CONTORNO_COR = '#3a2e26';

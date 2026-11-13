@@ -5,6 +5,7 @@ import type { Genes, Visual } from './corpo';
 import type { EstadoDiretor } from './diretor';
 import type { Sonho } from './capitulos';
 import type { Objetivo } from './objetivos';
+import type { Bicho } from './bichos';
 import type { EstadoRng } from './rng';
 
 export const VERSAO_SAVE = 9;
@@ -347,4 +348,6 @@ export interface Vida {
   vezes?: Record<string, number>;
   /** Ritmo da vida por trás (ver diretor.ts): medidor, tempo morno, estado. */
   diretor?: EstadoDiretor;
+  /** Bichos de estimação (ver bichos.ts). */
+  bichos?: Bicho[];
 }
